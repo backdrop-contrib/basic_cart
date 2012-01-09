@@ -1,5 +1,5 @@
 name = Basic Cart
-description = A basic shopping cart implementation
+description = A basic shopping cart implementation.
 package = Other
 core = 7.x
 files[] = basic_cart.install
