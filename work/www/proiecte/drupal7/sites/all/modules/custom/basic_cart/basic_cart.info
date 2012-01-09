@@ -1,7 +1,0 @@
-name = Basic Cart
-description = A basic shopping cart implementation
-package = Other
-core = 7.x
-files[] = basic_cart.install
-files[] = basic_cart.module
-stylesheets[all][] = basic_cart.css
