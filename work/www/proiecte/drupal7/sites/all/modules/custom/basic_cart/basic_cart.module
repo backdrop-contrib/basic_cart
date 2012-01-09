@@ -1,0 +1,162 @@
+<?php
+
+/**
+ * @file
+ * Basic cart module file
+ */
+
+/*
+ * Implementation of hook_permission().
+ */
+function basic_cart_permission() {
+  return array(
+    'administer basic cart' => array(
+      'title' => t('Administer basic cart'),
+      'description' => t('Perform administration tasks for basic cart.'),
+    ),
+  );
+}
+
+
+/*
+ * Implementation of hook_menu().
+ */
+function basic_cart_menu() {
+  $items = array();
+  
+  $items['admin/config/basic_cart'] = array(
+    'title' => 'Basic cart',
+    'description' => 'Basic cart content type selection.',
+    'position' => 'left',
+    'weight' => -10,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer basic cart'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+
+  $items['admin/config/basic_cart/settings'] = array(
+    'title' => 'Basic cart',
+    'description' => 'Basic cart content type selection.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('basic_cart_admin_content_type'),
+    'access arguments' => array('administer basic cart'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'basic_cart.admin.inc',
+  );
+
+  $items['cart'] = array(
+    'title' => 'Your shopping cart',
+    'description' => 'The shopping cart page',
+    'page callback' => 'basic_cart_cart',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'basic_cart.cart.inc',
+  );
+
+  $items['cart/add'] = array(
+    'title' => 'Add to cart',
+    'description' => 'Add to cart url.',
+    'page callback' => 'basic_cart_add_to_cart',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'basic_cart.cart.inc',
+  );
+  
+  $items['cart/remove'] = array(
+    'title' => 'Remove from cart',
+    'description' => 'Remove from cart url.',
+    'page callback' => 'basic_cart_remove_from_cart',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'basic_cart.cart.inc',
+  );
+
+  $items['checkout'] = array(
+    'title' => 'Checkout',
+    'description' => 'Checkout.',
+    'page callback' => 'basic_cart_checkout',
+    'access callback' => TRUE,
+    'file' => 'basic_cart.cart.inc',
+  );
+
+  $items['checkout/thank-you'] = array(
+    'title' => 'Thank you',
+    'description' => 'Checkout thank you page.',
+    'page callback' => 'basic_cart_checkout_thank_you',
+    'access callback' => TRUE,
+    'file' => 'basic_cart.cart.inc',
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implementation of hook_node_load().
+ */
+function basic_cart_node_view($node, $view_mode, $langcode) {
+  $node_types = variable_get('basic_cart_content_types');
+  if( !is_array($node_types) || empty($node_types) ) return NULL;
+
+  if(in_array($node->type, $node_types)) {
+    $node->content['basic_cart_add_to_cart'] = array(
+      '#markup' => theme('basic_cart_add_to_cart', array('nid' => $node->nid)),
+      '#weight' => 50
+    );
+  }
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function basic_cart_theme() {
+  return array(
+    'basic_cart_add_to_cart' => array(
+      'function' => 'basic_cart_add_to_cart_button',
+      'variables' => array('nid' => NULL),
+    ),
+    'basic_cart_cart_render' => array(
+      'template' => 'basic_cart_cart_render',
+      'variables' => array('cart' => NULL, 'is_checkout' => NULL),
+    ),
+    'basic_cart_cart_render_block' => array(
+      'template' => 'basic_cart_cart_render_block',
+      'variables' => array('cart' => NULL),
+    ),
+  );
+}
+
+/**
+ * Theme function implementation
+ */
+function basic_cart_add_to_cart_button($vars) {
+  $nid = $vars['nid'];
+  return '<div class="basic-cart-add-to-cart">
+            ' . l(t('Add to cart'), 'cart/add/' . $nid . '', array('attributes' => array('class' => array('button basic-cart-add-to-cart-link')))) . '
+          </div>';
+}
+
+/**
+ * Implementation of hook_block_info().
+ */
+function basic_cart_block_info() {
+  $blocks['shopping_cart'] = array(
+    'info' => t('Shopping cart'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implementation of hook_block_view().
+ */
+function basic_cart_block_view($delta='') {
+  switch($delta) {
+    case 'shopping_cart':
+      $block['subject'] = t('Your cart');
+      $block['content'] = theme('basic_cart_cart_render_block', array('cart' => $_SESSION['basic_cart']['cart']));
+      return $block;
+      break;
+  }
+  
+}
