@@ -10,10 +10,10 @@
  */
 function basic_cart_admin_content_type() {
   $node_types = node_type_get_types();
-  if( empty($node_types) ) return NULL;
+  if ( empty($node_types) ) return NULL;
 
   $options = array();
-  foreach($node_types as $node_type => $type) {
+  foreach ($node_types as $node_type => $type) {
     $options[$node_type] = $type->name;
   }
 
@@ -23,12 +23,11 @@ function basic_cart_admin_content_type() {
     '#description' => t('Please select the content types for which you wish to have the "Add to cart" option.')
   );
 
-  $checked_types = variable_get('basic_cart_content_types');
   $form['content_type']['types'] = array(
     '#title' => t('Content types'),
     '#type' => 'checkboxes',
     '#options' => $options,
-    '#default_value' => !empty($checked_types) ? $checked_types : array(),
+    '#default_value' => variable_get('basic_cart_content_types', array()),
   );
 
   $form['messages'] = array(
@@ -99,8 +98,8 @@ function basic_cart_admin_content_type() {
 function basic_cart_admin_content_type_submit($form_id, $form_state) {
   $types = $form_state['values']['types'];
   $selected_types = array();
-  foreach($types as $type) {
-    if( !empty($type) ) $selected_types[] = $type;
+  foreach ($types as $type) {
+    if ( !empty($type) ) $selected_types[] = $type;
   }
 
   // content types

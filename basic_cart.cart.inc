@@ -20,11 +20,11 @@ function basic_cart_cart() {
  */
 function basic_cart_add_to_cart($nid=NULL) {
   $nid = (int)$nid;
-  if( $nid > 0 ) {   
+  if ( $nid > 0 ) {
     // If a node is added multiple times, we just update the quantity
     $cart = basic_cart_get_cart();
-    if( !empty($cart) && in_array($nid, array_keys($cart)) ) {
-      $quantity = (int)basic_cart_get_cart($nid)->basic_cart_quantity;
+    if ( !empty($cart) && in_array($nid, array_keys($cart)) ) {
+      //$quantity = (int)basic_cart_get_cart($nid)->basic_cart_quantity;
       $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity++;
     }
     else {
@@ -52,7 +52,7 @@ function basic_cart_add_to_cart($nid=NULL) {
  */
 function basic_cart_remove_from_cart($nid=NULL) {
   $nid = (int)$nid;
-  if( $nid > 0 ) {
+  if ( $nid > 0 ) {
     unset($_SESSION['basic_cart']['cart'][$nid]);
   }
   drupal_goto('cart');
@@ -65,8 +65,8 @@ function basic_cart_remove_from_cart($nid=NULL) {
  * @return mixed
  */
 function basic_cart_get_cart($nid=NULL) {
-  if( isset($nid) ) return $_SESSION['basic_cart']['cart'][$nid];
-  if( isset($_SESSION['basic_cart']['cart']) ) return $_SESSION['basic_cart']['cart'];
+  if ( isset($nid) ) return $_SESSION['basic_cart']['cart'][$nid];
+  if ( isset($_SESSION['basic_cart']['cart']) ) return $_SESSION['basic_cart']['cart'];
   // empty cart
   return array();
 }
@@ -90,7 +90,7 @@ function basic_cart_checkout() {
   $form = drupal_render(drupal_get_form('basic_cart_checkout_form'));
   // if the cart is empty, we don't want to show the checkout form;
   $shopping_cart = basic_cart_get_cart();
-  if( empty($shopping_cart) ) return $cart;
+  if ( empty($shopping_cart) ) return $cart;
   return $cart . $form;
 }
 
@@ -144,7 +144,7 @@ function basic_cart_checkout_form() {
  * Checkout form validation
  */
 function basic_cart_checkout_form_validate($form, &$form_state) {
-  if( !valid_email_address($form_state['values']['basic_cart_checkout_email']) ) {
+  if ( !valid_email_address($form_state['values']['basic_cart_checkout_email']) ) {
     form_set_error('basic_cart_checkout_email', t('Please enter a valid email address.'));
   }
 }
@@ -157,7 +157,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   // %ORDER_DETAILS% placeholder
   $order_details = '';
   $cart = basic_cart_get_cart();
-  foreach($cart as $nid => $node) {
+  foreach ($cart as $nid => $node) {
     $order_details .= $node->basic_cart_quantity . ' x ' . $node->title . "\n";
   }
   $order_details .= "\n";
@@ -193,11 +193,12 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     ),
   );
   $system = drupal_mail_system($my_module, $my_mail_token);
-  $ok = $system->mail($message) ? TRUE : FALSE;
-
+  $mails_sent = 0;
+  if ($system->mail($message)) $mails_sent++;
+  
   // User email
   $send_user_mail = variable_get('basic_cart_send_user_message');
-  if( $send_user_mail ) {
+  if ( $send_user_mail ) {
     $message_html = variable_get('basic_cart_user_message');
     $message_html = str_replace($search, $replace, $message_html);
     
@@ -215,10 +216,10 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
       ),
     );
     $system = drupal_mail_system($my_module, $my_mail_token);
-    $ok = $system->mail($message) ? TRUE : FALSE;
+    if ( $system->mail($message) ) $mails_sent++;
   }
 
-  if( $ok ) {
+  if ($mails_sent == 2) {
     basic_cart_empty_cart();
     //drupal_set_message(t('The order was successfully placed.'));
 
@@ -227,7 +228,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     drupal_goto('checkout/thank-you');
   }
   else {
-    drupal_set_message(t('There was a problem in submitting your order. Please try again later.'));
+    drupal_set_message(t('There was a problem in submitting your order. Please try again later.'), 'error');
   }
 }
 
