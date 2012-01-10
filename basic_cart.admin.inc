@@ -10,7 +10,7 @@
  */
 function basic_cart_admin_content_type() {
   $node_types = node_type_get_types();
-  if ( empty($node_types) ) return NULL;
+  if (empty($node_types)) return NULL;
 
   $options = array();
   foreach ($node_types as $node_type => $type) {
@@ -76,10 +76,17 @@ function basic_cart_admin_content_type() {
     '#description' => t('Here you can customize the thank you page.')
   );
 
+  $form['thank_you']['thank_you_title'] = array(
+    '#title' => t('Title'),
+    '#type' => 'textfield',
+    '#description' => t('Thank you page title.'),
+    '#default_value' => variable_get('basic_cart_thank_you_title'),
+  );
+
   $form['thank_you']['thank_you_message'] = array(
     '#title' => t('Text'),
     '#type' => 'textarea',
-    '#description' => t('Thanky you page text.'),
+    '#description' => t('Thank you page text.'),
     '#default_value' => variable_get('basic_cart_thank_you_message'),
   );
 
@@ -99,7 +106,7 @@ function basic_cart_admin_content_type_submit($form_id, $form_state) {
   $types = $form_state['values']['types'];
   $selected_types = array();
   foreach ($types as $type) {
-    if ( !empty($type) ) $selected_types[] = $type;
+    if (!empty($type)) $selected_types[] = $type;
   }
 
   // content types
@@ -115,6 +122,7 @@ function basic_cart_admin_content_type_submit($form_id, $form_state) {
   variable_set('basic_cart_user_subject', $form_state['values']['user_subject']);
 
   // thank you message
+  variable_set('basic_cart_thank_you_title', $form_state['values']['thank_you_title']);
   variable_set('basic_cart_thank_you_message', $form_state['values']['thank_you_message']);
 
   // message

@@ -9,7 +9,57 @@
  * Callback function for cart listing
  */
 function basic_cart_cart() {
-  return theme('basic_cart_cart_render', array('cart' => basic_cart_get_cart(), 'is_checkout' => FALSE));
+  $form = drupal_get_form('basic_cart_cart_form');
+  return theme('basic_cart_cart_render', array('cart' => basic_cart_get_cart(), 'is_checkout' => FALSE, 'form' => $form));
+}
+
+/**
+ * Shopping cart form
+ */
+function basic_cart_cart_form() {
+  $cart = basic_cart_get_cart();
+  if (is_array($cart) && !empty($cart)) {
+    foreach ($cart as $nid => $node) {
+      $form['quantity_nid_' . $nid] = array(
+        '#type' => 'textfield',
+        '#size' => 1,
+        '#default_value' => $node->basic_cart_quantity,
+      );
+    }
+
+    $form['update'] = array(
+      '#type' => 'submit',
+      '#value' => t('Update'),
+    );
+
+    $form['checkout'] = array(
+      '#type' => 'submit',
+      '#value' => t('Checkout'),
+    );
+
+    return $form;
+  }
+}
+
+/**
+ * Shopping cart form
+ */
+function basic_cart_cart_form_submit($form_id, $form_state) {
+  foreach ($form_state['values'] as $field => $value) {
+    if (strpos($field, 'quantity_nid_') !== FALSE) {
+      $nid = (int)str_replace('quantity_nid_', '', $field);
+      if ((int)$value > 0) {
+        $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity = (int)$value;
+      }
+    }
+  }
+
+  if ($form_state['values']['op'] == t('Checkout')) {
+    drupal_goto('checkout');
+  }
+  else {
+    drupal_set_message(t('Shopping cart updated.'));
+  }
 }
 
 /**
@@ -20,11 +70,10 @@ function basic_cart_cart() {
  */
 function basic_cart_add_to_cart($nid=NULL) {
   $nid = (int)$nid;
-  if ( $nid > 0 ) {
+  if ($nid > 0) {
     // If a node is added multiple times, we just update the quantity
     $cart = basic_cart_get_cart();
-    if ( !empty($cart) && in_array($nid, array_keys($cart)) ) {
-      //$quantity = (int)basic_cart_get_cart($nid)->basic_cart_quantity;
+    if (!empty($cart) && in_array($nid, array_keys($cart))) {
       $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity++;
     }
     else {
@@ -52,7 +101,7 @@ function basic_cart_add_to_cart($nid=NULL) {
  */
 function basic_cart_remove_from_cart($nid=NULL) {
   $nid = (int)$nid;
-  if ( $nid > 0 ) {
+  if ($nid > 0) {
     unset($_SESSION['basic_cart']['cart'][$nid]);
   }
   drupal_goto('cart');
@@ -65,8 +114,8 @@ function basic_cart_remove_from_cart($nid=NULL) {
  * @return mixed
  */
 function basic_cart_get_cart($nid=NULL) {
-  if ( isset($nid) ) return $_SESSION['basic_cart']['cart'][$nid];
-  if ( isset($_SESSION['basic_cart']['cart']) ) return $_SESSION['basic_cart']['cart'];
+  if (isset($nid)) return $_SESSION['basic_cart']['cart'][$nid];
+  if (isset($_SESSION['basic_cart']['cart'])) return $_SESSION['basic_cart']['cart'];
   // empty cart
   return array();
 }
@@ -90,7 +139,7 @@ function basic_cart_checkout() {
   $form = drupal_render(drupal_get_form('basic_cart_checkout_form'));
   // if the cart is empty, we don't want to show the checkout form;
   $shopping_cart = basic_cart_get_cart();
-  if ( empty($shopping_cart) ) return $cart;
+  if (empty($shopping_cart)) return $cart;
   return $cart . $form;
 }
 
@@ -144,7 +193,7 @@ function basic_cart_checkout_form() {
  * Checkout form validation
  */
 function basic_cart_checkout_form_validate($form, &$form_state) {
-  if ( !valid_email_address($form_state['values']['basic_cart_checkout_email']) ) {
+  if (!valid_email_address($form_state['values']['basic_cart_checkout_email'])) {
     form_set_error('basic_cart_checkout_email', t('Please enter a valid email address.'));
   }
 }
@@ -198,7 +247,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   
   // User email
   $send_user_mail = variable_get('basic_cart_send_user_message');
-  if ( $send_user_mail ) {
+  if ($send_user_mail) {
     $message_html = variable_get('basic_cart_user_message');
     $message_html = str_replace($search, $replace, $message_html);
     
@@ -216,7 +265,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
       ),
     );
     $system = drupal_mail_system($my_module, $my_mail_token);
-    if ( $system->mail($message) ) $mails_sent++;
+    if ($system->mail($message)) $mails_sent++;
   }
 
   if ($mails_sent == 2) {
@@ -236,6 +285,8 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
  * Callback for thank you page
  */
 function basic_cart_checkout_thank_you() {
+  $title = variable_get('basic_cart_thank_you_title');
+  drupal_set_title($title);
   $message = variable_get('basic_cart_thank_you_message');
   return nl2br($message);
 }

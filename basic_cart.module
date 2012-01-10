@@ -97,7 +97,7 @@ function basic_cart_menu() {
  */
 function basic_cart_node_view($node, $view_mode, $langcode) {
   $node_types = variable_get('basic_cart_content_types');
-  if ( !is_array($node_types) || empty($node_types) ) return NULL;
+  if (!is_array($node_types) || empty($node_types)) return NULL;
 
   if (in_array($node->type, $node_types)) {
     $node->content['basic_cart_add_to_cart'] = array(
@@ -118,7 +118,7 @@ function basic_cart_theme() {
     ),
     'basic_cart_cart_render' => array(
       'template' => 'basic_cart_cart_render',
-      'variables' => array('cart' => NULL, 'is_checkout' => NULL),
+      'variables' => array('cart' => NULL, 'is_checkout' => NULL, 'form' => NULL),
     ),
     'basic_cart_cart_render_block' => array(
       'template' => 'basic_cart_cart_render_block',
@@ -153,8 +153,9 @@ function basic_cart_block_info() {
 function basic_cart_block_view($delta='') {
   switch ($delta) {
     case 'shopping_cart':
+      require_once dirname(__FILE__) . '/basic_cart.cart.inc';
       $block['subject'] = t('Your cart');
-      $block['content'] = theme('basic_cart_cart_render_block', array('cart' => $_SESSION['basic_cart']['cart']));
+      $block['content'] = theme('basic_cart_cart_render_block', array('cart' => basic_cart_get_cart()));
       return $block;
       break;
   }

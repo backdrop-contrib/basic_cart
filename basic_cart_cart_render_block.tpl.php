@@ -10,7 +10,7 @@
         </div>
       <?php endforeach; ?>
       <div class="basic-cart-cart-checkout-button basic-cart-cart-checkout-button-block row">
-        <?php print l(t('Checkout'), 'checkout', array('attributes' => array('class' => array('button')))); ?>
+        <?php print l(t('View cart'), 'cart', array('attributes' => array('class' => array('button')))); ?>
       </div>
     <?php endif; ?>
   </div>

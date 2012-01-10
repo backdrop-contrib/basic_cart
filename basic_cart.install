@@ -26,6 +26,9 @@ You just placed an order on the website ' . variable_get('site_name') . '. Here 
 We will contact you as soon as possible.');
   variable_set('basic_cart_user_message', $default_user_message);
 
+  $default_thank_you_title = st("Thank you.");
+  variable_set('basic_cart_thank_you_title', $default_thank_you_title);
+
   $default_thank_you_message = st("Thank you for placing an order on our website.\nWe will contact you as soon as possible.");
   variable_set('basic_cart_thank_you_message', $default_thank_you_message);
 }
@@ -43,5 +46,6 @@ function basic_cart_uninstall() {
   variable_del('basic_cart_user_message');
   variable_del('basic_cart_send_user_message');
   
+  variable_del('basic_cart_thank_you_title');
   variable_del('basic_cart_thank_you_message');
 }
