@@ -48,8 +48,13 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
   foreach ($form_state['values'] as $field => $value) {
     if (strpos($field, 'quantity_nid_') !== FALSE) {
       $nid = (int)str_replace('quantity_nid_', '', $field);
-      if ((int)$value > 0) {
-        $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity = (int)$value;
+      $quantity = (int)$value;
+      if ($quantity > 0) {
+        $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity = $quantity;
+      }
+      // if the quantity is zero, then we just remove the node from the shopping cart
+      elseif ($quantity == 0) {
+        unset($_SESSION['basic_cart']['cart'][$nid]);
       }
     }
   }
@@ -223,8 +228,6 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   $message_html = variable_get('basic_cart_admin_message');
   $message_html = str_replace($search, $replace, $message_html);
 
-  //$a = $message_html;
-
   // Sending mail
   $my_module = 'basic_cart';
   $my_mail_token = 'checkout';
@@ -250,8 +253,6 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   if ($send_user_mail) {
     $message_html = variable_get('basic_cart_user_message');
     $message_html = str_replace($search, $replace, $message_html);
-    
-    //$b = $message_html;
 
     $message = array(
       'id' => $my_module . '_' . $my_mail_token,
@@ -270,10 +271,6 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
 
   if ($mails_sent == 2) {
     basic_cart_empty_cart();
-    //drupal_set_message(t('The order was successfully placed.'));
-
-    //drupal_set_message($a);
-    //drupal_set_message($b);
     drupal_goto('checkout/thank-you');
   }
   else {
