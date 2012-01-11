@@ -23,7 +23,7 @@
           
             <?php if(!$is_checkout): ?>
               <div class="basic-cart-delete-image cell">
-                <?php print l('<img src="/' . drupal_get_path('module', 'basic_cart') . '/images/delete.gif" border="0" />', 'cart/remove/' . $nid, array('html' => TRUE)); ?>
+                <?php print l('<img src="' . $base_path . drupal_get_path('module', 'basic_cart') . '/images/delete.gif" border="0" />', 'cart/remove/' . $nid, array('html' => TRUE)); ?>
               </div>
             <?php endif; ?>
         </div>

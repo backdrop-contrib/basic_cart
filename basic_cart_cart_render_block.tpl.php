@@ -6,7 +6,7 @@
       <?php foreach($cart as $nid => $node): ?>
         <div class="basic-cart-cart-contents row">
             <div class="basic-cart-cart-quantity cell"><?php print $node->basic_cart_quantity; ?> x </div>
-            <div class="basic-cart-cart-node-title cell"><?php print l($node->title, 'node/'.$node->nid); ?></div>
+            <div class="basic-cart-cart-node-title cell"><?php print l($node->title, 'node/' . $node->nid); ?></div>
         </div>
       <?php endforeach; ?>
       <div class="basic-cart-cart-checkout-button basic-cart-cart-checkout-button-block row">

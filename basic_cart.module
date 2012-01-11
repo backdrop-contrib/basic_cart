@@ -118,7 +118,7 @@ function basic_cart_theme() {
     ),
     'basic_cart_cart_render' => array(
       'template' => 'basic_cart_cart_render',
-      'variables' => array('cart' => NULL, 'is_checkout' => NULL, 'form' => NULL),
+      'variables' => array('cart' => NULL, 'is_checkout' => NULL, 'form' => NULL, 'base_path' => base_path()),
     ),
     'basic_cart_cart_render_block' => array(
       'template' => 'basic_cart_cart_render_block',
