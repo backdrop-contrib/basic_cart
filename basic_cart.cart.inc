@@ -13,7 +13,7 @@ function basic_cart_cart() {
   if (!empty($cart)) {
     foreach ($cart as $nid => $node) {
       $body = field_get_items('node', $node, 'body');
-      $cart[$nid]->basic_cart_node_description = isset ($body[0]['value']) ? $body[0]['value'] : '';
+      $cart[$nid]->basic_cart_node_description = isset($body[0]['value']) ? $body[0]['value'] : '';
     }
   }
   $form = drupal_get_form('basic_cart_cart_form');
