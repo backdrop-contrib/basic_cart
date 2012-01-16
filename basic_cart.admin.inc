@@ -16,7 +16,7 @@ function basic_cart_admin_content_type() {
 
   $options = array();
   foreach ($node_types as $node_type => $type) {
-    $options[$node_type] = $type->name;
+    $options[$node_type] = check_plain($type->name);
   }
 
   $form['content_type'] = array(
