@@ -20,9 +20,9 @@ Here are the order details:
   variable_set('basic_cart_send_user_message', 1);
   variable_set('basic_cart_user_subject', st('New order placed'));
   $default_user_message = st('Hi,
-You just placed an order on the website ' . variable_get('site_name') . '. Here are the order details:
+You just placed an order on the website @sitename. Here are the order details:
 %ORDER_DETAILS
-We will contact you as soon as possible.');
+We will contact you as soon as possible.', array('@sitename' => variable_get('site_name')));
   variable_set('basic_cart_user_message', $default_user_message);
 
   $default_thank_you_title = st("Thank you.");
