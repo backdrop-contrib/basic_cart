@@ -54,12 +54,12 @@ function basic_cart_cart_form() {
 function basic_cart_cart_form_submit($form_id, $form_state) {
   foreach ($form_state['values'] as $field => $value) {
     if (strpos($field, 'quantity_nid_') !== FALSE) {
-      $nid = (int)str_replace('quantity_nid_', '', $field);
-      $quantity = (int)$value;
+      $nid = (int) str_replace('quantity_nid_', '', $field);
+      $quantity = (int) $value;
       if ($quantity > 0) {
         $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity = $quantity;
       }
-      // if the quantity is zero, then we just remove the node from the shopping cart
+      // If the quantity is zero, just remove the node from the shopping cart
       elseif ($quantity == 0) {
         unset($_SESSION['basic_cart']['cart'][$nid]);
       }
@@ -77,11 +77,11 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
 /**
  * Callback function for cart/add/
  *
- * @param int $nid node id
- *    We are using the node id to store the node in the shopping cart
+ * @param int $nid
+ * We are using the node id to store the node in the shopping cart
  */
 function basic_cart_add_to_cart($nid=NULL) {
-  $nid = (int)$nid;
+  $nid = (int) $nid;
   if ($nid > 0) {
     // If a node is added multiple times, we just update the quantity
     $cart = basic_cart_get_cart();
@@ -90,12 +90,12 @@ function basic_cart_add_to_cart($nid=NULL) {
     }
     else {
       // Uncomment for faster method
-
+      
       // $query = db_select('node', 'n')->fields('n', array('nid', 'vid', 'type', 'title'))->fields('revision', array('title'));
       // $query->join('node_revision', 'revision', 'n.vid = revision.vid');
       // $query->condition('n.nid', $nid);
       // $node = $query->execute()->fetchObject();
-      
+
       // Slower, but easyer to implement
       $node = node_load($nid);
       $node->basic_cart_quantity = 1;
@@ -109,10 +109,10 @@ function basic_cart_add_to_cart($nid=NULL) {
 /**
  * Callback function for cart/remove/
  *
- * @param int $nid node id
+ * @param int $nid
  */
-function basic_cart_remove_from_cart($nid=NULL) {
-  $nid = (int)$nid;
+function basic_cart_remove_from_cart($nid = NULL) {
+  $nid = (int) $nid;
   if ($nid > 0) {
     unset($_SESSION['basic_cart']['cart'][$nid]);
   }
@@ -123,12 +123,17 @@ function basic_cart_remove_from_cart($nid=NULL) {
  * Function for shopping cart retrieval
  *
  * @param int $nid
+ * 
  * @return mixed
  */
-function basic_cart_get_cart($nid=NULL) {
-  if (isset($nid)) return $_SESSION['basic_cart']['cart'][$nid];
-  if (isset($_SESSION['basic_cart']['cart'])) return $_SESSION['basic_cart']['cart'];
-  // empty cart
+function basic_cart_get_cart($nid = NULL) {
+  if (isset($nid)) {
+    return $_SESSION['basic_cart']['cart'][$nid];
+  }
+  if (isset($_SESSION['basic_cart']['cart'])) {
+    return $_SESSION['basic_cart']['cart'];
+  }
+  // Empty cart
   return array();
 }
 
@@ -149,9 +154,11 @@ function basic_cart_empty_cart() {
 function basic_cart_checkout() {
   $cart = theme('basic_cart_cart_render', array('cart' => basic_cart_get_cart(), 'is_checkout' => TRUE));
   $form = drupal_render(drupal_get_form('basic_cart_checkout_form'));
-  // if the cart is empty, we don't want to show the checkout form;
+  // If the cart is empty, we don't want to show the checkout form
   $shopping_cart = basic_cart_get_cart();
-  if (empty($shopping_cart)) return $cart;
+  if (empty($shopping_cart)) {
+    return $cart;
+  }
   return $cart . $form;
 }
 
@@ -253,7 +260,9 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   );
   $system = drupal_mail_system($my_module, $my_mail_token);
   $mails_sent = 0;
-  if ($system->mail($message)) $mails_sent++;
+  if ($system->mail($message)) {
+    $mails_sent++;
+  }
   
   // User email
   $send_user_mail = variable_get('basic_cart_send_user_message');
@@ -273,7 +282,9 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
       ),
     );
     $system = drupal_mail_system($my_module, $my_mail_token);
-    if ($system->mail($message)) $mails_sent++;
+    if ($system->mail($message)) {
+      $mails_sent++;
+    }
   }
 
   if ($mails_sent == 2) {

@@ -1,3 +1,9 @@
+<?php
+/**
+ * @file
+ * Basic cart shopping cart html template
+ */
+?>
 <?php if( empty($cart) ): ?>
   <p><?php print t('Your shopping cart is empty.'); ?></p>
 <?php else: ?>
