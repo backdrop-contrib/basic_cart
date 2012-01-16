@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_permission().
+ * Implements hook_permission().
  */
 function basic_cart_permission() {
   return array(
@@ -19,11 +19,11 @@ function basic_cart_permission() {
 
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function basic_cart_menu() {
   $items = array();
-  
+
   $items['admin/config/basic_cart'] = array(
     'title' => 'Basic cart',
     'description' => 'Basic cart content type selection.',
@@ -62,7 +62,7 @@ function basic_cart_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'basic_cart.cart.inc',
   );
-  
+
   $items['cart/remove'] = array(
     'title' => 'Remove from cart',
     'description' => 'Remove from cart url.',
@@ -93,7 +93,7 @@ function basic_cart_menu() {
 
 
 /**
- * Implementation of hook_node_load().
+ * Implements hook_node_load().
  */
 function basic_cart_node_view($node, $view_mode, $langcode) {
   $node_types = variable_get('basic_cart_content_types');
@@ -110,7 +110,7 @@ function basic_cart_node_view($node, $view_mode, $langcode) {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function basic_cart_theme() {
   return array(
@@ -140,7 +140,7 @@ function basic_cart_add_to_cart_button($vars) {
 }
 
 /**
- * Implementation of hook_block_info().
+ * Implements hook_block_info().
  */
 function basic_cart_block_info() {
   $blocks['shopping_cart'] = array(
@@ -150,7 +150,7 @@ function basic_cart_block_info() {
 }
 
 /**
- * Implementation of hook_block_view().
+ * Implements hook_block_view().
  */
 function basic_cart_block_view($delta = '') {
   switch ($delta) {

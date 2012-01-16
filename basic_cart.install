@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_install().
+ * Implements hook_install().
  */
 function basic_cart_install() {
   // Setting up the default messages.
@@ -33,7 +33,7 @@ We will contact you as soon as possible.');
 }
 
 /**
- * Implementation of hook_uninstall().
+ * Implements hook_uninstall().
  */
 function basic_cart_uninstall() {
   // Content types.

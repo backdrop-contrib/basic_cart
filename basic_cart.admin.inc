@@ -116,7 +116,7 @@ function basic_cart_admin_content_type_submit($form_id, $form_state) {
   // Content types.
   variable_set('basic_cart_content_types', $selected_types);
 
-  // admin message
+  // Admin message.
   variable_set('basic_cart_admin_message', $form_state['values']['admin_message']);
   variable_set('basic_cart_admin_subject', $form_state['values']['admin_subject']);
 

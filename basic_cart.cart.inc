@@ -151,7 +151,7 @@ function basic_cart_empty_cart() {
 function basic_cart_checkout() {
   $cart = theme('basic_cart_cart_render', array('cart' => basic_cart_get_cart(), 'is_checkout' => TRUE));
   $form = drupal_render(drupal_get_form('basic_cart_checkout_form'));
-  // if the cart is empty, we don't want to show the checkout form;
+  // If the cart is empty, we don't want to show the checkout form.
   $shopping_cart = basic_cart_get_cart();
   if (empty($shopping_cart)) {
     return $cart;
@@ -224,7 +224,6 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     $order_details .= $node->basic_cart_quantity . ' x ' . $node->title . "\n";
   }
   $order_details .= "\n";
-  
   // Pleaceholder replacement.
   $search = array('%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE', '%CUSTOMER_ADDRESS', '%CUSTOMER_MESSAGE', '%ORDER_DETAILS');
   $replace = array(
@@ -258,7 +257,6 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   if ($system->mail($message)) {
     $mails_sent++;
   }
-  
   // User email.
   $send_user_mail = variable_get('basic_cart_send_user_message');
   if ($send_user_mail) {
