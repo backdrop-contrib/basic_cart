@@ -59,7 +59,7 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
       if ($quantity > 0) {
         $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity = $quantity;
       }
-      // If the quantity is zero, just remove the node from the shopping cart
+      // If the quantity is zero, then we just remove the node from the shopping cart.
       elseif ($quantity == 0) {
         unset($_SESSION['basic_cart']['cart'][$nid]);
       }
@@ -77,26 +77,26 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
 /**
  * Callback function for cart/add/
  *
- * @param int $nid
- * We are using the node id to store the node in the shopping cart
+ * @param int $nid node id
+ *   We are using the node id to store the node in the shopping cart
  */
-function basic_cart_add_to_cart($nid=NULL) {
+function basic_cart_add_to_cart($nid = NULL) {
   $nid = (int) $nid;
   if ($nid > 0) {
-    // If a node is added multiple times, we just update the quantity
+    // If a node is added multiple times, we just update the quantity.
     $cart = basic_cart_get_cart();
     if (!empty($cart) && in_array($nid, array_keys($cart))) {
       $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity++;
     }
     else {
-      // Uncomment for faster method
-      
+      // Uncomment for faster method.
+
       // $query = db_select('node', 'n')->fields('n', array('nid', 'vid', 'type', 'title'))->fields('revision', array('title'));
       // $query->join('node_revision', 'revision', 'n.vid = revision.vid');
       // $query->condition('n.nid', $nid);
       // $node = $query->execute()->fetchObject();
-
-      // Slower, but easyer to implement
+      
+      // Slower, but easyer to implement.
       $node = node_load($nid);
       $node->basic_cart_quantity = 1;
       $_SESSION['basic_cart']['cart'][$nid] = $node;
@@ -123,7 +123,8 @@ function basic_cart_remove_from_cart($nid = NULL) {
  * Function for shopping cart retrieval
  *
  * @param int $nid
- * 
+ *   The node id.
+ *
  * @return mixed
  */
 function basic_cart_get_cart($nid = NULL) {
@@ -133,7 +134,7 @@ function basic_cart_get_cart($nid = NULL) {
   if (isset($_SESSION['basic_cart']['cart'])) {
     return $_SESSION['basic_cart']['cart'];
   }
-  // Empty cart
+  // Empty cart.
   return array();
 }
 
@@ -154,7 +155,7 @@ function basic_cart_empty_cart() {
 function basic_cart_checkout() {
   $cart = theme('basic_cart_cart_render', array('cart' => basic_cart_get_cart(), 'is_checkout' => TRUE));
   $form = drupal_render(drupal_get_form('basic_cart_checkout_form'));
-  // If the cart is empty, we don't want to show the checkout form
+  // if the cart is empty, we don't want to show the checkout form;
   $shopping_cart = basic_cart_get_cart();
   if (empty($shopping_cart)) {
     return $cart;
@@ -230,7 +231,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   }
   $order_details .= "\n";
   
-  // Pleaceholder replacement
+  // Pleaceholder replacement.
   $search = array('%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE', '%CUSTOMER_ADDRESS', '%CUSTOMER_MESSAGE', '%ORDER_DETAILS');
   $replace = array(
     $form_state['values']['basic_cart_checkout_name'], $form_state['values']['basic_cart_checkout_email'],
@@ -238,11 +239,11 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     $form_state['values']['basic_cart_checkout_message'], $order_details,
   );
 
-  // Admin mail
+  // Admin mail.
   $message_html = variable_get('basic_cart_admin_message');
   $message_html = str_replace($search, $replace, $message_html);
 
-  // Sending mail
+  // Sending mail.
   $my_module = 'basic_cart';
   $my_mail_token = 'checkout';
   $from = variable_get('site_mail');
@@ -264,7 +265,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     $mails_sent++;
   }
   
-  // User email
+  // User email.
   $send_user_mail = variable_get('basic_cart_send_user_message');
   if ($send_user_mail) {
     $message_html = variable_get('basic_cart_user_message');

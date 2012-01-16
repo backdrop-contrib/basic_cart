@@ -10,7 +10,7 @@
  */
 function basic_cart_admin_content_type() {
   $node_types = node_type_get_types();
-  if (empty($node_types))  {
+  if (empty($node_types)) {
     return NULL;
   }
 
@@ -41,7 +41,7 @@ function basic_cart_admin_content_type() {
   $form['messages']['admin_subject'] = array(
     '#title' => t('Subject'),
     '#type' => 'textfield',
-    '#description' => t("Subject field for the administrator's email."),
+    '#description' => t('Subject field for the administrator\'s email.'),
     '#default_value' => variable_get('basic_cart_admin_subject'),
   );
 
@@ -61,7 +61,7 @@ function basic_cart_admin_content_type() {
   $form['messages']['user_subject'] = array(
     '#title' => t('Subject'),
     '#type' => 'textfield',
-    '#description' => t("Subject field for the user's email."),
+    '#description' => t('Subject field for the user\'s email.'),
     '#default_value' => variable_get('basic_cart_user_subject'),
   );
 
@@ -108,27 +108,25 @@ function basic_cart_admin_content_type_submit($form_id, $form_state) {
   $types = $form_state['values']['types'];
   $selected_types = array();
   foreach ($types as $type) {
-    if (!empty($type)) {
-      $selected_types[] = $type;
-    }
+    if (!empty($type)) $selected_types[] = $type;
   }
 
-  // Content types
+  // Content types.
   variable_set('basic_cart_content_types', $selected_types);
 
-  // Admin message
+  // admin message
   variable_set('basic_cart_admin_message', $form_state['values']['admin_message']);
   variable_set('basic_cart_admin_subject', $form_state['values']['admin_subject']);
 
-  // User message
+  // User message.
   variable_set('basic_cart_send_user_message', $form_state['values']['send_user_message']);
   variable_set('basic_cart_user_message', $form_state['values']['user_message']);
   variable_set('basic_cart_user_subject', $form_state['values']['user_subject']);
 
-  // Thank you message
+  // Thank you message.
   variable_set('basic_cart_thank_you_title', $form_state['values']['thank_you_title']);
   variable_set('basic_cart_thank_you_message', $form_state['values']['thank_you_message']);
 
-  // Message
+  // Message.
   drupal_set_message(t('The configuration options have been saved.'));
 }

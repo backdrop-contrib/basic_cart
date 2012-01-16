@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Basic cart shopping cart block template
+ * Basic cart shopping cart block
  */
 ?>
 <?php if( empty($cart) ): ?>

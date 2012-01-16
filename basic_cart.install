@@ -9,7 +9,7 @@
  * Implementation of hook_install().
  */
 function basic_cart_install() {
-  // Setting up the default messages
+  // Setting up the default messages.
 
   variable_set('basic_cart_admin_subject', st('New order placed'));
   $default_admin_message = st('Hi,
