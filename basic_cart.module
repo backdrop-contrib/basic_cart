@@ -152,7 +152,7 @@ function basic_cart_block_info() {
 /**
  * Implementation of hook_block_view().
  */
-function basic_cart_block_view($delta='') {
+function basic_cart_block_view($delta = '') {
   switch ($delta) {
     case 'shopping_cart':
       require_once dirname(__FILE__) . '/basic_cart.cart.inc';
@@ -161,5 +161,4 @@ function basic_cart_block_view($delta='') {
       return $block;
       break;
   }
-  
 }

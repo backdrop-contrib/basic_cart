@@ -23,7 +23,7 @@
             </div>
 
             <div class="basic-cart-cart-node-title cell">
-              <?php print l($node->title, 'node/'.$node->nid); ?><br />
+              <?php print l($node->title, 'node/' . $node->nid); ?><br />
               <span class="basic-cart-cart-node-summary"><?php print drupal_substr($node->basic_cart_node_description, 0, 50); ?> ... </span>
             </div>
           

@@ -59,7 +59,7 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
       if ($quantity > 0) {
         $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity = $quantity;
       }
-      // If the quantity is zero, then we just remove the node from the shopping cart.
+      // If the quantity is zero, we just remove the node from the cart.
       elseif ($quantity == 0) {
         unset($_SESSION['basic_cart']['cart'][$nid]);
       }
@@ -77,25 +77,18 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
 /**
  * Callback function for cart/add/
  *
- * @param int $nid node id
+ * @param int $nid
  *   We are using the node id to store the node in the shopping cart
  */
 function basic_cart_add_to_cart($nid = NULL) {
   $nid = (int) $nid;
   if ($nid > 0) {
-    // If a node is added multiple times, we just update the quantity.
+    // If a node is added more times, just update the quantity.
     $cart = basic_cart_get_cart();
     if (!empty($cart) && in_array($nid, array_keys($cart))) {
       $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity++;
     }
     else {
-      // Uncomment for faster method.
-
-      // $query = db_select('node', 'n')->fields('n', array('nid', 'vid', 'type', 'title'))->fields('revision', array('title'));
-      // $query->join('node_revision', 'revision', 'n.vid = revision.vid');
-      // $query->condition('n.nid', $nid);
-      // $node = $query->execute()->fetchObject();
-      
       // Slower, but easyer to implement.
       $node = node_load($nid);
       $node->basic_cart_quantity = 1;
@@ -110,6 +103,7 @@ function basic_cart_add_to_cart($nid = NULL) {
  * Callback function for cart/remove/
  *
  * @param int $nid
+ *   We are using the node id to remove the node in the shopping cart
  */
 function basic_cart_remove_from_cart($nid = NULL) {
   $nid = (int) $nid;
@@ -123,9 +117,11 @@ function basic_cart_remove_from_cart($nid = NULL) {
  * Function for shopping cart retrieval
  *
  * @param int $nid
- *   The node id.
+ *   We are using the node id to store the node in the shopping cart
  *
  * @return mixed
+ *   Returning the shopping cart contents.
+ *   An empty array if there is nothing in the cart
  */
 function basic_cart_get_cart($nid = NULL) {
   if (isset($nid)) {
@@ -165,8 +161,6 @@ function basic_cart_checkout() {
 
 /**
  * Checkout form
- *
- * @return mixed
  */
 function basic_cart_checkout_form() {
   $form['basic_cart_checkout_name'] = array(
@@ -223,7 +217,7 @@ function basic_cart_checkout_form_validate($form, &$form_state) {
  * Sending the 2 mails
  */
 function basic_cart_checkout_form_submit($form, &$form_state) {
-  // %ORDER_DETAILS% placeholder
+  // %ORDER_DETAILS% placeholder.
   $order_details = '';
   $cart = basic_cart_get_cart();
   foreach ($cart as $nid => $node) {

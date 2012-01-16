@@ -41,7 +41,7 @@ function basic_cart_admin_content_type() {
   $form['messages']['admin_subject'] = array(
     '#title' => t('Subject'),
     '#type' => 'textfield',
-    '#description' => t('Subject field for the administrator\'s email.'),
+    '#description' => t("Subject field for the administrator's email."),
     '#default_value' => variable_get('basic_cart_admin_subject'),
   );
 
@@ -61,7 +61,7 @@ function basic_cart_admin_content_type() {
   $form['messages']['user_subject'] = array(
     '#title' => t('Subject'),
     '#type' => 'textfield',
-    '#description' => t('Subject field for the user\'s email.'),
+    '#description' => t("Subject field for the user's email."),
     '#default_value' => variable_get('basic_cart_user_subject'),
   );
 
@@ -108,7 +108,9 @@ function basic_cart_admin_content_type_submit($form_id, $form_state) {
   $types = $form_state['values']['types'];
   $selected_types = array();
   foreach ($types as $type) {
-    if (!empty($type)) $selected_types[] = $type;
+    if (!empty($type)) {
+      $selected_types[] = $type;
+    }
   }
 
   // Content types.

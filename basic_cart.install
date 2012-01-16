@@ -10,7 +10,6 @@
  */
 function basic_cart_install() {
   // Setting up the default messages.
-
   variable_set('basic_cart_admin_subject', st('New order placed'));
   $default_admin_message = st('Hi,
 An order was placed by %CUSTOMER_NAME (%CUSTOMER_EMAIL)
@@ -37,15 +36,16 @@ We will contact you as soon as possible.');
  * Implementation of hook_uninstall().
  */
 function basic_cart_uninstall() {
+  // Content types.
   variable_del('basic_cart_content_types');
-
+  // Admin confirmation mail.
   variable_del('basic_cart_admin_subject');
   variable_del('basic_cart_admin_message');
-
+  // User confirmation email.
   variable_del('basic_cart_user_subject');
   variable_del('basic_cart_user_message');
   variable_del('basic_cart_send_user_message');
-  
+  // Thank you messages.
   variable_del('basic_cart_thank_you_title');
   variable_del('basic_cart_thank_you_message');
 }
