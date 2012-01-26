@@ -4,6 +4,7 @@
  * Basic cart shopping cart html template
  */
 ?>
+
 <?php if( empty($cart) ): ?>
   <p><?php print t('Your shopping cart is empty.'); ?></p>
 <?php else: ?>
@@ -24,7 +25,13 @@
 
             <div class="basic-cart-cart-node-title cell">
               <?php print l($node->title, 'node/' . $node->nid); ?><br />
-              <span class="basic-cart-cart-node-summary"><?php print drupal_substr($node->basic_cart_node_description, 0, 50); ?> ... </span>
+              <span class="basic-cart-cart-node-summary">
+                <?php if(drupal_strlen($node->basic_cart_node_description) > 50): ?>
+                  <?php print truncate_utf8($node->basic_cart_node_description, 50); ?> ... 
+                <?php else: ?>
+                  <?php print $node->basic_cart_node_description; ?>
+                <?php endif; ?>
+              </span>
             </div>
           
             <?php if(!$is_checkout): ?>

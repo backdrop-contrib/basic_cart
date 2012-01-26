@@ -77,6 +77,7 @@ function basic_cart_menu() {
     'description' => 'Checkout.',
     'page callback' => 'basic_cart_checkout',
     'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
     'file' => 'basic_cart.cart.inc',
   );
 
@@ -85,6 +86,7 @@ function basic_cart_menu() {
     'description' => 'Checkout thank you page.',
     'page callback' => 'basic_cart_checkout_thank_you',
     'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
     'file' => 'basic_cart.cart.inc',
   );
 
@@ -130,7 +132,7 @@ function basic_cart_theme() {
 }
 
 /**
- * Theme function implementation
+ * Theme function implementation.
  */
 function basic_cart_add_to_cart_button($vars) {
   $nid = $vars['nid'];
@@ -155,7 +157,7 @@ function basic_cart_block_info() {
 function basic_cart_block_view($delta = '') {
   switch ($delta) {
     case 'shopping_cart':
-      require_once dirname(__FILE__) . '/basic_cart.cart.inc';
+      require_once drupal_get_path('module', 'basic_cart') . '/basic_cart.cart.inc';
       $block['subject'] = t('Your cart');
       $block['content'] = theme('basic_cart_cart_render_block', array('cart' => basic_cart_get_cart()));
       return $block;

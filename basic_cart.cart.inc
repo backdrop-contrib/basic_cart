@@ -6,14 +6,15 @@
  */
 
 /**
- * Callback function for cart listing
+ * Callback function for cart listing.
  */
 function basic_cart_cart() {
   $cart = basic_cart_get_cart();
   if (!empty($cart)) {
     foreach ($cart as $nid => $node) {
       $body = field_get_items('node', $node, 'body');
-      $cart[$nid]->basic_cart_node_description = isset($body[0]['value']) ? $body[0]['value'] : '';
+      $description = isset($body[0]['value']) ? check_plain($body[0]['value']) : '';
+      $cart[$nid]->basic_cart_node_description = $description;
     }
   }
   $form = drupal_get_form('basic_cart_cart_form');
@@ -21,7 +22,7 @@ function basic_cart_cart() {
 }
 
 /**
- * Shopping cart form
+ * Shopping cart form.
  */
 function basic_cart_cart_form() {
   $cart = basic_cart_get_cart();
@@ -49,7 +50,7 @@ function basic_cart_cart_form() {
 }
 
 /**
- * Shopping cart form
+ * Shopping cart form.
  */
 function basic_cart_cart_form_submit($form_id, $form_state) {
   foreach ($form_state['values'] as $field => $value) {
@@ -75,7 +76,7 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
 }
 
 /**
- * Callback function for cart/add/
+ * Callback function for cart/add/.
  *
  * @param int $nid
  *   We are using the node id to store the node in the shopping cart
@@ -100,7 +101,7 @@ function basic_cart_add_to_cart($nid = NULL) {
 }
 
 /**
- * Callback function for cart/remove/
+ * Callback function for cart/remove/.
  *
  * @param int $nid
  *   We are using the node id to remove the node in the shopping cart
@@ -114,7 +115,7 @@ function basic_cart_remove_from_cart($nid = NULL) {
 }
 
 /**
- * Function for shopping cart retrieval
+ * Function for shopping cart retrieval.
  *
  * @param int $nid
  *   We are using the node id to store the node in the shopping cart
@@ -135,7 +136,7 @@ function basic_cart_get_cart($nid = NULL) {
 }
 
 /**
- * Shopping cart reset
+ * Shopping cart reset.
  */
 function basic_cart_empty_cart() {
   unset($_SESSION['basic_cart']['cart']);
@@ -146,7 +147,7 @@ function basic_cart_empty_cart() {
  */
 
 /**
- * Checkout form implementation
+ * Checkout form implementation.
  */
 function basic_cart_checkout() {
   $cart = theme('basic_cart_cart_render', array('cart' => basic_cart_get_cart(), 'is_checkout' => TRUE));
@@ -160,7 +161,7 @@ function basic_cart_checkout() {
 }
 
 /**
- * Checkout form
+ * Checkout form.
  */
 function basic_cart_checkout_form() {
   $form['basic_cart_checkout_name'] = array(
@@ -204,7 +205,7 @@ function basic_cart_checkout_form() {
 }
 
 /**
- * Checkout form validation
+ * Checkout form validation.
  */
 function basic_cart_checkout_form_validate($form, &$form_state) {
   if (!valid_email_address($form_state['values']['basic_cart_checkout_email'])) {
@@ -213,8 +214,8 @@ function basic_cart_checkout_form_validate($form, &$form_state) {
 }
 
 /**
- * Checkout form submit proccess
- * Sending the 2 mails
+ * Checkout form submit proccess.
+ * Sending the 2 mails.
  */
 function basic_cart_checkout_form_submit($form, &$form_state) {
   // %ORDER_DETAILS% placeholder.
@@ -290,7 +291,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
 }
 
 /**
- * Callback for thank you page
+ * Callback for thank you page.
  */
 function basic_cart_checkout_thank_you() {
   $title = variable_get('basic_cart_thank_you_title');
