@@ -246,8 +246,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   $mails_sent = 0;
   if ($message['result']) {
     $mails_sent++;
-  }
-  
+  }  
   // User email.
   $send_user_mail = variable_get('basic_cart_send_user_message');
   if ($send_user_mail) {
@@ -277,7 +276,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
  * Implements hook_mail().
  */
 function basic_cart_mail($key, &$message, $params) {
-  switch($key) {
+  switch ($key) {
     case 'admin_mail':
       $message['subject'] = check_plain(variable_get('basic_cart_admin_subject'));
       $message['body'][] = $params['admin_message'];

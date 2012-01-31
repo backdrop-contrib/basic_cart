@@ -1,4 +1,4 @@
-.basic-cart-grid {display:table; border:none; margin:auto; padding:0; width:100%; color:#363636;}
+.basic-cart-grid { display: table; border: none; margin: auto; padding: 0; width: 100%; color: #363636; }
 .basic-cart-grid .row {display:table-row; float:left; width:100%; left:100%;}
 .basic-cart-grid .cell {display:table-cell; float:left;}
 .basic-cart-grid .cell img {vertical-align:middle;}
