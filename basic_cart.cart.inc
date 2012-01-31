@@ -247,7 +247,6 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   if ($message['result']) {
     $mails_sent++;
   }
-  
   // User email.
   $send_user_mail = variable_get('basic_cart_send_user_message');
   if ($send_user_mail) {
