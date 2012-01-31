@@ -236,47 +236,29 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   // Admin mail.
   $message_html = variable_get('basic_cart_admin_message');
   $message_html = str_replace($search, $replace, $message_html);
+  $params['admin_message'] = filter_xss($message_html);
+
+  $site_mail = variable_get('site_mail');
 
   // Sending mail.
-  $my_module = 'basic_cart';
-  $my_mail_token = 'checkout';
-  $from = variable_get('site_mail');
+  $message = drupal_mail('basic_cart', 'admin_mail', $site_mail, language_default(), $params);
 
-  $message = array(
-    'id' => $my_module . '_' . $my_mail_token,
-    'to' => $from,
-    'subject' => variable_get('basic_cart_admin_subject'),
-    'body' => $message_html,
-    'headers' => array(
-      'From' => $from,
-      'Sender' => $from,
-      'Return-Path' => $from,
-    ),
-  );
-  $system = drupal_mail_system($my_module, $my_mail_token);
   $mails_sent = 0;
-  if ($system->mail($message)) {
+  if ($message['result']) {
     $mails_sent++;
   }
+  
   // User email.
   $send_user_mail = variable_get('basic_cart_send_user_message');
   if ($send_user_mail) {
     $message_html = variable_get('basic_cart_user_message');
     $message_html = str_replace($search, $replace, $message_html);
+    $params['user_message'] = filter_xss($message_html);
 
-    $message = array(
-      'id' => $my_module . '_' . $my_mail_token,
-      'to' => $form_state['values']['basic_cart_checkout_email'],
-      'subject' => variable_get('basic_cart_user_subject'),
-      'body' => $message_html,
-      'headers' => array(
-        'From' => $from,
-        'Sender' => $from,
-        'Return-Path' => $from,
-      ),
-    );
-    $system = drupal_mail_system($my_module, $my_mail_token);
-    if ($system->mail($message)) {
+    // Sending mail.
+    $message = drupal_mail('basic_cart', 'user_mail', $form_state['values']['basic_cart_checkout_email'], language_default(), $params);
+
+    if ($message['result']) {
       $mails_sent++;
     }
   }
@@ -290,6 +272,24 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   }
 }
 
+
+/**
+ * Implements hook_mail().
+ */
+function basic_cart_mail($key, &$message, $params) {
+  switch($key) {
+    case 'admin_mail':
+      $message['subject'] = check_plain(variable_get('basic_cart_admin_subject'));
+      $message['body'][] = $params['admin_message'];
+      break;
+
+    case 'user_mail':
+      $message['subject'] = check_plain(variable_get('basic_cart_user_subject'));
+      $message['body'][] = $params['user_message'];
+      break;
+  }
+}
+
 /**
  * Callback for thank you page.
  */
@@ -297,5 +297,5 @@ function basic_cart_checkout_thank_you() {
   $title = variable_get('basic_cart_thank_you_title');
   drupal_set_title($title);
   $message = variable_get('basic_cart_thank_you_message');
-  return nl2br($message);
+  return nl2br(filter_xss($message));
 }

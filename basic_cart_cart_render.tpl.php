@@ -3,6 +3,7 @@
  * @file
  * Basic cart shopping cart html template
  */
+
 ?>
 
 <?php if( empty($cart) ): ?>
@@ -36,7 +37,15 @@
           
             <?php if(!$is_checkout): ?>
               <div class="basic-cart-delete-image cell">
-                <?php print l('<img src="' . $base_path . drupal_get_path('module', 'basic_cart') . '/images/delete.gif" border="0" />', 'cart/remove/' . $nid, array('html' => TRUE)); ?>
+                <?php 
+                $variables = array(
+                  'path' => $base_path . drupal_get_path('module', 'basic_cart') . '/images/delete.gif',
+                  'alt' => t('Remove from cart'),
+                  'title' => t('Remove from cart'),
+                  'attributes' => array('class' => 'basic-cart-delete-image-image'),
+                );
+                print l(theme('image', $variables), 'cart/remove/' . $nid, array('html' => TRUE));
+                ?>
               </div>
             <?php endif; ?>
         </div>

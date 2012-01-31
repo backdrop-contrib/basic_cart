@@ -3,6 +3,7 @@
  * @file
  * Basic cart shopping cart block
  */
+
 ?>
 
 <?php if( empty($cart) ): ?>
