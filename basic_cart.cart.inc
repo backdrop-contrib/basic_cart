@@ -13,7 +13,7 @@ function basic_cart_cart() {
   if (!empty($cart)) {
     foreach ($cart as $nid => $node) {
       $body = field_get_items('node', $node, 'body');
-      $description = isset($body[0]['value']) ? check_plain($body[0]['value']) : '';
+      $description = isset($body[0]['value']) ? check_plain(strip_tags($body[0]['value'])) : '';
       $cart[$nid]->basic_cart_node_description = $description;
     }
   }
@@ -279,12 +279,12 @@ function basic_cart_mail($key, &$message, $params) {
   switch ($key) {
     case 'admin_mail':
       $message['subject'] = check_plain(variable_get('basic_cart_admin_subject'));
-      $message['body'][] = $params['admin_message'];
+      $message['body'][] = filter_xss($params['admin_message']);
       break;
 
     case 'user_mail':
       $message['subject'] = check_plain(variable_get('basic_cart_user_subject'));
-      $message['body'][] = $params['user_message'];
+      $message['body'][] = filter_xss($params['user_message']);
       break;
   }
 }

@@ -5,7 +5,6 @@
  */
 
 ?>
-
 <?php if( empty($cart) ): ?>
   <p><?php print t('Your shopping cart is empty.'); ?></p>
 <?php else: ?>
