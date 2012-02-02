@@ -296,5 +296,5 @@ function basic_cart_checkout_thank_you() {
   $title = variable_get('basic_cart_thank_you_title');
   drupal_set_title($title);
   $message = variable_get('basic_cart_thank_you_message');
-  return nl2br(filter_xss($message));
+  return filter_xss($message);
 }
