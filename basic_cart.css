@@ -28,11 +28,11 @@
 }
 
 .basic-cart-grid .clr {
-  display: table-row;
   border-bottom: 1px solid #eeeeee;
+  display: table-row;
   float: left;
-  width: 100%;
   left: 100%;
+  width: 100%;
 }
 
 .basic-cart-grid form {
