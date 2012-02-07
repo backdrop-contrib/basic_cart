@@ -236,7 +236,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   // Admin mail.
   $message_html = variable_get('basic_cart_admin_message');
   $message_html = str_replace($search, $replace, $message_html);
-  $params['admin_message'] = filter_xss($message_html);
+  $params['admin_message'] = $message_html;
 
   $site_mail = variable_get('site_mail');
 
@@ -252,7 +252,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   if ($send_user_mail) {
     $message_html = variable_get('basic_cart_user_message');
     $message_html = str_replace($search, $replace, $message_html);
-    $params['user_message'] = filter_xss($message_html);
+    $params['user_message'] = $message_html;
 
     // Sending mail.
     $message = drupal_mail('basic_cart', 'user_mail', $form_state['values']['basic_cart_checkout_email'], language_default(), $params);
