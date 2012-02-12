@@ -49,7 +49,7 @@ function basic_cart_menu() {
     'title' => 'Your shopping cart',
     'description' => 'The shopping cart page',
     'page callback' => 'basic_cart_cart',
-    'access callback' => TRUE,
+    'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     'file' => 'basic_cart.cart.inc',
   );
@@ -58,7 +58,7 @@ function basic_cart_menu() {
     'title' => 'Add to cart',
     'description' => 'Add to cart url.',
     'page callback' => 'basic_cart_add_to_cart',
-    'access callback' => TRUE,
+    'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     'file' => 'basic_cart.cart.inc',
   );
@@ -67,7 +67,7 @@ function basic_cart_menu() {
     'title' => 'Remove from cart',
     'description' => 'Remove from cart url.',
     'page callback' => 'basic_cart_remove_from_cart',
-    'access callback' => TRUE,
+    'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     'file' => 'basic_cart.cart.inc',
   );
@@ -76,7 +76,7 @@ function basic_cart_menu() {
     'title' => 'Checkout',
     'description' => 'Checkout.',
     'page callback' => 'basic_cart_checkout',
-    'access callback' => TRUE,
+    'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     'file' => 'basic_cart.cart.inc',
   );
@@ -85,7 +85,7 @@ function basic_cart_menu() {
     'title' => 'Thank you',
     'description' => 'Checkout thank you page.',
     'page callback' => 'basic_cart_checkout_thank_you',
-    'access callback' => TRUE,
+    'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     'file' => 'basic_cart.cart.inc',
   );
@@ -103,7 +103,7 @@ function basic_cart_node_view($node, $view_mode, $langcode) {
     return NULL;
   }
 
-  if (in_array($node->type, $node_types)) {
+  if (!empty($node_types[$node->type]) &&  in_array($node->type, $node_types)) {
     $node->content['basic_cart_add_to_cart'] = array(
       '#markup' => theme('basic_cart_add_to_cart', array('nid' => $node->nid)),
       '#weight' => 50,
@@ -157,7 +157,7 @@ function basic_cart_block_info() {
 function basic_cart_block_view($delta = '') {
   switch ($delta) {
     case 'shopping_cart':
-      require_once drupal_get_path('module', 'basic_cart') . '/basic_cart.cart.inc';
+      module_load_include('inc', 'basic_cart', 'basic_cart.cart');
       $block['subject'] = t('Your cart');
       $block['content'] = theme('basic_cart_cart_render_block', array('cart' => basic_cart_get_cart()));
       return $block;
