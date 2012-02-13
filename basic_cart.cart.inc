@@ -19,8 +19,7 @@ function basic_cart_cart() {
       $body = field_get_items('node', $node, 'body');
       $description = isset($body[0]['value']) ? check_plain(strip_tags($body[0]['value'])) : '';
       $cart[$nid]->basic_cart_node_description = $description;
-      $form = drupal_get_form('basic_cart_cart_form');
-      return $form;
+      return drupal_get_form('basic_cart_cart_form');
     }
   }
 }
