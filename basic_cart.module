@@ -8,7 +8,7 @@
 /**
  * Implements hook_permission().
  */
-function basic_cart_permission() {
+function basic_cart_permission() { 
   return array(
     'administer basic cart' => array(
       'title' => t('Administer basic cart'),

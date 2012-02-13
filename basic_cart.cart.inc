@@ -8,7 +8,7 @@
 /**
  * Callback function for cart listing.
  */
-function basic_cart_cart() {
+function basic_cart_cart() { 
   $cart = basic_cart_get_cart();
 
   if (empty($cart)) {
