@@ -8,7 +8,7 @@
 /**
  * Callback function for cart listing.
  */
-function basic_cart_cart() { 
+function basic_cart_cart() {
   $cart = basic_cart_get_cart();
 
   if (empty($cart)) {
@@ -30,8 +30,7 @@ function basic_cart_cart() {
  */
 function basic_cart_cart_form() {
   $cart = basic_cart_get_cart();
-  if (is_array($cart) && !empty($cart)) {
-	
+  
 	$form['cartcontents'] = array(
 	  // Make the returned array come back in tree form.
 	  '#tree' => TRUE,
@@ -74,20 +73,19 @@ function basic_cart_cart_form() {
       '#suffix' => $suffix,
       );
       
-    }
-
-    $form['update'] = array(
-      '#type' => 'submit',
-      '#value' => t('Update'),
-    );
-
-    $form['checkout'] = array(
-      '#type' => 'submit',
-      '#value' => t('Checkout'),
-    );
-
-    return $form;
   }
+
+  $form['update'] = array(
+    '#type' => 'submit',
+    '#value' => t('Update'),
+  );
+
+  $form['checkout'] = array(
+    '#type' => 'submit',
+    '#value' => t('Checkout'),
+  );
+
+  return $form;
 }
 
 /**
