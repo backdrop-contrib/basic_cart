@@ -10,15 +10,19 @@
  */
 function basic_cart_cart() {
   $cart = basic_cart_get_cart();
-  if (!empty($cart)) {
+
+  if (empty($cart)) {
+    return t('Your cart is empty.');
+  }
+  else {
     foreach ($cart as $nid => $node) {
       $body = field_get_items('node', $node, 'body');
       $description = isset($body[0]['value']) ? check_plain(strip_tags($body[0]['value'])) : '';
       $cart[$nid]->basic_cart_node_description = $description;
+      $form = drupal_get_form('basic_cart_cart_form');
+      return $form;
     }
   }
-  $form = drupal_get_form('basic_cart_cart_form');
-  return theme('basic_cart_cart_render', array('cart' => $cart, 'is_checkout' => FALSE, 'form' => $form));
 }
 
 /**
@@ -27,12 +31,49 @@ function basic_cart_cart() {
 function basic_cart_cart_form() {
   $cart = basic_cart_get_cart();
   if (is_array($cart) && !empty($cart)) {
-    foreach ($cart as $nid => $node) {
-      $form['quantity_nid_' . $nid] = array(
-        '#type' => 'textfield',
-        '#size' => 1,
-        '#default_value' => $node->basic_cart_quantity,
+	
+	$form['cartcontents'] = array(
+	  // Make the returned array come back in tree form.
+	  '#tree' => TRUE,
+    '#prefix' => '<div class="basic-cart-cart basic-cart-grid">',
+    '#suffix' => '</div>',
+	);
+
+  foreach ($cart as $nid => $node) {
+    // Node description.
+    $desc = drupal_strlen($node->basic_cart_node_description) > 50 ?
+                truncate_utf8($node->basic_cart_node_description, 50) : $node->basic_cart_node_description;
+    // Delete image.
+    $variables = array(
+      'path' => base_path() . drupal_get_path('module', 'basic_cart') . '/images/delete.gif',
+      'alt' => t('Remove from cart'),
+      'title' => t('Remove from cart'),
+      'attributes' => array('class' => 'basic-cart-delete-image-image'),
+    );
+    $delete_link = l(theme('image', $variables), 'cart/remove/' . $nid, array('html' => TRUE));
+    // Html prefix.
+    $prefix  = '<div class="basic-cart-cart-contents row">';
+    $prefix .= '  <div class="basic-cart-cart-quantity cell">';
+    $prefix .= '    <div class="cell">';
+    // Html suffix.
+    $suffix  = '    </div>';
+    $suffix .= '    <div class="cell basic-cart-cart-x">x</div>';
+    $suffix .= '  </div>';
+    $suffix .= '  <div class="basic-cart-cart-node-title cell">' . l($node->title, 'node/' . $node->nid) . '<br />';
+    $suffix .= '    <span class="basic-cart-cart-node-summary">' . $desc . '</span>';
+    $suffix .= '  </div>';
+    $suffix .= '  <div class="basic-cart-delete-image cell">' . $delete_link . '</div>';
+    $suffix .= '</div>';
+    
+    // Quantity field, prefixed and suffixed with the proper html.
+    $form['cartcontents']['quantity_nid_' . $nid] = array(
+      '#type' => 'textfield',
+      '#size' => 1,
+      '#default_value' => $node->basic_cart_quantity,
+      '#prefix' => $prefix,
+      '#suffix' => $suffix,
       );
+      
     }
 
     $form['update'] = array(
@@ -53,7 +94,7 @@ function basic_cart_cart_form() {
  * Shopping cart form.
  */
 function basic_cart_cart_form_submit($form_id, $form_state) {
-  foreach ($form_state['values'] as $field => $value) {
+  foreach ($form_state['values']['cartcontents'] as $field => $value) {
     if (strpos($field, 'quantity_nid_') !== FALSE) {
       $nid = (int) str_replace('quantity_nid_', '', $field);
       $quantity = (int) $value;
@@ -150,13 +191,13 @@ function basic_cart_empty_cart() {
  * Checkout form implementation.
  */
 function basic_cart_checkout() {
-  $cart = theme('basic_cart_cart_render', array('cart' => basic_cart_get_cart(), 'is_checkout' => TRUE));
-  $form = drupal_render(drupal_get_form('basic_cart_checkout_form'));
+  $cart = theme('basic_cart_cart_flat', array('cart' => basic_cart_get_cart()));
   // If the cart is empty, we don't want to show the checkout form.
   $shopping_cart = basic_cart_get_cart();
   if (empty($shopping_cart)) {
     return $cart;
   }
+  $form = drupal_render(drupal_get_form('basic_cart_checkout_form'));
   return $cart . $form;
 }
 
