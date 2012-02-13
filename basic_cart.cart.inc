@@ -70,7 +70,7 @@ function basic_cart_cart_form() {
       '#default_value' => $node->basic_cart_quantity,
       '#prefix' => $prefix,
       '#suffix' => $suffix,
-    );  
+    );
   }
 
   $form['update'] = array(
