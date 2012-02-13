@@ -29,14 +29,15 @@ function basic_cart_cart() {
  * Shopping cart form.
  */
 function basic_cart_cart_form() {
+  // Getting the shopping cart.
   $cart = basic_cart_get_cart();
-  
+  // And now the form.
 	$form['cartcontents'] = array(
-	  // Make the returned array come back in tree form.
-	  '#tree' => TRUE,
+    // Make the returned array come back in tree form.
+    '#tree' => TRUE,
     '#prefix' => '<div class="basic-cart-cart basic-cart-grid">',
     '#suffix' => '</div>',
-	);
+  );
 
   foreach ($cart as $nid => $node) {
     // Node description.
@@ -63,7 +64,6 @@ function basic_cart_cart_form() {
     $suffix .= '  </div>';
     $suffix .= '  <div class="basic-cart-delete-image cell">' . $delete_link . '</div>';
     $suffix .= '</div>';
-    
     // Quantity field, prefixed and suffixed with the proper html.
     $form['cartcontents']['quantity_nid_' . $nid] = array(
       '#type' => 'textfield',
@@ -71,8 +71,7 @@ function basic_cart_cart_form() {
       '#default_value' => $node->basic_cart_quantity,
       '#prefix' => $prefix,
       '#suffix' => $suffix,
-      );
-      
+    );  
   }
 
   $form['update'] = array(
