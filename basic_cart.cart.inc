@@ -32,13 +32,12 @@ function basic_cart_cart_form() {
   // Getting the shopping cart.
   $cart = basic_cart_get_cart();
   // And now the form.
-	$form['cartcontents'] = array(
+  $form['cartcontents'] = array(
     // Make the returned array come back in tree form.
     '#tree' => TRUE,
     '#prefix' => '<div class="basic-cart-cart basic-cart-grid">',
     '#suffix' => '</div>',
   );
-
   foreach ($cart as $nid => $node) {
     // Node description.
     $desc = drupal_strlen($node->basic_cart_node_description) > 50 ?
