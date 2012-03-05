@@ -6,7 +6,7 @@
 
 ?>
 
-<?php if( empty($cart) ): ?>
+<?php if (empty($cart)): ?>
   <p><?php print t('Your cart is empty.'); ?></p>
 <?php else: ?>
   <div class="basic-cart-grid">
