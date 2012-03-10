@@ -138,7 +138,7 @@ function basic_cart_theme() {
     ),
 
     'basic_cart_render_cart_element' => array(
-      'render element' => 'form'
+      'render element' => 'form',
     ),
   );
 }

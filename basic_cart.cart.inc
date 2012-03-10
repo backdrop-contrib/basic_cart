@@ -96,7 +96,7 @@ function theme_basic_cart_render_cart_element($variables) {
   // Node description.
   $desc = '';
   if (isset($node->basic_cart_node_description)) {
-    $desc = drupal_strlen($node->basic_cart_node_description) > 50 ?
+    $desc = drupal_strlen($node->basic_cart_node_description) > 50 ? 
                 truncate_utf8($node->basic_cart_node_description, 50) : $node->basic_cart_node_description;
   }
   // Prefix.
@@ -274,7 +274,10 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   }
   $order_details .= "\n";
   // Pleaceholder replacement.
-  $search = array('%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE', '%CUSTOMER_ADDRESS', '%CUSTOMER_MESSAGE', '%ORDER_DETAILS');
+  $search = array(
+    '%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE',
+    '%CUSTOMER_ADDRESS', '%CUSTOMER_MESSAGE', '%ORDER_DETAILS'
+  );
   $replace = array(
     $form_state['values']['basic_cart_checkout_name'], $form_state['values']['basic_cart_checkout_email'],
     $form_state['values']['basic_cart_checkout_phone'], $form_state['values']['basic_cart_checkout_address'],
