@@ -9,26 +9,27 @@
  * Implements hook_install().
  */
 function basic_cart_install() {
+  $t = get_t();
   // Setting up the default messages.
-  variable_set('basic_cart_admin_subject', st('New order placed'));
-  $default_admin_message = st('Hi,
+  variable_set('basic_cart_admin_subject', $t('New order placed'));
+  $default_admin_message = $t('Hi,
 An order was placed by %CUSTOMER_NAME (%CUSTOMER_EMAIL)
 Here are the order details:
 %ORDER_DETAILS');
   variable_set('basic_cart_admin_message', $default_admin_message);
 
   variable_set('basic_cart_send_user_message', 1);
-  variable_set('basic_cart_user_subject', st('New order placed'));
-  $default_user_message = st('Hi,
+  variable_set('basic_cart_user_subject', $t('New order placed'));
+  $default_user_message = $t('Hi,
 You just placed an order on the website @sitename. Here are the order details:
 %ORDER_DETAILS
 We will contact you as soon as possible.', array('@sitename' => variable_get('site_name')));
   variable_set('basic_cart_user_message', $default_user_message);
 
-  $default_thank_you_title = st("Thank you.");
+  $default_thank_you_title = $t("Thank you.");
   variable_set('basic_cart_thank_you_title', $default_thank_you_title);
 
-  $default_thank_you_message = st("Thank you for placing an order on our website.\nWe will contact you as soon as possible.");
+  $default_thank_you_message = $t("Thank you for placing an order on our website.\nWe will contact you as soon as possible.");
   variable_set('basic_cart_thank_you_message', $default_thank_you_message);
 }
 

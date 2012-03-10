@@ -20,10 +20,12 @@
             <div class="basic-cart-cart-node-title cell">
               <?php print l($node->title, 'node/' . $node->nid); ?><br />
               <span class="basic-cart-cart-node-summary">
-                <?php if(drupal_strlen($node->basic_cart_node_description) > 50): ?>
-                  <?php print truncate_utf8($node->basic_cart_node_description, 50); ?> ... 
-                <?php else: ?>
-                  <?php print $node->basic_cart_node_description; ?>
+                <?php if (isset($node->basic_cart_node_description)): ?>
+                  <?php if(drupal_strlen($node->basic_cart_node_description) > 50): ?>
+                    <?php print truncate_utf8($node->basic_cart_node_description, 50); ?> ...
+                  <?php else: ?>
+                    <?php print $node->basic_cart_node_description; ?>
+                  <?php endif; ?>
                 <?php endif; ?>
               </span>
             </div>

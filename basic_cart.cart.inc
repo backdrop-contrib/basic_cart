@@ -14,14 +14,7 @@ function basic_cart_cart() {
   if (empty($cart)) {
     return t('Your cart is empty.');
   }
-  else {
-    foreach ($cart as $nid => $node) {
-      $body = field_get_items('node', $node, 'body');
-      $description = isset($body[0]['value']) ? check_plain(strip_tags($body[0]['value'])) : '';
-      $cart[$nid]->basic_cart_node_description = $description;
-      return drupal_get_form('basic_cart_cart_form');
-    }
-  }
+  return drupal_get_form('basic_cart_cart_form');
 }
 
 /**
@@ -37,46 +30,21 @@ function basic_cart_cart_form() {
     '#prefix' => '<div class="basic-cart-cart basic-cart-grid">',
     '#suffix' => '</div>',
   );
+  // Cart elements.
   foreach ($cart as $nid => $node) {
-    // Node description.
-    $desc = drupal_strlen($node->basic_cart_node_description) > 50 ?
-                truncate_utf8($node->basic_cart_node_description, 50) : $node->basic_cart_node_description;
-    // Delete image.
-    $variables = array(
-      'path' => base_path() . drupal_get_path('module', 'basic_cart') . '/images/delete.gif',
-      'alt' => t('Remove from cart'),
-      'title' => t('Remove from cart'),
-      'attributes' => array('class' => 'basic-cart-delete-image-image'),
-    );
-    $delete_link = l(theme('image', $variables), 'cart/remove/' . $nid, array('html' => TRUE));
-    // Html prefix.
-    $prefix  = '<div class="basic-cart-cart-contents row">';
-    $prefix .= '  <div class="basic-cart-cart-quantity cell">';
-    $prefix .= '    <div class="cell">';
-    // Html suffix.
-    $suffix  = '    </div>';
-    $suffix .= '    <div class="cell basic-cart-cart-x">x</div>';
-    $suffix .= '  </div>';
-    $suffix .= '  <div class="basic-cart-cart-node-title cell">' . l($node->title, 'node/' . $node->nid) . '<br />';
-    $suffix .= '    <span class="basic-cart-cart-node-summary">' . $desc . '</span>';
-    $suffix .= '  </div>';
-    $suffix .= '  <div class="basic-cart-delete-image cell">' . $delete_link . '</div>';
-    $suffix .= '</div>';
-    // Quantity field, prefixed and suffixed with the proper html.
-    $form['cartcontents']['quantity_nid_' . $nid] = array(
+    $form['cartcontents'][$nid] = array(
       '#type' => 'textfield',
       '#size' => 1,
       '#default_value' => $node->basic_cart_quantity,
-      '#prefix' => $prefix,
-      '#suffix' => $suffix,
+      '#theme' => 'basic_cart_render_cart_element',
     );
   }
-
+  // Update button.
   $form['update'] = array(
     '#type' => 'submit',
     '#value' => t('Update'),
   );
-
+  // Checkout button.
   $form['checkout'] = array(
     '#type' => 'submit',
     '#value' => t('Checkout'),
@@ -89,17 +57,14 @@ function basic_cart_cart_form() {
  * Shopping cart form.
  */
 function basic_cart_cart_form_submit($form_id, $form_state) {
-  foreach ($form_state['values']['cartcontents'] as $field => $value) {
-    if (strpos($field, 'quantity_nid_') !== FALSE) {
-      $nid = (int) str_replace('quantity_nid_', '', $field);
-      $quantity = (int) $value;
-      if ($quantity > 0) {
-        $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity = $quantity;
-      }
-      // If the quantity is zero, we just remove the node from the cart.
-      elseif ($quantity == 0) {
-        unset($_SESSION['basic_cart']['cart'][$nid]);
-      }
+  foreach ($form_state['values']['cartcontents'] as $nid => $value) {
+    $quantity = (int) $value;
+    if ($quantity > 0) {
+      $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity = $quantity;
+    }
+    // If the quantity is zero, we just remove the node from the cart.
+    elseif ($quantity == 0) {
+      unset($_SESSION['basic_cart']['cart'][$nid]);
     }
   }
 
@@ -109,6 +74,48 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
   else {
     drupal_set_message(t('Shopping cart updated.'));
   }
+}
+
+/**
+ * Theme implementation for rendering the cart element.
+ */
+function theme_basic_cart_render_cart_element($variables) {
+  // Element name and nid.
+  $name = $variables['form']['#name'];
+  $nid = str_replace(array('cartcontents[', ']'), '', $name);
+  // Delete image.
+  $vars = array(
+    'path' => base_path() . drupal_get_path('module', 'basic_cart') . '/images/delete.gif',
+    'alt' => t('Remove from cart'),
+    'title' => t('Remove from cart'),
+    'attributes' => array('class' => 'basic-cart-delete-image-image'),
+  );
+  $delete_link = l(theme('image', $vars), 'cart/remove/' . $nid, array('html' => TRUE));
+  // Getting the node for it's title and description.
+  $node = basic_cart_get_cart($nid);
+  // Node description.
+  $desc = '';
+  if (isset($node->basic_cart_node_description)) {
+    $desc = drupal_strlen($node->basic_cart_node_description) > 50 ?
+                truncate_utf8($node->basic_cart_node_description, 50) : $node->basic_cart_node_description;
+  }
+  // Prefix.
+  $prefix  = '<div class="basic-cart-cart-contents row">';
+  $prefix .= '  <div class="basic-cart-cart-quantity cell">';
+  $prefix .= '    <div class="cell">';
+  // Suffix.
+  $suffix  = '    </div>';
+  $suffix .= '    <div class="cell basic-cart-cart-x">x</div>';
+  $suffix .= '  </div>';
+  $suffix .= '  <div class="basic-cart-cart-node-title cell">' . l($node->title, 'node/' . $nid) . '<br />';
+  $suffix .= '    <span class="basic-cart-cart-node-summary">' . $desc . '</span>';
+  $suffix .= '  </div>';
+  $suffix .= '  <div class="basic-cart-delete-image cell">' . $delete_link . '</div>';
+  $suffix .= '</div>';
+  // Rendering the element as textfield.
+  $quantity = theme('textfield', $variables['form']);
+  // Full view return.
+  return $prefix . $quantity . $suffix;
 }
 
 /**
@@ -129,6 +136,11 @@ function basic_cart_add_to_cart($nid = NULL) {
       // Slower, but easyer to implement.
       $node = node_load($nid);
       $node->basic_cart_quantity = 1;
+      // Adding description.
+      $body = field_get_items('node', $node, 'body');
+      $description = isset($body[0]['value']) ? check_plain(strip_tags($body[0]['value'])) : '';
+      $node->basic_cart_node_description = $description;
+      // Storing in session.
       $_SESSION['basic_cart']['cart'][$nid] = $node;
     }
 
