@@ -82,7 +82,10 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
 function theme_basic_cart_render_cart_element($variables) {
   // Element name and nid.
   $name = $variables['form']['#name'];
-  $nid = str_replace(array('cartcontents[', ']'), '', $name);
+  $nid = (int) str_replace(array('cartcontents[', ']'), '', $name);
+  if (empty($nid)) {
+    return '';
+  }
   // Delete image.
   $vars = array(
     'path' => base_path() . drupal_get_path('module', 'basic_cart') . '/images/delete.gif',
