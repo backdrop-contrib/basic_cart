@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Basic cart shopping cart implementation functions
+ * Basic cart shopping cart implementation functions.
  */
 
 /**
@@ -194,7 +194,7 @@ function basic_cart_empty_cart() {
 }
 
 /**
- * Checkout
+ * Checkout.
  */
 
 /**
@@ -316,7 +316,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     }
   }
 
-  if ($mails_sent == 2) {
+  if ($mails_sent >= 1) {
     basic_cart_empty_cart();
     drupal_goto('checkout/thank-you');
   }
