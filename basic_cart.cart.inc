@@ -346,12 +346,12 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   if (module_exists('basic_cart_order')) {
     $name = $form_state['values']['basic_cart_checkout_name'];
     $email = $form_state['values']['basic_cart_checkout_email'];
-    $order_details = array(
+    $order_details_ = array(
       'phone' => $form_state['values']['basic_cart_checkout_phone'],
       'address' => $form_state['values']['basic_cart_checkout_address'],
       'message' => $form_state['values']['basic_cart_checkout_message'],
     );
-    basic_cart_order_register_order($name, $email, $order_details);
+    basic_cart_order_register_order($name, $email, $order_details_);
   }
   
   // Building the order details.
