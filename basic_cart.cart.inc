@@ -10,7 +10,7 @@
  */
 function basic_cart_cart() {
   $cart = basic_cart_get_cart();
-
+  
   if (empty($cart)) {
     return t('Your cart is empty.');
   }
@@ -39,13 +39,27 @@ function basic_cart_cart_form() {
       '#theme' => 'basic_cart_render_cart_element',
     );
   }
+  // Total price.
+  $form['total_price'] = array(
+    '#markup' => t('Total price'),
+    '#prefix' => '<div class="basic-cart-cart basic-cart-grid">',
+    '#suffix' => '</div>',
+    '#theme' => 'basic_cart_cart_total_price',
+  );
+  // Buttons.
+  $form['buttons'] = array(
+    // Make the returned array come back in tree form.
+    '#tree' => TRUE,
+    '#prefix' => '<div class="row"><div class="basic-cart-call-to-action cell">',
+    '#suffix' => '</div></div>',
+  );
   // Update button.
-  $form['update'] = array(
+  $form['buttons']['update'] = array(
     '#type' => 'submit',
     '#value' => t('Update'),
   );
   // Checkout button.
-  $form['checkout'] = array(
+  $form['buttons']['checkout'] = array(
     '#type' => 'submit',
     '#value' => t('Checkout'),
   );
@@ -88,7 +102,7 @@ function theme_basic_cart_render_cart_element($variables) {
   }
   // Delete image.
   $vars = array(
-    'path' => base_path() . drupal_get_path('module', 'basic_cart') . '/images/delete.gif',
+    'path' => base_path() . drupal_get_path('module', 'basic_cart') . '/images/delete2.png',
     'alt' => t('Remove from cart'),
     'title' => t('Remove from cart'),
     'attributes' => array('class' => 'basic-cart-delete-image-image'),
@@ -102,23 +116,43 @@ function theme_basic_cart_render_cart_element($variables) {
     $desc = drupal_strlen($node->basic_cart_node_description) > 50 ?
                 truncate_utf8($node->basic_cart_node_description, 50) : $node->basic_cart_node_description;
   }
+  // Price and currency.
+  $unit_price = isset($node->basic_cart_unit_price) ? $node->basic_cart_unit_price : 0;
+  $currency = check_plain(variable_get('basic_cart_currency'));
+  
   // Prefix.
   $prefix  = '<div class="basic-cart-cart-contents row">';
+  $prefix .= '  <div class="basic-cart-delete-image cell">' . $delete_link . '</div>';
+  $prefix .= '  <div class="basic-cart-cart-node-title cell">' . l($node->title, 'node/' . $nid) . '<br />';
+  $prefix .= '    <span class="basic-cart-cart-node-summary">' . $desc . '</span>';
+  $prefix .= '  </div>';
+  $prefix .= '  <div class="cell basic-cart-cart-unit-price"><strong>' . $unit_price . ' ' . $currency . '</strong></div>';
+  $prefix .= '  <div class="cell basic-cart-cart-x">x</div>';
   $prefix .= '  <div class="basic-cart-cart-quantity cell">';
   $prefix .= '    <div class="cell">';
   // Suffix.
   $suffix  = '    </div>';
-  $suffix .= '    <div class="cell basic-cart-cart-x">x</div>';
   $suffix .= '  </div>';
-  $suffix .= '  <div class="basic-cart-cart-node-title cell">' . l($node->title, 'node/' . $nid) . '<br />';
-  $suffix .= '    <span class="basic-cart-cart-node-summary">' . $desc . '</span>';
-  $suffix .= '  </div>';
-  $suffix .= '  <div class="basic-cart-delete-image cell">' . $delete_link . '</div>';
   $suffix .= '</div>';
+  
   // Rendering the element as textfield.
   $quantity = theme('textfield', $variables['form']);
   // Full view return.
   return $prefix . $quantity . $suffix;
+}
+
+/**
+ * Theme implementation for rendering the total price.
+ * 
+ * @todo find a way to pass $price and $currency through the variables array.
+ */
+function theme_basic_cart_cart_total_price($variables) {
+  $price = basic_cart_get_total_price();
+  $currency = check_plain(variable_get('basic_cart_currency'));
+  $html = '<div class="row">';
+  $html .= '<div class="basic-cart-total-price cell">' . t('Total price') . ': <strong>' . $price . ' ' . $currency . '</strong></div>';
+  $html .= '</div>';
+  return $html;
 }
 
 /**
@@ -133,20 +167,25 @@ function basic_cart_add_to_cart($nid = NULL) {
     // If a node is added more times, just update the quantity.
     $cart = basic_cart_get_cart();
     if (!empty($cart) && in_array($nid, array_keys($cart))) {
+      // Clicked 2 times on add to cart button. Increment quantity.
       $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity++;
     }
     else {
-      // Slower, but easyer to implement.
       $node = node_load($nid);
       $node->basic_cart_quantity = 1;
       // Adding description.
       $body = field_get_items('node', $node, 'body');
       $description = isset($body[0]['value']) ? check_plain(strip_tags($body[0]['value'])) : '';
       $node->basic_cart_node_description = $description;
+      // Unit price.
+      $unit_price = field_get_items('node', $node, 'price');
+      $unit_price = isset($unit_price[0]['value']) ? check_plain(strip_tags($unit_price[0]['value'])) : 0;
+      $node->basic_cart_unit_price = $unit_price;
+      
       // Storing in session.
       $_SESSION['basic_cart']['cart'][$nid] = $node;
     }
-
+    
   }
   drupal_goto('cart');
 }
@@ -187,6 +226,27 @@ function basic_cart_get_cart($nid = NULL) {
 }
 
 /**
+ * Returns the final price for the shopping cart.
+ *
+ * @return mixed $total_price
+ *   The total price for the shopping cart. 
+ */
+function basic_cart_get_total_price() {
+  $cart = basic_cart_get_cart();
+  if (empty($cart)) {
+    return 0;
+  }
+  
+  $total_price = 0;
+  foreach ($cart as $nid => $node) {
+    if (isset($node->basic_cart_quantity) && isset($node->basic_cart_unit_price)) {
+      $total_price += $node->basic_cart_quantity * $node->basic_cart_unit_price;
+    }
+  } 
+  return $total_price;
+}
+
+/**
  * Shopping cart reset.
  */
 function basic_cart_empty_cart() {
@@ -201,13 +261,20 @@ function basic_cart_empty_cart() {
  * Checkout form implementation.
  */
 function basic_cart_checkout() {
-  $cart = theme('basic_cart_cart_flat', array('cart' => basic_cart_get_cart()));
-  // If the cart is empty, we don't want to show the checkout form.
   $shopping_cart = basic_cart_get_cart();
+  // The flat cart (just the listing part).
+  $cart = theme('basic_cart_cart_flat', array(
+    'cart' => $shopping_cart,
+    'price' => basic_cart_get_total_price(),
+    'currency' => check_plain(variable_get('basic_cart_currency')),
+  ));
+  
+  // If the cart is empty, we don't want to show the checkout form.
   if (empty($shopping_cart)) {
     return $cart;
   }
-  $form = drupal_render(drupal_get_form('basic_cart_checkout_form'));
+  $form = drupal_get_form('basic_cart_checkout_form');
+  $form = drupal_render($form);
   return $cart . $form;
 }
 
@@ -266,16 +333,33 @@ function basic_cart_checkout_form_validate($form, &$form_state) {
 
 /**
  * Checkout form submit proccess.
- * Sending the 2 mails.
+ * Register order and send emails.
  */
 function basic_cart_checkout_form_submit($form, &$form_state) {
   // %ORDER_DETAILS% placeholder.
   $order_details = '';
   $cart = basic_cart_get_cart();
+  $total_price = basic_cart_get_total_price();
+  $currency = check_plain(variable_get('basic_cart_currency'));
+
+  // Registering the new order to the database.
+  if (module_exists('basic_cart_order')) {
+    $name = $form_state['values']['basic_cart_checkout_name'];
+    $email = $form_state['values']['basic_cart_checkout_email'];
+    $order_details = array(
+      'phone' => $form_state['values']['basic_cart_checkout_phone'],
+      'address' => $form_state['values']['basic_cart_checkout_address'],
+      'message' => $form_state['values']['basic_cart_checkout_message'],
+    );
+    basic_cart_order_register_order($name, $email, $order_details);
+  }
+  
+  // Building the order details.
   foreach ($cart as $nid => $node) {
     $order_details .= $node->basic_cart_quantity . ' x ' . $node->title . "\n";
   }
   $order_details .= "\n";
+  $order_details .= "Total price: " . $total_price . " " . $currency;
   // Pleaceholder replacement.
   $search = array(
     '%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE',
@@ -286,12 +370,12 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     $form_state['values']['basic_cart_checkout_phone'], $form_state['values']['basic_cart_checkout_address'],
     $form_state['values']['basic_cart_checkout_message'], $order_details,
   );
-
-  // Admin mail.
+  // Admin message.
   $message_html = variable_get('basic_cart_admin_message');
   $message_html = str_replace($search, $replace, $message_html);
+  
+  // Admin mail.
   $params['admin_message'] = $message_html;
-
   $site_mail = variable_get('site_mail');
 
   // Sending mail.

@@ -6,10 +6,19 @@
  */
 
 /**
+ * Default currency.
+ */
+define('BASIC_CART_DEFAULT_CURRENCY', 'USD');
+
+/**
  * Implements hook_install().
  */
 function basic_cart_install() {
   $t = get_t();
+
+  // Setting up the default currency.
+  variable_set('basic_cart_currency', BASIC_CART_DEFAULT_CURRENCY);
+  
   // Setting up the default messages.
   variable_set('basic_cart_admin_subject', $t('New order placed'));
   $default_admin_message = $t('Hi,
@@ -31,13 +40,42 @@ We will contact you as soon as possible.', array('@sitename' => variable_get('si
 
   $default_thank_you_message = $t("Thank you for placing an order on our website.\nWe will contact you as soon as possible.");
   variable_set('basic_cart_thank_you_message', $default_thank_you_message);
+  
+  // Check to see if the price field already exists.
+  $field = field_info_field('price');
+  // If the price field does not exist then create it.
+  if (empty($field)) {
+    $field = array(
+      'field_name' => 'price',
+      'type' => 'text',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+  }
 }
 
 /**
  * Implements hook_uninstall().
  */
 function basic_cart_uninstall() {
-  // Content types.
+  // Currency.
+  variable_del('basic_cart_currency');
+  // Delete the price field.
+  $types = variable_get('basic_cart_content_types');
+  if (is_array($types)) {
+    // Foreach selected content type, delete the price field.
+    foreach ($types as $type => $checked) {
+      if (!empty($checked)) {
+        $instance = array(
+          'field_name' => 'price',
+          'entity_type' => 'node',
+          'bundle' => $type,
+        );
+        field_delete_instance($instance);
+      }
+    }
+  }
+  // Delete the content types from the variables table.
   variable_del('basic_cart_content_types');
   // Admin confirmation mail.
   variable_del('basic_cart_admin_subject');
@@ -49,4 +87,54 @@ function basic_cart_uninstall() {
   // Thank you messages.
   variable_del('basic_cart_thank_you_title');
   variable_del('basic_cart_thank_you_message');
+}
+
+/**
+ * Adding Basic Cart new features (price, currency).
+ */
+function basic_cart_update_7200() {
+  // Setting up the default currency.
+  variable_set('basic_cart_currency', BASIC_CART_DEFAULT_CURRENCY);
+  // Check to see if the price field already exists.
+  $field = field_info_field('price');
+  // If the price field does not exist then create it.
+  if (empty($field)) {
+    $field = array(
+      'field_name' => 'price',
+      'type' => 'text',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+  }
+
+  // Getting the content types for which we have basic cart active.
+  $node_types = variable_get('basic_cart_content_types');
+  if (is_array($node_types)) {
+    // Setting up the price field for the selected content types.
+    foreach ($node_types as $type => $checked) {
+      // If a node type is checked, then create the price field.
+      if ($checked) {
+        // Foreach checked content type, we must assign the price field to the content type.
+        $instance = field_info_instance('node', 'price', $type);
+        if (empty($instance)) {
+          $instance = array(
+            'field_name' => 'price',
+            'label' => t('Price'),
+            'description' => t('Please enter the price for this item.'),
+            'entity_type' => 'node',
+            'bundle' => $type,
+          );
+          // It doesn't exist. Create it.
+          field_create_instance($instance);
+        }
+      }
+      // If not, then delete the price field.
+      else {
+        $instance = field_info_instance('node', 'price', $type);
+        if (!empty($instance)) {
+          field_delete_instance($instance);
+        }
+      }
+    }
+  }
 }

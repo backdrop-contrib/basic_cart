@@ -2,11 +2,11 @@
 
 /**
  * @file
- * Basic cart admin settings forms
+ * Basic cart admin settings forms.
  */
 
 /**
- * Callback for the admin configuration page
+ * Callback for the admin configuration page.
  */
 function basic_cart_admin_content_type() {
   $node_types = node_type_get_types();
@@ -16,6 +16,9 @@ function basic_cart_admin_content_type() {
 
   $options = array();
   foreach ($node_types as $node_type => $type) {
+    if ($node_type == 'order' && module_exists('basic_cart_order')) {
+      continue;
+    }
     $options[$node_type] = check_plain($type->name);
   }
 
@@ -30,6 +33,19 @@ function basic_cart_admin_content_type() {
     '#type' => 'checkboxes',
     '#options' => $options,
     '#default_value' => variable_get('basic_cart_content_types', array()),
+  );
+
+  $form['currency'] = array(
+    '#title' => t('Currency'),
+    '#type' => 'fieldset',
+    '#description' => t('Please select the currency in which the prices will be calculated.'),
+  );
+
+  $form['currency']['basic_cart_currency'] = array(
+    '#title' => t('Currency'),
+    '#type' => 'textfield',
+    '#description' => t("Please choose the currency."),
+    '#default_value' => variable_get('basic_cart_currency'),
   );
 
   $form['messages'] = array(
@@ -75,7 +91,7 @@ function basic_cart_admin_content_type() {
   $form['thank_you'] = array(
     '#title' => t('Thank you page'),
     '#type' => 'fieldset',
-    '#description' => t('Here you can customize the thank you page.'),
+    '#description' => t('Thank you page customization.'),
   );
 
   $form['thank_you']['basic_cart_thank_you_title'] = array(
@@ -91,6 +107,53 @@ function basic_cart_admin_content_type() {
     '#description' => t('Thank you page text.'),
     '#default_value' => variable_get('basic_cart_thank_you_message'),
   );
+  
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
 
-  return system_settings_form($form);
+  return $form;
+  //return system_settings_form($form);
+}
+
+/**
+ * Callback for the admin configuration page.
+ */
+function basic_cart_admin_content_type_submit($form, &$form_state) {
+  // Remove internal Form API values.
+  unset($form_state['values']['form_id'], $form_state['values']['form_token'], $form_state['values']['form_build_id'], $form_state['values']['op']);
+  // Save variables.
+  foreach ($form_state['values'] as $key => $value) {
+    if (is_array($value) && isset($form_state['values']['array_filter'])) {
+      $value = array_keys(array_filter($value));
+    }
+    variable_set($key, $value);
+  }
+
+  // Setting up the price field for the selected content types.
+  foreach ($form_state['values']['basic_cart_content_types'] as $type => $checked) {
+    // If a node type is checked, then create the price field.
+    if ($checked) {
+      // Foreach checked content type, we must assign the price field to the content type.
+      $instance = field_info_instance('node', 'price', $type);
+      if (empty($instance)) {
+        $instance = array(
+          'field_name' => 'price',
+          'label' => t('Price'),
+          'description' => t('Please enter the price for this item.'),
+          'entity_type' => 'node',
+          'bundle' => $type,
+        );
+        // It doesn't exist. Create it.
+        field_create_instance($instance);
+      }
+    }
+    // If not, then delete the price field.
+    else {
+      $instance = field_info_instance('node', 'price', $type);
+      if (!empty($instance)) {
+        field_delete_instance($instance);
+      }
+    }
+  }
+  drupal_set_message(t('The configuration options have been saved.'));
 }

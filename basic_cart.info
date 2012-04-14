@@ -1,6 +1,6 @@
 name = Basic Cart
 description = A basic shopping cart implementation.
-package = Other
+package = Basic Cart
 core = 7.x
 stylesheets[all][] = basic_cart.css
 configure = admin/config/basic_cart/settings
