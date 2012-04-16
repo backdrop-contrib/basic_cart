@@ -39,7 +39,7 @@ function basic_cart_order_schema() {
 /**
  * Implements hook_uninstall().
  */
-//function basic_cart_order_uninstall() {
+// function basic_cart_order_uninstall() {
   // Delete all nodes from this type. See node_delete_multiple($nids){}
   /*$nids = db_select('node')
     ->fields('node', array('nid'))

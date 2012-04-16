@@ -88,15 +88,15 @@
 }
 
 .basic-cart-cart-x.cell {
-  float:right;
+  float: right;
   padding: 1px 10px 3px 10px;
 }
 
 .basic-cart-cart-unit-price.cell {
-  float:right;
+  float: right;
   margin: 0;
-  width: 100px;
   text-align: right;
+  width: 100px;
 }
 
 .basic-cart-block .basic-cart-cart-node-title {
@@ -107,8 +107,8 @@
 .basic-cart-block .basic-cart-cart-x,
 .basic-cart-block .basic-cart-cart-quantity {
   float: left;
-  width: auto;
   text-align: right;
+  width: auto;
 }
 
 .basic-cart-total-price.cell {
@@ -129,7 +129,7 @@
   background-color: #fff;
 }
 
-.basic-cart-order-product-price, 
+.basic-cart-order-product-price,
 .basic-cart-order-total-price {
   float: right;
 }

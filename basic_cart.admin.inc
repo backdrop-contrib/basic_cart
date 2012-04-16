@@ -107,12 +107,11 @@ function basic_cart_admin_content_type() {
     '#description' => t('Thank you page text.'),
     '#default_value' => variable_get('basic_cart_thank_you_message'),
   );
-  
+
   $form['actions']['#type'] = 'actions';
   $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
 
   return $form;
-  //return system_settings_form($form);
 }
 
 /**

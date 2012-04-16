@@ -1,3 +1,10 @@
+<?php
+/**
+ * @file
+ * basic_cart_order_details.tpl.php
+ */
+
+?>
 <p><?php print l(t('&laquo; Back to order list'), 'admin/structure/orders', array('html' => TRUE)); ?></p>
 <table class="basic-cart-order-details" border="0" cellpadding="0" cellspacing="0">
   <tr>

@@ -18,7 +18,7 @@ function basic_cart_install() {
 
   // Setting up the default currency.
   variable_set('basic_cart_currency', BASIC_CART_DEFAULT_CURRENCY);
-  
+
   // Setting up the default messages.
   variable_set('basic_cart_admin_subject', $t('New order placed'));
   $default_admin_message = $t('Hi,

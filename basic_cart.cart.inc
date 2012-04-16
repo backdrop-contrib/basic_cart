@@ -10,7 +10,7 @@
  */
 function basic_cart_cart() {
   $cart = basic_cart_get_cart();
-  
+
   if (empty($cart)) {
     return t('Your cart is empty.');
   }
@@ -119,7 +119,7 @@ function theme_basic_cart_render_cart_element($variables) {
   // Price and currency.
   $unit_price = isset($node->basic_cart_unit_price) ? $node->basic_cart_unit_price : 0;
   $currency = check_plain(variable_get('basic_cart_currency'));
-  
+
   // Prefix.
   $prefix  = '<div class="basic-cart-cart-contents row">';
   $prefix .= '  <div class="basic-cart-delete-image cell">' . $delete_link . '</div>';
