@@ -185,9 +185,16 @@ function basic_cart_add_to_cart($nid = NULL) {
       // Storing in session.
       $_SESSION['basic_cart']['cart'][$nid] = $node;
     }
-    
   }
-  drupal_goto('cart');
+  drupal_set_message(t('Shopping cart updated.'));
+  $redirect = variable_get('basic_cart_redirect_user_after_add_to_cart', FALSE);
+  if ($redirect) {
+    drupal_goto('cart');
+  }
+  else {
+    $referer = $_SERVER["HTTP_REFERER"];
+    drupal_goto($referer);
+  }
 }
 
 /**
@@ -201,6 +208,7 @@ function basic_cart_remove_from_cart($nid = NULL) {
   if ($nid > 0) {
     unset($_SESSION['basic_cart']['cart'][$nid]);
   }
+  drupal_set_message(t('Shopping cart updated.'));
   drupal_goto('cart');
 }
 
