@@ -48,6 +48,19 @@ function basic_cart_admin_content_type() {
     '#default_value' => variable_get('basic_cart_currency'),
   );
 
+  $form['redirect'] = array(
+    '#title' => t('Redirect user after adding an item to the shopping cart'),
+    '#type' => 'fieldset',
+    //'#description' => t('Please select the redirect option below.'),
+  );
+
+  $form['redirect']['basic_cart_redirect_user_after_add_to_cart'] = array(
+    '#title' => t('Redirect the user to the shopping cart page after he clicked the Add to cart button.'),
+    '#type' => 'checkbox',
+    //'#description' => t('Check if you want to '),
+    '#default_value' => variable_get('basic_cart_redirect_user_after_add_to_cart'),
+  );
+
   $form['messages'] = array(
     '#title' => t('Email messages'),
     '#type' => 'fieldset',
