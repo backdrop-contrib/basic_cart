@@ -117,7 +117,9 @@ function theme_basic_cart_render_cart_element($variables) {
                 truncate_utf8($node->basic_cart_node_description, 50) : $node->basic_cart_node_description;
   }
   // Price and currency.
+  $format = variable_get('basic_cart_price_format');
   $unit_price = isset($node->basic_cart_unit_price) ? $node->basic_cart_unit_price : 0;
+  $unit_price = basic_cart_price_format($format, $unit_price);
   $currency = check_plain(variable_get('basic_cart_currency'));
 
   // Prefix.
@@ -147,7 +149,9 @@ function theme_basic_cart_render_cart_element($variables) {
  * @todo find a way to pass $price and $currency through the variables array.
  */
 function theme_basic_cart_cart_total_price($variables) {
+  $format = variable_get('basic_cart_price_format');
   $price = basic_cart_get_total_price();
+  $price = basic_cart_price_format($format, $price);
   $currency = check_plain(variable_get('basic_cart_currency'));
   $html = '<div class="row">';
   $html .= '<div class="basic-cart-total-price cell">' . t('Total price') . ': <strong>' . $price . ' ' . $currency . '</strong></div>';
@@ -262,6 +266,51 @@ function basic_cart_empty_cart() {
 }
 
 /**
+ * Formats the input $price in the desired format.
+ *
+ * @param int $format
+ *   The format in which the price should be formated.
+ * @param float $price
+ *   The price in the raw format.
+ * @return $price
+ *   The price in the custom format.
+ */
+function basic_cart_price_format($format, $price) {
+  $price = (float) $price;
+  switch ($format) {
+    case 1:
+      $price = number_format($price, 2, '.', ' ');
+      break;
+    case 2:
+      $price = number_format($price, 2, '.', ',');
+      break;
+    case 3:
+      $price = number_format($price, 2, ',', '.');
+      break;
+    default:
+      $price = number_format($price, 2, ',', ' ');
+      break;
+  }
+  return $price;
+}
+
+/**
+ * Returns the available price formats.
+ *
+ * @return $formats
+ *   A list with the available price formats.
+ */
+function _basic_cart_price_format() {
+  $currency = variable_get('basic_cart_currency');
+  return array(
+    0 => t('1 234,00 @currency', array('@currency' => $currency)),
+    1 => t('1 234.00 @currency', array('@currency' => $currency)),
+    2 => t('1,234.00 @currency', array('@currency' => $currency)),
+    3 => t('1.234,00 @currency', array('@currency' => $currency)),
+  );
+}
+
+/**
  * Checkout.
  */
 
@@ -270,10 +319,15 @@ function basic_cart_empty_cart() {
  */
 function basic_cart_checkout() {
   $shopping_cart = basic_cart_get_cart();
+  // Price.
+  $format = variable_get('basic_cart_price_format');
+  $price = basic_cart_get_total_price();
+  $price = basic_cart_price_format($format, $price);
   // The flat cart (just the listing part).
   $cart = theme('basic_cart_cart_flat', array(
     'cart' => $shopping_cart,
-    'price' => basic_cart_get_total_price(),
+    'price' => $price,
+    'price_format' => $format,
     'currency' => check_plain(variable_get('basic_cart_currency')),
   ));
   
@@ -347,7 +401,9 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   // %ORDER_DETAILS% placeholder.
   $order_details = '';
   $cart = basic_cart_get_cart();
+  $format = variable_get('basic_cart_price_format');
   $total_price = basic_cart_get_total_price();
+  $total_price = basic_cart_price_format($format, $total_price);
   $currency = check_plain(variable_get('basic_cart_currency'));
 
   // Registering the new order to the database.
@@ -363,6 +419,9 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   }
   
   // Building the order details.
+  /**
+   * @todo add unit price here.
+   */
   foreach ($cart as $nid => $node) {
     $order_details .= $node->basic_cart_quantity . ' x ' . $node->title . "\n";
   }

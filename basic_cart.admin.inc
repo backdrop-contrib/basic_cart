@@ -36,7 +36,7 @@ function basic_cart_admin_content_type() {
   );
 
   $form['currency'] = array(
-    '#title' => t('Currency'),
+    '#title' => t('Currency and price'),
     '#type' => 'fieldset',
     '#description' => t('Please select the currency in which the prices will be calculated.'),
   );
@@ -46,6 +46,14 @@ function basic_cart_admin_content_type() {
     '#type' => 'textfield',
     '#description' => t("Please choose the currency."),
     '#default_value' => variable_get('basic_cart_currency'),
+  );
+
+  $form['currency']['basic_cart_price_format'] = array(
+    '#title' => t('Price format'),
+    '#type' => 'select',
+    '#options' => _basic_cart_price_format(),
+    '#description' => t("Please choose the format in which the price will be shown."),
+    '#default_value' => variable_get('basic_cart_price_format'),
   );
 
   $form['redirect'] = array(
