@@ -121,8 +121,7 @@ function basic_cart_node_view($node, $view_mode, $langcode) {
       $price = field_get_items('node', $node, 'price');
       $price = check_plain($price[0]['value']);
       // Price format.
-      $format = variable_get('basic_cart_price_format');
-      $price = basic_cart_price_format($format, $price);
+      $price = basic_cart_price_format($price);
       $node->content['price'] = array(
         '#markup' => theme('basic_cart_price', array(
           'price' => $price, 
@@ -144,11 +143,11 @@ function basic_cart_node_view($node, $view_mode, $langcode) {
 function basic_cart_theme() {
   return array(
     'basic_cart_cart_total_price' => array(
-      'variables' => array('price' => NULL, 'currency' => NULL, 'price_format' => NULL,),
+      'variables' => array('price' => NULL, 'currency' => NULL),
     ),
     'basic_cart_price' => array(
       'function' => 'basic_cart_price',
-      'variables' => array('price' => NULL, 'price_format' => NULL,),
+      'variables' => array('price' => NULL),
     ),
     'basic_cart_add_to_cart' => array(
       'function' => 'basic_cart_add_to_cart_button',
@@ -156,11 +155,11 @@ function basic_cart_theme() {
     ),
     'basic_cart_cart_flat' => array(
       'template' => 'basic_cart_cart_flat',
-      'variables' => array('cart' => NULL, 'price' => NULL, 'currency' => NULL, 'price_format' => NULL),
+      'variables' => array('cart' => NULL, 'price' => NULL, 'currency' => NULL),
     ),
     'basic_cart_cart_render_block' => array(
       'template' => 'basic_cart_cart_render_block',
-      'variables' => array('cart' => NULL, 'price' => NULL, 'currency' => NULL, 'price_format' => NULL),
+      'variables' => array('cart' => NULL, 'price' => NULL, 'currency' => NULL),
     ),
     'basic_cart_render_cart_element' => array(
       'render element' => 'form',
@@ -205,14 +204,12 @@ function basic_cart_block_view($delta = '') {
     case 'shopping_cart':
       if (user_access('use basic cart')) {
         // Price format.
-        $format = variable_get('basic_cart_price_format');
         $price = basic_cart_get_total_price();
-        $price = basic_cart_price_format($format, $price);
+        $price = basic_cart_price_format($price);
         $block['subject'] = t('Your cart');
         $block['content'] = theme('basic_cart_cart_render_block', array(
           'cart' => basic_cart_get_cart(),
           'price' => $price,
-          'price_format' => $format,
           'currency' => check_plain(variable_get('basic_cart_currency')),
         ));
         return $block;

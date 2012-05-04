@@ -15,7 +15,7 @@
             
           <div class="cell basic-cart-cart-unit-price">
             <?php if (!isset($node->basic_cart_unit_price)) $node->basic_cart_unit_price = 0; ?>
-            <strong><?php print basic_cart_price_format($price_format, $node->basic_cart_unit_price); ?> <?php print $currency; ?></strong>
+            <strong><?php print basic_cart_price_format($node->basic_cart_unit_price); ?> <?php print $currency; ?></strong>
           </div>
           <div class="cell basic-cart-cart-x">x</div>
           <div class="basic-cart-cart-quantity cell"><?php print $node->basic_cart_quantity; ?></div>

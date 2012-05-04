@@ -17,7 +17,7 @@
           <div class="basic-cart-cart-quantity cell"><?php print $node->basic_cart_quantity; ?></div>
           <div class="basic-cart-cart-x cell">x</div>
           <div class="basic-cart-cart-unit-price cell">
-            <strong><?php print basic_cart_price_format($price_format, $node->basic_cart_unit_price); ?> <?php print $currency; ?></strong>
+            <strong><?php print basic_cart_price_format($node->basic_cart_unit_price); ?> <?php print $currency; ?></strong>
           </div>
             
         </div>
