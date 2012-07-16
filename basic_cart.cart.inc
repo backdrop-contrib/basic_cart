@@ -409,7 +409,14 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
       'address' => $form_state['values']['basic_cart_checkout_address'],
       'message' => $form_state['values']['basic_cart_checkout_message'],
     );
-    basic_cart_order_register_order($name, $email, $order_details_);
+    $order = basic_cart_order_register_order($name, $email, $order_details_);
+    
+    // Order successfully placed. Custom hook for other modules.
+    foreach (module_implements('basic_cart_order') as $module) {
+      $function = $module . '_basic_cart_order';
+      // Will call all modules implementing hook__basic_cart_order() with the order node as argument.
+      $function($order);
+    }
   }
   
   // Building the order details.

@@ -9,7 +9,7 @@ include_once 'basic_cart_order.features.inc';
 /**
  * Implements hook_node_view().
  */
-function basic_cart_order_node_view_abc($node) {
+function basic_cart_order_view($node) {
   $oid = $node->nid;
   // Getting the order products.
   $order_products = db_select('basic_cart_order_node')
@@ -80,7 +80,7 @@ function basic_cart_order_menu() {
   $items = array();
   $items['admin/structure/orders/%node'] = array(
     'title' => 'Basic Cart Orders',
-    'page callback' => 'basic_cart_order_node_view_abc',
+    'page callback' => 'basic_cart_order_view',
     'page arguments' => array(3),
     'access arguments' => array('view basic cart orders'),
     'type' => MENU_CALLBACK,
@@ -171,4 +171,6 @@ function basic_cart_order_register_order($name, $email, $order_details=array()) 
     );
     drupal_write_record('basic_cart_order_node', $record);
   }
+  
+  return $node;
 }
