@@ -191,7 +191,10 @@ function basic_cart_add_to_cart_button($vars) {
  * Implements hook_block_info().
  */
 function basic_cart_block_info() {
-  $blocks['shopping_cart'] = array('info' => t('Shopping cart'));
+  $blocks['shopping_cart'] = array(
+    'info' => t('Shopping cart'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
   return $blocks;
 }
 
@@ -216,4 +219,24 @@ function basic_cart_block_view($delta = '') {
       }
       break;
   }
+}
+
+/**
+ * Helper function. Returns true if given node (node object or string node type) is a product.
+ */
+function basic_cart_is_product($node) {
+  $type = is_object($node) ? $node->type : $node;
+  // Getting node types.
+  $node_types = basic_cart_product_types();
+  if (empty($node_types) || !is_array($node_types)) {
+    return FALSE;
+  }
+  return in_array($type, $node_types);
+}
+
+/**
+ * Helper function. Returns an array of basic_cart product (content) types.
+ */ 
+function basic_cart_product_types(){
+  return variable_get('basic_cart_content_types', array());
 }

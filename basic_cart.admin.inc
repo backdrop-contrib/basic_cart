@@ -13,6 +13,7 @@ function basic_cart_admin_content_type() {
   if (empty($node_types)) {
     return NULL;
   }
+  
 
   $options = array();
   foreach ($node_types as $node_type => $type) {
@@ -20,6 +21,12 @@ function basic_cart_admin_content_type() {
       continue;
     }
     $options[$node_type] = check_plain($type->name);
+  }
+  $default_value = array();
+  foreach (basic_cart_product_types() as $product_type){
+    if (isset($options[$product_type])){
+      $default_value[$product_type] = $product_type;
+    }
   }
 
   $form['content_type'] = array(
@@ -32,7 +39,7 @@ function basic_cart_admin_content_type() {
     '#title' => t('Content types'),
     '#type' => 'checkboxes',
     '#options' => $options,
-    '#default_value' => variable_get('basic_cart_content_types', array()),
+    '#default_value' => $default_value,
   );
 
   $form['currency'] = array(
@@ -139,39 +146,63 @@ function basic_cart_admin_content_type() {
 function basic_cart_admin_content_type_submit($form, &$form_state) {
   // Remove internal Form API values.
   unset($form_state['values']['form_id'], $form_state['values']['form_token'], $form_state['values']['form_build_id'], $form_state['values']['op']);
-  // Save variables.
+
+  $product_types = array();
+  // Setting up the price field for the selected content types.
+  $content_types = $form_state['values']['basic_cart_content_types'];
+  // unset to prevent 'double' save
+  unset($form_state['values']['basic_cart_content_types']);
+  
+  if (!empty($content_types) && is_array($content_types)){
+    // Check to see if the price field already exists.
+    $field = field_info_field('price');
+    // If the price field does not exist then create it.
+    if (empty($field)) {
+      $field = array(
+        'field_name' => 'price',
+        'type' => 'text',
+        'entity_types' => array('node'),
+      );
+      field_create_field($field);
+    }
+    foreach ($content_types as $type => $checked) {
+      // If a node type is checked, then create the price field.
+      if ($checked) {
+        // save content_type as a product
+        $product_types[$type] = $type;
+        // Foreach checked content type, we must assign the price field to the content type.
+        $instance = field_info_instance('node', 'price', $type);
+        if (empty($instance)) {
+          $instance = array(
+            'field_name' => 'price',
+            'label' => t('Price'),
+            'description' => t('Please enter the price for this item.'),
+            'entity_type' => 'node',
+            'bundle' => $type,
+          );
+          // It doesn't exist. Create it.
+          field_create_instance($instance);
+        }
+      }
+      // If not, then delete the price field.
+      else {
+        $instance = field_info_instance('node', 'price', $type);
+        if (!empty($instance)) {
+          field_delete_instance($instance);
+        }
+      }
+    }
+  }
+
+  variable_set('basic_cart_content_types', $product_types);
+  
+  // Save other variables.
   foreach ($form_state['values'] as $key => $value) {
     if (is_array($value) && isset($form_state['values']['array_filter'])) {
       $value = array_keys(array_filter($value));
     }
     variable_set($key, $value);
   }
-
-  // Setting up the price field for the selected content types.
-  foreach ($form_state['values']['basic_cart_content_types'] as $type => $checked) {
-    // If a node type is checked, then create the price field.
-    if ($checked) {
-      // Foreach checked content type, we must assign the price field to the content type.
-      $instance = field_info_instance('node', 'price', $type);
-      if (empty($instance)) {
-        $instance = array(
-          'field_name' => 'price',
-          'label' => t('Price'),
-          'description' => t('Please enter the price for this item.'),
-          'entity_type' => 'node',
-          'bundle' => $type,
-        );
-        // It doesn't exist. Create it.
-        field_create_instance($instance);
-      }
-    }
-    // If not, then delete the price field.
-    else {
-      $instance = field_info_instance('node', 'price', $type);
-      if (!empty($instance)) {
-        field_delete_instance($instance);
-      }
-    }
-  }
+  
   drupal_set_message(t('The configuration options have been saved.'));
 }

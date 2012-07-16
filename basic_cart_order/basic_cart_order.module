@@ -9,76 +9,83 @@ include_once 'basic_cart_order.features.inc';
 /**
  * Implements hook_node_view().
  */
-function basic_cart_order_node_view($node, $view_mode, $langcode) {
-  // View ordered products.
-  if ($node->type == 'order') {
-    if (user_access('view basic cart orders')) {
-      $oid = $node->nid;
-      // Getting the order products.
-      $order_products = db_select('basic_cart_order_node')
-                          ->fields('basic_cart_order_node')
-                          ->condition('oid', $oid)
-                          ->execute()->fetchAll();
-      // Building the products array.
-      if (is_array($order_products)) {
-        $products = array();
-        foreach ($order_products as $product) {
-          $p = node_load($product->nid);
-          $p->basic_cart_quantity = $product->quantity;
-          // Price in a nicer form.
-          $price = field_get_items('node', $p, 'price');
-          $price = isset($price[0]['value']) ? check_plain($price[0]['value']) : '';
-          $p->price = basic_cart_price_format($price);
-          $products[] = $p;
-        }
-      }
-      // Building the order variables.
-      $order = node_load($oid);
-      // Name.
-      $name = check_plain($order->title);
-      // Email.
-      $email = field_get_items('node', $order, 'field_email');
-      $email = isset($email[0]['value']) ? check_plain($email[0]['value']) : '';
-      // Phone.
-      $phone = field_get_items('node', $order, 'field_phone');
-      $phone = isset($phone[0]['value']) ? check_plain($phone[0]['value']) : '';
-      // Adsress.
-      $address = field_get_items('node', $order, 'field_address');
-      $address = isset($address[0]['value']) ? check_plain($address[0]['value']) : '';
-      // Message.
-      $message = field_get_items('node', $order, 'body');
-      $message = isset($message[0]['value']) ? check_plain($message[0]['value']) : '';
-      // Total price.
-      $total_price = field_get_items('node', $order, 'field_total_price');
-      $total_price = isset($total_price[0]['value']) ? check_plain($total_price[0]['value']) : '';
-      $total_price = basic_cart_price_format($total_price);
-      // Currency.
-      $currency = check_plain(variable_get('basic_cart_currency'));
-      // Hide field data.
-      unset($node->content['field_email']);
-      unset($node->content['field_phone']);
-      unset($node->content['field_address']);
-      unset($node->content['field_total_price']);
-      // Page title.
-      $title = t('Order ID: @oid', array('@oid' => $oid));
-      drupal_set_title($title);
-      // The content.
-      $node->content['body'] = array(
-        '#markup' => theme('basic_cart_order_details', array(
-          'name' => $name,
-          'email' => $email,
-          'phone' => $phone,
-          'address' => $address,
-          'message' => $message,
-          'products' => $products,
-          'total_price' => $total_price,
-          'currency' => $currency,
-          'timestamp' => $node->created,
-        )),
-        '#weight' => 50,
-      );
+function basic_cart_order_node_view_abc($node) {
+  $oid = $node->nid;
+  // Getting the order products.
+  $order_products = db_select('basic_cart_order_node')
+                      ->fields('basic_cart_order_node')
+                      ->condition('oid', $oid)
+                      ->execute()->fetchAll();
+  // Building the products array.
+  if (is_array($order_products)) {
+    $products = array();
+    foreach ($order_products as $product) {
+      $p = node_load($product->nid);
+      $p->basic_cart_quantity = $product->quantity;
+      // Price in a nicer form.
+      $price = field_get_items('node', $p, 'price');
+      $price = isset($price[0]['value']) ? check_plain($price[0]['value']) : '';
+      $p->price = basic_cart_price_format($price);
+      $products[] = $p;
     }
   }
+  // Building the order variables.
+  $order = node_load($oid);
+  // Name.
+  $name = check_plain($order->title);
+  // Email.
+  $email = field_get_items('node', $order, 'field_email');
+  $email = isset($email[0]['value']) ? check_plain($email[0]['value']) : '';
+  // Phone.
+  $phone = field_get_items('node', $order, 'field_phone');
+  $phone = isset($phone[0]['value']) ? check_plain($phone[0]['value']) : '';
+  // Adsress.
+  $address = field_get_items('node', $order, 'field_address');
+  $address = isset($address[0]['value']) ? check_plain($address[0]['value']) : '';
+  // Message.
+  $message = field_get_items('node', $order, 'body');
+  $message = isset($message[0]['value']) ? check_plain($message[0]['value']) : '';
+  // Total price.
+  $total_price = field_get_items('node', $order, 'field_total_price');
+  $total_price = isset($total_price[0]['value']) ? check_plain($total_price[0]['value']) : '';
+  $total_price = basic_cart_price_format($total_price);
+  // Currency.
+  $currency = check_plain(variable_get('basic_cart_currency'));
+  // Hide field data.
+  unset($node->content['field_email']);
+  unset($node->content['field_phone']);
+  unset($node->content['field_address']);
+  unset($node->content['field_total_price']);
+  // Page title.
+  $title = t('Order ID: @oid', array('@oid' => $oid));
+  drupal_set_title($title);
+  
+  return theme('basic_cart_order_details', array(
+    'name' => $name,
+    'email' => $email,
+    'phone' => $phone,
+    'address' => $address,
+    'message' => $message,
+    'products' => $products,
+    'total_price' => $total_price,
+    'currency' => $currency,
+    'timestamp' => $node->created,
+  ));
+}
+
+/**
+ * Implements hook_menu().
+ */
+function basic_cart_order_menu() {
+  $items = array();
+  $items['admin/structure/orders/%node'] = array(
+    'title' => 'Basic Cart Orders',
+    'page callback' => 'basic_cart_order_node_view_abc',
+    'page arguments' => array(3),
+    'access arguments' => array('view basic cart orders'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
 }
 
 /**
