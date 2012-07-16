@@ -74,6 +74,16 @@ function basic_cart_admin_content_type() {
     '#default_value' => variable_get('basic_cart_redirect_user_after_add_to_cart'),
   );
 
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
+
+  return $form;
+}
+
+/**
+ * Callback for the admin messages.
+ */
+function basic_cart_admin_checkout() {
   $form['messages'] = array(
     '#title' => t('Email messages'),
     '#type' => 'fieldset',
@@ -134,10 +144,7 @@ function basic_cart_admin_content_type() {
     '#default_value' => variable_get('basic_cart_thank_you_message'),
   );
 
-  $form['actions']['#type'] = 'actions';
-  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
-
-  return $form;
+  return system_settings_form($form);
 }
 
 /**
