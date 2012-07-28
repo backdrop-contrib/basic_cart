@@ -189,13 +189,17 @@ function basic_cart_add_to_cart($nid = NULL) {
     }
   }
   drupal_set_message(t('Shopping cart updated.'));
+  
   $redirect = variable_get('basic_cart_redirect_user_after_add_to_cart', FALSE);
-  if ($redirect) {
+  if (empty($redirect)) {
     drupal_goto('cart');
   }
-  else {
+  elseif ($redirect == '<none>') {
     $referer = $_SERVER["HTTP_REFERER"];
     drupal_goto($referer);
+  }
+  else {
+    drupal_goto($redirect);
   }
 }
 

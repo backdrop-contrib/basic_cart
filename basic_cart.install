@@ -41,6 +41,9 @@ We will contact you as soon as possible.', array('@sitename' => variable_get('si
   $default_thank_you_message = $t("Thank you for placing an order on our website.\nWe will contact you as soon as possible.");
   variable_set('basic_cart_thank_you_message', $default_thank_you_message);
   
+  // Redirect url after add to cart.
+  variable_set('basic_cart_redirect_user_after_add_to_cart', '<none>');
+  
   // Check to see if the price field already exists.
   $field = field_info_field('price');
   // If the price field does not exist then create it.

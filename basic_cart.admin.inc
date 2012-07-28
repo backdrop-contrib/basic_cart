@@ -67,11 +67,13 @@ function basic_cart_admin_content_type() {
     '#title' => t('Redirect user after adding an item to the shopping cart'),
     '#type' => 'fieldset',
   );
-
+  
   $form['redirect']['basic_cart_redirect_user_after_add_to_cart'] = array(
-    '#title' => t('Redirect the user to the shopping cart page after he clicked the Add to cart button.'),
-    '#type' => 'checkbox',
+    '#title' => t('Add to cart redirect'),
+    '#type' => 'textfield',
+    '#description' => t("Enter the page you wish to redirect the customer to when an item is added to the cart, or &lt;none&gt; for no redirect."),
     '#default_value' => variable_get('basic_cart_redirect_user_after_add_to_cart'),
+    '#field_prefix' => url(NULL, array('absolute' => TRUE)) . (variable_get('clean_url', 0) ? '' : '?q='),
   );
 
   $form['actions']['#type'] = 'actions';
