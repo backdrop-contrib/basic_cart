@@ -32,13 +32,39 @@ function basic_cart_order_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '10';
   $handler->display->display_options['style_plugin'] = 'table';
+  /* Field: Content: Nid */
+  $handler->display->display_options['fields']['nid_1']['id'] = 'nid_1';
+  $handler->display->display_options['fields']['nid_1']['table'] = 'node';
+  $handler->display->display_options['fields']['nid_1']['field'] = 'nid';
+  $handler->display->display_options['fields']['nid_1']['label'] = '';
+  $handler->display->display_options['fields']['nid_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['nid_1']['alter']['alter_text'] = 0;
+  $handler->display->display_options['fields']['nid_1']['alter']['make_link'] = 0;
+  $handler->display->display_options['fields']['nid_1']['alter']['absolute'] = 0;
+  $handler->display->display_options['fields']['nid_1']['alter']['external'] = 0;
+  $handler->display->display_options['fields']['nid_1']['alter']['replace_spaces'] = 0;
+  $handler->display->display_options['fields']['nid_1']['alter']['trim_whitespace'] = 0;
+  $handler->display->display_options['fields']['nid_1']['alter']['nl2br'] = 0;
+  $handler->display->display_options['fields']['nid_1']['alter']['word_boundary'] = 1;
+  $handler->display->display_options['fields']['nid_1']['alter']['ellipsis'] = 1;
+  $handler->display->display_options['fields']['nid_1']['alter']['more_link'] = 0;
+  $handler->display->display_options['fields']['nid_1']['alter']['strip_tags'] = 0;
+  $handler->display->display_options['fields']['nid_1']['alter']['trim'] = 0;
+  $handler->display->display_options['fields']['nid_1']['alter']['html'] = 0;
+  $handler->display->display_options['fields']['nid_1']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['nid_1']['element_default_classes'] = 1;
+  $handler->display->display_options['fields']['nid_1']['hide_empty'] = 0;
+  $handler->display->display_options['fields']['nid_1']['empty_zero'] = 0;
+  $handler->display->display_options['fields']['nid_1']['hide_alter_empty'] = 1;
+  $handler->display->display_options['fields']['nid_1']['link_to_node'] = 0;
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['label'] = 'Name';
   $handler->display->display_options['fields']['title']['alter']['alter_text'] = 0;
-  $handler->display->display_options['fields']['title']['alter']['make_link'] = 0;
+  $handler->display->display_options['fields']['title']['alter']['make_link'] = 1;
+  $handler->display->display_options['fields']['title']['alter']['path'] = 'admin/structure/orders/[nid_1]';
   $handler->display->display_options['fields']['title']['alter']['absolute'] = 0;
   $handler->display->display_options['fields']['title']['alter']['external'] = 0;
   $handler->display->display_options['fields']['title']['alter']['replace_spaces'] = 0;
@@ -55,7 +81,7 @@ function basic_cart_order_views_default_views() {
   $handler->display->display_options['fields']['title']['hide_empty'] = 0;
   $handler->display->display_options['fields']['title']['empty_zero'] = 0;
   $handler->display->display_options['fields']['title']['hide_alter_empty'] = 1;
-  $handler->display->display_options['fields']['title']['link_to_node'] = 1;
+  $handler->display->display_options['fields']['title']['link_to_node'] = 0;
   /* Field: Content: Email */
   $handler->display->display_options['fields']['field_email']['id'] = 'field_email';
   $handler->display->display_options['fields']['field_email']['table'] = 'field_data_field_email';
@@ -132,7 +158,8 @@ function basic_cart_order_views_default_views() {
   $handler->display->display_options['fields']['nid']['label'] = '';
   $handler->display->display_options['fields']['nid']['alter']['alter_text'] = 1;
   $handler->display->display_options['fields']['nid']['alter']['text'] = 'View order';
-  $handler->display->display_options['fields']['nid']['alter']['make_link'] = 0;
+  $handler->display->display_options['fields']['nid']['alter']['make_link'] = 1;
+  $handler->display->display_options['fields']['nid']['alter']['path'] = 'admin/structure/orders/[nid]';
   $handler->display->display_options['fields']['nid']['alter']['absolute'] = 0;
   $handler->display->display_options['fields']['nid']['alter']['external'] = 0;
   $handler->display->display_options['fields']['nid']['alter']['replace_spaces'] = 0;
@@ -149,7 +176,7 @@ function basic_cart_order_views_default_views() {
   $handler->display->display_options['fields']['nid']['hide_empty'] = 0;
   $handler->display->display_options['fields']['nid']['empty_zero'] = 0;
   $handler->display->display_options['fields']['nid']['hide_alter_empty'] = 1;
-  $handler->display->display_options['fields']['nid']['link_to_node'] = 1;
+  $handler->display->display_options['fields']['nid']['link_to_node'] = 0;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';

@@ -103,7 +103,8 @@ function basic_cart_admin_checkout() {
   $form['messages']['basic_cart_admin_message'] = array(
     '#title' => t('Admin email'),
     '#type' => 'textarea',
-    '#description' => t('This email will be sent to the site administrator just after an order is placed. Availabale tokes: %CUSTOMER_NAME, %CUSTOMER_EMAIL, %CUSTOMER_PHONE, %CUSTOMER_ADDRESS, %CUSTOMER_MESSAGE, %ORDER_DETAILS'),
+    '#description' => t('This email will be sent to the site administrator just after an order is placed. 
+      Availabale tokes: %CUSTOMER_NAME, %CUSTOMER_EMAIL, %CUSTOMER_PHONE, %CUSTOMER_CITY, %CUSTOMER_ZIPCODE, %CUSTOMER_ADDRESS, %CUSTOMER_MESSAGE, %ORDER_DETAILS.'),
     '#default_value' => variable_get('basic_cart_admin_message'),
   );
 

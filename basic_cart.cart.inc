@@ -370,6 +370,20 @@ function basic_cart_checkout_form() {
     '#description' => t('Please enter your address.'),
   );
 
+  $form['basic_cart_checkout_city'] = array(
+    '#title' => t('City'),
+    '#type' => 'textfield',
+    '#size' => 40,
+    '#description' => t('Please enter your city.'),
+  );
+  
+  $form['basic_cart_checkout_zipcode'] = array(
+    '#title' => t('Zip code'),
+    '#type' => 'textfield',
+    '#size' => 16,
+    '#description' => t('Please enter your zipcode.'),
+  );
+  
   $form['basic_cart_checkout_message'] = array(
     '#title' => t('Message'),
     '#type' => 'textarea',
@@ -411,6 +425,8 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     $email = $form_state['values']['basic_cart_checkout_email'];
     $order_details_ = array(
       'phone' => $form_state['values']['basic_cart_checkout_phone'],
+      'city' => $form_state['values']['basic_cart_checkout_city'],
+      'zipcode' => $form_state['values']['basic_cart_checkout_zipcode'],
       'address' => $form_state['values']['basic_cart_checkout_address'],
       'message' => $form_state['values']['basic_cart_checkout_message'],
     );
@@ -435,12 +451,13 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   $order_details .= "Total price: " . $total_price . " " . $currency;
   // Pleaceholder replacement.
   $search = array(
-    '%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE',
-    '%CUSTOMER_ADDRESS', '%CUSTOMER_MESSAGE', '%ORDER_DETAILS',
+    '%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE', '%CUSTOMER_CITY',
+    '%CUSTOMER_ZIPCODE', '%CUSTOMER_ADDRESS', '%CUSTOMER_MESSAGE', '%ORDER_DETAILS',
   );
   $replace = array(
     $form_state['values']['basic_cart_checkout_name'], $form_state['values']['basic_cart_checkout_email'],
-    $form_state['values']['basic_cart_checkout_phone'], $form_state['values']['basic_cart_checkout_address'],
+    $form_state['values']['basic_cart_checkout_phone'], $form_state['values']['basic_cart_checkout_city'],
+    $form_state['values']['basic_cart_checkout_zipcode'], $form_state['values']['basic_cart_checkout_address'],
     $form_state['values']['basic_cart_checkout_message'], $order_details,
   );
   // Admin message.

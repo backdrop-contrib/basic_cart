@@ -10,7 +10,7 @@
 function basic_cart_order_field_default_fields() {
   $fields = array();
 
-  // Exported field: 'node-order-body'
+  // Exported field: 'node-order-body'.
   $fields['node-order-body'] = array(
     'field_config' => array(
       'active' => '1',
@@ -33,6 +33,7 @@ function basic_cart_order_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(),
       'translatable' => '0',
@@ -78,12 +79,12 @@ function basic_cart_order_field_default_fields() {
           'summary_rows' => 5,
         ),
         'type' => 'text_textarea_with_summary',
-        'weight' => '4',
+        'weight' => '6',
       ),
     ),
   );
 
-  // Exported field: 'node-order-field_address'
+  // Exported field: 'node-order-field_address'.
   $fields['node-order-field_address'] = array(
     'field_config' => array(
       'active' => '1',
@@ -104,6 +105,7 @@ function basic_cart_order_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -151,7 +153,76 @@ function basic_cart_order_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-order-field_email'
+  // Exported field: 'node-order-field_city'.
+  $fields['node-order-field_city'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_city',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'order',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 5,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_city',
+      'label' => 'City',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '4',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-order-field_email'.
   $fields['node-order-field_email'] = array(
     'field_config' => array(
       'active' => '1',
@@ -172,6 +243,7 @@ function basic_cart_order_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -219,7 +291,7 @@ function basic_cart_order_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-order-field_phone'
+  // Exported field: 'node-order-field_phone'.
   $fields['node-order-field_phone'] = array(
     'field_config' => array(
       'active' => '1',
@@ -240,6 +312,7 @@ function basic_cart_order_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -287,7 +360,7 @@ function basic_cart_order_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-order-field_total_price'
+  // Exported field: 'node-order-field_total_price'.
   $fields['node-order-field_total_price'] = array(
     'field_config' => array(
       'active' => '1',
@@ -308,6 +381,7 @@ function basic_cart_order_field_default_fields() {
           0 => 'format',
         ),
       ),
+      'locked' => '0',
       'module' => 'text',
       'settings' => array(
         'max_length' => '255',
@@ -350,6 +424,75 @@ function basic_cart_order_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
+        'weight' => '7',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-order-field_zipcode'.
+  $fields['node-order-field_zipcode'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_zipcode',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'order',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 6,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_zipcode',
+      'label' => 'Zip Code',
+      'required' => 0,
+      'settings' => array(
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
         'weight' => '5',
       ),
     ),
@@ -358,10 +501,12 @@ function basic_cart_order_field_default_fields() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Address');
+  t('City');
   t('Email');
   t('Message');
   t('Phone');
   t('Total price');
+  t('Zip Code');
 
   return $fields;
 }

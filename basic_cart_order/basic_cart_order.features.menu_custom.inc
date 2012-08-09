@@ -10,7 +10,7 @@
 function basic_cart_order_menu_default_menu_custom() {
   $menus = array();
 
-  // Exported menu: management
+  // Exported menu: management.
   $menus['management'] = array(
     'menu_name' => 'management',
     'title' => 'Management',

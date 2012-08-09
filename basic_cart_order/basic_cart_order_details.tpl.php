@@ -21,7 +21,10 @@
   </tr>
   <tr>
     <td class="basic-cart-order-label"><?php print t('Address'); ?>:</td>
-    <td class="basic-cart-order-value"><?php print $address; ?></td>
+    <td class="basic-cart-order-value">
+      <?php print $address; ?><br />
+      <?php print $zipcode; ?> <?php print $city; ?>
+    </td>
   </tr>
   <tr>
     <td class="basic-cart-order-label"><?php print t('Date'); ?>:</td>

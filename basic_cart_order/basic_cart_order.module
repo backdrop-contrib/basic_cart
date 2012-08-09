@@ -39,6 +39,12 @@ function basic_cart_order_view($node) {
   // Phone.
   $phone = field_get_items('node', $order, 'field_phone');
   $phone = isset($phone[0]['value']) ? check_plain($phone[0]['value']) : '';
+  // City.
+  $city = field_get_items('node', $order, 'field_city');
+  $city = isset($city[0]['value']) ? check_plain($city[0]['value']) : '';
+  // Zip Code.
+  $zipcode = field_get_items('node', $order, 'field_zipcode');
+  $zipcode = isset($zipcode[0]['value']) ? check_plain($zipcode[0]['value']) : '';
   // Adsress.
   $address = field_get_items('node', $order, 'field_address');
   $address = isset($address[0]['value']) ? check_plain($address[0]['value']) : '';
@@ -54,6 +60,8 @@ function basic_cart_order_view($node) {
   // Hide field data.
   unset($node->content['field_email']);
   unset($node->content['field_phone']);
+  unset($node->content['field_city']);
+  unset($node->content['field_zipcode']);
   unset($node->content['field_address']);
   unset($node->content['field_total_price']);
   // Page title.
@@ -64,6 +72,8 @@ function basic_cart_order_view($node) {
     'name' => $name,
     'email' => $email,
     'phone' => $phone,
+    'city' => $city,
+    'zipcode' => $zipcode,
     'address' => $address,
     'message' => $message,
     'products' => $products,
@@ -102,6 +112,8 @@ function basic_cart_order_theme() {
         'name' => NULL,
         'email' => NULL,
         'phone' => NULL,
+        'city' => NULL,
+        'zipcode' => NULL,
         'address' => NULL,
         'message' => NULL,
         'products' => NULL,
@@ -147,6 +159,14 @@ function basic_cart_order_register_order($name, $email, $order_details=array()) 
   // Phone.
   if (isset($order_details['phone'])) {
     $node->field_phone[$node->language][0]['value'] = $order_details['phone'];
+  }
+  // Phone.
+  if (isset($order_details['city'])) {
+    $node->field_city[$node->language][0]['value'] = $order_details['city'];
+  }
+  // Phone.
+  if (isset($order_details['zipcode'])) {
+    $node->field_zipcode[$node->language][0]['value'] = $order_details['zipcode'];
   }
   // Address.
   if (isset($order_details['address'])) {
