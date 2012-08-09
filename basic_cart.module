@@ -5,7 +5,7 @@
  * Basic cart module file.
  */
 
-require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'basic_cart') . '/basic_cart.cart.inc';
+require_once dirname(__FILE__) . '/basic_cart.cart.inc';
 
 /**
  * Implements hook_permission().
@@ -229,6 +229,7 @@ function basic_cart_block_view($delta = '') {
     case 'shopping_cart':
       if (user_access('use basic cart')) {
         // Price format.
+        module_load_include('inc', 'basic_cart', 'basic_cart.cart');
         $price = basic_cart_get_total_price();
         $price = basic_cart_price_format($price);
         $block['subject'] = t('Your cart');
@@ -261,4 +262,33 @@ function basic_cart_is_product($node) {
  */ 
 function basic_cart_product_types(){
   return variable_get('basic_cart_content_types', array());
+}
+
+/**
+ * Implementation hook_views_api()
+ */
+function basic_cart_views_api() {
+  return array(
+    'api' => '2.0',
+    'path' => drupal_get_path('module', 'basic_cart') . '/views',
+  );
+}
+
+/**
+ * Function returns an array to render add to cart link
+ */
+function basic_cart_add_to_cart_link($nid){
+  $link = array(
+    '#type' => 'link',
+    '#id' => drupal_html_id('basic-cart-add-to-cart-link-' . $nid),
+    '#prefix' => '<div class="basic-cart-add-to-cart">',
+    '#suffix' => '</div>',
+    '#title' => t('Add to cart'),
+    '#href' => 'cart/add/' . $nid,
+    '#attributes' => array(
+      'class' => array('button', 'basic-cart-add-to-cart-link'),
+    ),
+  );
+  
+  return $link;
 }

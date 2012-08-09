@@ -9,6 +9,7 @@
  * Callback for the admin configuration page.
  */
 function basic_cart_admin_content_type() {
+  module_load_include('inc', 'basic_cart', 'basic_cart.cart');
   $node_types = node_type_get_types();
   if (empty($node_types)) {
     return NULL;
@@ -169,7 +170,7 @@ function basic_cart_admin_content_type_submit($form, &$form_state) {
     if (empty($field)) {
       $field = array(
         'field_name' => 'price',
-        'type' => 'text',
+        'type' => 'number_decimal',
         'entity_types' => array('node'),
       );
       field_create_field($field);

@@ -334,9 +334,34 @@ function basic_cart_checkout() {
   if (empty($shopping_cart)) {
     return $cart;
   }
+  
   $form = drupal_get_form('basic_cart_checkout_form');
   $form = drupal_render($form);
-  return $cart . $form;
+  
+  module_load_include('module', 'payment');
+  $currency = check_plain(variable_get('basic_cart_currency'));
+  $payment = new Payment(array(
+    'currency_code' => $currency,
+    'finish_callback' => 'payment_ubercart_finish',
+    'method' => entity_load_single('payment_method', 1),
+    'payment_ubercart_uc_order_id' => 25,
+  ));
+
+  $cart_items = basic_cart_get_cart();
+
+  foreach ($cart_items as $product) {
+    $payment->setLineItem(new PaymentLineItem(array(
+      'amount' => $product->basic_cart_unit_price,
+      'description' => $product->title,
+      'quantity' => $product->basic_cart_quantity,
+      'name' => 'payment_basic_cart_' . $product->nid,
+    )));
+  }
+
+  $payment_form = drupal_get_form('payment_form', $payment);
+  $payment_form = drupal_render($payment_form);
+  
+  return $cart . $form . $payment_form;
 }
 
 /**

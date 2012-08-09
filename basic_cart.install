@@ -50,7 +50,7 @@ We will contact you as soon as possible.', array('@sitename' => variable_get('si
   if (empty($field)) {
     $field = array(
       'field_name' => 'price',
-      'type' => 'text',
+      'type' => 'number_decimal',
       'entity_types' => array('node'),
     );
     field_create_field($field);
@@ -104,7 +104,7 @@ function basic_cart_update_7200() {
   if (empty($field)) {
     $field = array(
       'field_name' => 'price',
-      'type' => 'text',
+      'type' => 'number_decimal',
       'entity_types' => array('node'),
     );
     field_create_field($field);
