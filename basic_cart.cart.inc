@@ -509,3 +509,4 @@ function basic_cart_checkout_thank_you() {
   $message = variable_get('basic_cart_thank_you_message');
   return filter_xss($message);
 }
+
