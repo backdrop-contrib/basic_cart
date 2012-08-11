@@ -121,7 +121,7 @@ function basic_cart_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'basic_cart.cart.inc',
   );
-
+  
   return $items;
 }
 
@@ -195,7 +195,7 @@ function basic_cart_theme() {
 function basic_cart_price($vars) {
   $price = $vars['price'];
   $currency = $vars['currency'];
-  $html = '<div class="basic-cart-price">' . t('Price') . ': <strong>' . $price . ' ' . $currency . '</strong></div>';
+  $html = '<div class="basic-cart-price"><span class="basic-cart-price-label">' . t('Price') . ': </span><strong>' . $price . ' ' . $currency . '</strong></div>';
   return $html;
 }
 
@@ -292,3 +292,4 @@ function basic_cart_add_to_cart_link($nid){
   
   return $link;
 }
+

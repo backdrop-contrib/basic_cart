@@ -195,7 +195,7 @@ function basic_cart_admin_content_type_submit($form, &$form_state) {
           field_create_instance($instance);
         }
       }
-      // If not, then delete the price field.
+      // If not, then delete the instance.
       else {
         $instance = field_info_instance('node', 'price', $type);
         if (!empty($instance)) {

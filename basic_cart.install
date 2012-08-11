@@ -141,3 +141,61 @@ function basic_cart_update_7200() {
     }
   }
 }
+
+/**
+ * Updating the price field to number_decimal instead of text. 
+ */
+function basic_cart_update_7201() {
+  $product_types = basic_cart_product_types();
+  if (!empty($product_types)) {
+    $backup_products = array();
+    // Taking each content type.
+    foreach ($product_types as $product_type => $is_active) {
+      if (!empty($is_active)) {
+        // Taking each product and storing it's initial value.
+        $query = db_select('node', 'n')->fields('n', array('nid'));
+        $products = $query->condition('type', $product_type, '=')->execute()->fetchAll();
+        
+        if (!empty($products) && is_array($products)) {
+          foreach ($products as $i => $node) {
+            $node = node_load($node->nid);
+            $backup_products[$product_type][$node->nid] = $node;
+          }
+        }
+      }
+    }
+    // Now deleting the price field.
+    field_delete_field('price');
+    // Using field_purge_batch() to actually delete the field.
+    field_purge_batch(10);
+    // Creating the new field with the right type property.
+    $field = array(
+      'field_name' => 'price',
+      'type' => 'number_decimal',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+    
+    // Restoring the content type instance and the node's initial value.
+    if (!empty($backup_products)) {
+      foreach ($backup_products as $product_type => $nodes) {
+        // Restoring the field instance.
+        $instance = array(
+          'field_name' => 'price',
+          'label' => t('Price'),
+          'description' => t('Please enter the price for this item.'),
+          'entity_type' => 'node',
+          'bundle' => $product_type,
+        );
+        field_create_instance($instance);
+        // Restoring the node's initial value.
+        foreach ($nodes as $nid => $node) {
+          node_save($node);
+        }
+      }
+    }
+  }
+  
+  // Redirect url after add to cart.
+  variable_set('basic_cart_redirect_user_after_add_to_cart', '<none>');
+}
