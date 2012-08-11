@@ -387,7 +387,7 @@ function basic_cart_checkout_form() {
   $form['basic_cart_checkout_message'] = array(
     '#title' => t('Message'),
     '#type' => 'textarea',
-    '#description' => t('If you have something to tell us, please fill the message area.'),
+    '#description' => t('If you wish to add a comment, please use this message area.'),
   );
 
   $form['basic_cart_checkout_submit'] = array(
