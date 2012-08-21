@@ -67,8 +67,6 @@ function basic_cart_order_view($node) {
   // Currency.
   $currency = check_plain(variable_get('basic_cart_currency'));
   
-  
-  
   // Hide field data.
   unset($node->content['field_email']);
   unset($node->content['field_phone']);
@@ -191,6 +189,12 @@ function basic_cart_order_register_order($name, $email, $order_details=array()) 
     $node->field_total_price[$node->language][0]['value'] = $order_details['total_price'];
   }
   else {
+    /**
+     * @todo
+     * 
+     * Add VAT as a separate field. Calculating it one the fly on the view order page is bad!!!
+     *  
+     */
     $price = basic_cart_get_total_price();
     $node->field_total_price[$node->language][0]['value'] = $price->total;
   }
