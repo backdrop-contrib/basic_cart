@@ -52,8 +52,14 @@
   <tr>
     <td colspan="2" class="basic-cart-order-label">
       <span class="basic-cart-order-total-price">
-        <?php print t('Total'); ?>: <?php print $total_price; ?> <?php print $currency; ?>
+        <?php print t('Total price'); ?>: <?php print $total_price; ?> <?php print $currency; ?>
       </span>
+      <?php if (!empty ($vat)): ?>
+        <br />
+        <span class="basic-cart-order-vat">
+          <?php print t('Total VAT'); ?>: <?php print $vat; ?> <?php print $currency; ?>
+        </span>
+      <?php endif; ?>
     </td>
   </tr>
 </table>

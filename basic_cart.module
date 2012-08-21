@@ -177,11 +177,11 @@ function basic_cart_theme() {
     ),
     'basic_cart_cart_flat' => array(
       'template' => 'basic_cart_cart_flat',
-      'variables' => array('cart' => NULL, 'price' => NULL, 'currency' => NULL),
+      'variables' => array('cart' => NULL, 'price' => NULL, 'currency' => NULL, 'vat' => NULL),
     ),
     'basic_cart_cart_render_block' => array(
       'template' => 'basic_cart_cart_render_block',
-      'variables' => array('cart' => NULL, 'price' => NULL, 'currency' => NULL),
+      'variables' => array('cart' => NULL, 'price' => NULL, 'currency' => NULL, 'vat' => NULL),
     ),
     'basic_cart_render_cart_element' => array(
       'render element' => 'form',
@@ -231,13 +231,20 @@ function basic_cart_block_view($delta = '') {
         // Price format.
         module_load_include('inc', 'basic_cart', 'basic_cart.cart');
         $price = basic_cart_get_total_price();
-        $price = basic_cart_price_format($price);
-        $block['subject'] = t('Your cart');
-        $block['content'] = theme('basic_cart_cart_render_block', array(
+        $total = basic_cart_price_format($price->total);
+        $options = array(
           'cart' => basic_cart_get_cart(),
-          'price' => $price,
+          'price' => $total,
           'currency' => check_plain(variable_get('basic_cart_currency')),
-        ));
+        );
+        // Checking the VAT.
+        $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
+        if (!empty ($vat_is_enabled) && $vat_is_enabled) {
+          $options['vat'] = basic_cart_price_format($price->vat);
+        }
+        
+        $block['subject'] = t('Your cart');
+        $block['content'] = theme('basic_cart_cart_render_block', $options);
         return $block;
       }
       break;

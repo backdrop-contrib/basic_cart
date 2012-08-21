@@ -25,10 +25,19 @@
           </div>
         </div>
       <?php endforeach; ?>
+   </div> 
+   <div class="basic-cart-cart basic-cart-grid">
       <div class="basic-cart-cart-total-price-contents row">
         <div class="basic-cart-total-price cell">
-          <?php print t('Total price'); ?>: <strong> <?php print $price ?> <?php print $currency; ?></strong></div>
+          <?php print t('Total price'); ?>: <strong> <?php print $price ?> <?php print $currency; ?></strong>
+        </div>
       </div>
+    
+      <?php if (!empty ($vat)): ?>
+        <div class="basic-cart-cart-total-vat-contents row">
+          <div class="basic-cart-total-vat cell"><?php print t('Total VAT'); ?>: <strong><?php print $vat; ?> <?php print $currency; ?></strong></div>
+        </div>
+      <?php endif; ?>
     <?php endif; ?>
   </div>
 <?php endif; ?>

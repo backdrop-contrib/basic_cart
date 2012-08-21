@@ -24,8 +24,14 @@
       <?php endforeach; ?>
       <div class="basic-cart-cart-total-price-contents row">
         <div class="basic-cart-total-price cell">
-          <?php print t('Total'); ?>:<strong> <?php print $price ?> <?php print $currency; ?></strong></div>
+          <?php print t('Total'); ?>:<strong> <?php print $price ?> <?php print $currency; ?></strong>
+        </div>
       </div>
+      <?php if (!empty ($vat)): ?>
+        <div class="basic-cart-block-total-vat-contents row">
+          <div class="basic-cart-total-vat cell"><?php print t('Total VAT'); ?>: <strong><?php print $vat; ?> <?php print $currency; ?></strong></div>
+        </div>
+      <?php endif; ?>
       <div class="basic-cart-cart-checkout-button basic-cart-cart-checkout-button-block row">
         <?php print l(t('View cart'), 'cart', array('attributes' => array('class' => array('button')))); ?>
       </div>

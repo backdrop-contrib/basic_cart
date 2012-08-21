@@ -63,7 +63,27 @@ function basic_cart_admin_content_type() {
     '#description' => t("Please choose the format in which the price will be shown."),
     '#default_value' => variable_get('basic_cart_price_format'),
   );
+  
+  $form['vat'] = array(
+    '#title' => t('VAT'),
+    '#type' => 'fieldset',
+  );
 
+  $form['vat']['basic_cart_vat_state'] = array(
+    '#title' => t('Check if you want to apply the VAT tax on the total amount in the checkout process.'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('basic_cart_vat_state', FALSE),
+  );
+
+  $form['vat']['basic_cart_vat_value'] = array(
+    '#title' => t('VAT value'),
+    '#type' => 'textfield',
+    '#description' => t("Please enter VAT value."),
+    '#field_suffix' => '%',
+    '#size' => 10,
+    '#default_value' => variable_get('basic_cart_vat_value', ''),
+  );
+  
   $form['redirect'] = array(
     '#title' => t('Redirect user after adding an item to the shopping cart'),
     '#type' => 'fieldset',
@@ -152,7 +172,17 @@ function basic_cart_admin_checkout() {
 }
 
 /**
- * Callback for the admin configuration page.
+ * Callback validation function for the settings page.
+ */
+function basic_cart_admin_content_type_validate($form, &$form_state) {
+  $vat_value = (float) $form_state['values']['basic_cart_vat_value'];
+  if ($vat_value <= 0) {
+    form_set_error('basic_cart_vat_value', t('Please enter a valid figure for the VAT.'));
+  }
+}
+
+/**
+ * Callback submit function for the settings page.
  */
 function basic_cart_admin_content_type_submit($form, &$form_state) {
   // Remove internal Form API values.
@@ -206,6 +236,11 @@ function basic_cart_admin_content_type_submit($form, &$form_state) {
   }
 
   variable_set('basic_cart_content_types', $product_types);
+  
+  // Set VAT to nothing if the checkbox is unchecked.
+  if (empty($form_state['values']['basic_cart_vat_state'])) {
+    $form_state['values']['basic_cart_vat_value'] = '';
+  }
   
   // Save other variables.
   foreach ($form_state['values'] as $key => $value) {

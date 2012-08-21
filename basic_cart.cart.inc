@@ -149,11 +149,22 @@ function theme_basic_cart_render_cart_element($variables) {
  */
 function theme_basic_cart_cart_total_price($variables) {
   $price = basic_cart_get_total_price();
-  $price = basic_cart_price_format($price);
+  $total = basic_cart_price_format($price->total);
   $currency = check_plain(variable_get('basic_cart_currency'));
-  $html = '<div class="row">';
-  $html .= '<div class="basic-cart-total-price cell">' . t('Total price') . ': <strong>' . $price . ' ' . $currency . '</strong></div>';
+  
+  // Building the HTML.
+  $html  = '<div class="basic-cart-cart-total-price-contents row">';
+  $html .= '  <div class="basic-cart-total-price cell">' . t('Total price') . ': <strong>' . $total . ' ' . $currency . '</strong></div>';
   $html .= '</div>';
+  
+  $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
+  if (!empty ($vat_is_enabled) && $vat_is_enabled) {
+    $vat_value = basic_cart_price_format($price->vat);
+    $html .= '<div class="basic-cart-cart-total-vat-contents row">';
+    $html .= '  <div class="basic-cart-total-vat cell">' . t('Total VAT') . ': <strong>' . $vat_value . ' ' . $currency . '</strong></div>';
+    $html .= '</div>';
+  }
+  
   return $html;
 }
 
@@ -246,9 +257,15 @@ function basic_cart_get_cart($nid = NULL) {
  *   The total price for the shopping cart. 
  */
 function basic_cart_get_total_price() {
+  // Building the return array.
+  $return = array(
+    'price' => 0,
+    'vat' => 0,
+    'total' => 0,
+  );
   $cart = basic_cart_get_cart();
   if (empty($cart)) {
-    return 0;
+    return (object) $return;
   }
   
   $total_price = 0;
@@ -256,8 +273,22 @@ function basic_cart_get_total_price() {
     if (isset($node->basic_cart_quantity) && isset($node->basic_cart_unit_price)) {
       $total_price += $node->basic_cart_quantity * $node->basic_cart_unit_price;
     }
-  } 
-  return $total_price;
+  }
+  
+  $return['price'] = $total_price;
+  
+  // Checking whether to apply the VAT or not.
+  $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
+  if (!empty ($vat_is_enabled) && $vat_is_enabled) {
+    $vat_value = (float) variable_get('basic_cart_vat_value');
+    $vat_value = ($total_price * $vat_value) / 100;
+    $total_price += $vat_value;
+    // Adding VAT and total price to the return array.
+    $return['vat'] = $vat_value;
+  }
+  
+  $return['total'] = $total_price;
+  return (object) $return;
 }
 
 /**
@@ -322,13 +353,22 @@ function basic_cart_checkout() {
   $shopping_cart = basic_cart_get_cart();
   // Price.
   $price = basic_cart_get_total_price();
-  $price = basic_cart_price_format($price);
-  // The flat cart (just the listing part).
-  $cart = theme('basic_cart_cart_flat', array(
+  $total = basic_cart_price_format($price->total);
+  
+  $options = array(
     'cart' => $shopping_cart,
-    'price' => $price,
+    'price' => $total,
     'currency' => check_plain(variable_get('basic_cart_currency')),
-  ));
+  );
+  
+  // Checking the VAT.
+  $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
+  if (!empty ($vat_is_enabled) && $vat_is_enabled) {
+    $options['vat'] = basic_cart_price_format($price->vat);
+  }
+  
+  // The flat cart (just the listing part).
+  $cart = theme('basic_cart_cart_flat', $options);
   
   // If the cart is empty, we don't want to show the checkout form.
   if (empty($shopping_cart)) {
@@ -416,7 +456,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   $order_details = '';
   $cart = basic_cart_get_cart();
   $total_price = basic_cart_get_total_price();
-  $total_price = basic_cart_price_format($total_price);
+  $total_price = basic_cart_price_format($total_price->total);
   $currency = check_plain(variable_get('basic_cart_currency'));
 
   // Registering the new order to the database.

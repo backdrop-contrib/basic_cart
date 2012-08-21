@@ -111,8 +111,19 @@
   width: auto;
 }
 
-.basic-cart-total-price.cell {
+.basic-cart-total-price.cell,
+.basic-cart-total-vat.cell {
   float: right;
+}
+
+.basic-cart-cart-total-vat-contents,
+.basic-cart-block-total-vat-contents {
+  padding: 0 5px;
+}
+
+.basic-cart-total-vat.cell {
+  color: #6C6C6C;
+  font-size: 11px;
 }
 
 .basic-cart-order-details td {
@@ -132,6 +143,11 @@
 .basic-cart-order-product-price,
 .basic-cart-order-total-price {
   float: right;
+}
+
+.basic-cart-order-vat {
+  float: right;
+  font-weight: normal;
 }
 
 .basic-cart-call-to-action {

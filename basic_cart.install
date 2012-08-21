@@ -11,6 +11,16 @@
 define('BASIC_CART_DEFAULT_CURRENCY', 'USD');
 
 /**
+ * Default VAT state (enabled/disabled). 
+ */
+define('BASIC_CART_VAT_STATE', FALSE);
+
+/**
+ * Default VAT value. Zero by default.
+ */
+define('BASIC_CART_VAT_VALUE', '');
+
+/**
  * Implements hook_install().
  */
 function basic_cart_install() {
@@ -55,6 +65,10 @@ We will contact you as soon as possible.', array('@sitename' => variable_get('si
     );
     field_create_field($field);
   }
+  
+  // Setting the VAT default state and value.
+  variable_set('basic_cart_vat_state', BASIC_CART_VAT_STATE);
+  variable_set('basic_cart_vat_value', BASIC_CART_VAT_VALUE);
 }
 
 /**
@@ -90,6 +104,11 @@ function basic_cart_uninstall() {
   // Thank you messages.
   variable_del('basic_cart_thank_you_title');
   variable_del('basic_cart_thank_you_message');
+  // Redirect user after add to cart action.
+  variable_del('basic_cart_redirect_user_after_add_to_cart');
+  // VAT default state and value.
+  variable_del('basic_cart_vat_state');
+  variable_del('basic_cart_vat_value');
 }
 
 /**
@@ -198,4 +217,8 @@ function basic_cart_update_7201() {
   
   // Redirect url after add to cart.
   variable_set('basic_cart_redirect_user_after_add_to_cart', '<none>');
+  
+  // Setting the VAT default state and value.
+  variable_set('basic_cart_vat_state', BASIC_CART_VAT_STATE);
+  variable_set('basic_cart_vat_value', BASIC_CART_VAT_VALUE);
 }
