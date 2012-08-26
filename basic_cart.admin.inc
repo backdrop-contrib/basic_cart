@@ -240,6 +240,44 @@ function basic_cart_admin_content_type_submit($form, &$form_state) {
   // Set VAT to nothing if the checkbox is unchecked.
   if (empty($form_state['values']['basic_cart_vat_state'])) {
     $form_state['values']['basic_cart_vat_value'] = '';
+    // Check to see if the VAT instance exists and if so, delete it.
+    if (module_exists('basic_cart_order')) {
+      $instance = field_info_instance('node', 'vat', 'order');
+      if (!empty($instance)) {
+        field_delete_instance($instance);
+      }
+    }
+  }
+  else {
+    // If the enable VAT checkbox is checked and if basic_cart_order is enabled,
+    // then create the vat field for the Order content type.
+    if (module_exists('basic_cart_order')) {
+      // Check to see if the vat field already exists.
+      $field = field_info_field('vat');
+      // If the vat field does not exist then create it.
+      if (empty($field)) {
+        $field = array(
+          'field_name' => 'vat',
+          'type' => 'number_decimal',
+          'entity_types' => array('node'),
+        );
+        field_create_field($field);
+
+        // Assign the vat field to the Order content type.
+        $instance = field_info_instance('node', 'vat', 'order');
+        if (empty($instance)) {
+          $instance = array(
+            'field_name' => 'vat',
+            'label' => t('VAT'),
+            'description' => t('The VAT tax.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+          // It doesn't exist. Create it.
+          field_create_instance($instance);
+        }
+      }
+    }
   }
   
   // Save other variables.

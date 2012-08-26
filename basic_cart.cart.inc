@@ -455,10 +455,15 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   // %ORDER_DETAILS% placeholder.
   $order_details = '';
   $cart = basic_cart_get_cart();
-  $total_price = basic_cart_get_total_price();
-  $total_price = basic_cart_price_format($total_price->total);
+  $price = basic_cart_get_total_price();
+  $total_price = basic_cart_price_format($price->total);
   $currency = check_plain(variable_get('basic_cart_currency'));
-
+  
+  $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
+  if (!empty ($vat_is_enabled) && $vat_is_enabled) {
+    $vat = basic_cart_price_format($price->vat);
+  }
+  
   // Registering the new order to the database.
   if (module_exists('basic_cart_order')) {
     $name = $form_state['values']['basic_cart_checkout_name'];
@@ -475,7 +480,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     // Order successfully placed. Custom hook for other modules.
     foreach (module_implements('basic_cart_order') as $module) {
       $function = $module . '_basic_cart_order';
-      // Will call all modules implementing hook__basic_cart_order() with the order node as argument.
+      // Will call all modules implementing hook_basic_cart_order() with the order node as argument.
       $function($order);
     }
   }
@@ -489,6 +494,8 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   }
   $order_details .= "\n";
   $order_details .= "Total price: " . $total_price . " " . $currency;
+  $order_details .= "\n";
+  $order_details .= "Total VAT: " . $vat . " " . $currency;
   // Pleaceholder replacement.
   $search = array(
     '%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE', '%CUSTOMER_CITY',

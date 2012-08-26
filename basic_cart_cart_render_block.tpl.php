@@ -24,7 +24,7 @@
       <?php endforeach; ?>
       <div class="basic-cart-cart-total-price-contents row">
         <div class="basic-cart-total-price cell">
-          <?php print t('Total'); ?>:<strong> <?php print $price ?> <?php print $currency; ?></strong>
+          <?php print t('Total price'); ?>:<strong> <?php print $price ?> <?php print $currency; ?></strong>
         </div>
       </div>
       <?php if (!empty ($vat)): ?>
