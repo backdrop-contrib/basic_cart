@@ -494,8 +494,11 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   }
   $order_details .= "\n";
   $order_details .= "Total price: " . $total_price . " " . $currency;
-  $order_details .= "\n";
-  $order_details .= "Total VAT: " . $vat . " " . $currency;
+  $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
+  if ($vat_is_enabled) {
+    $order_details .= "\n";
+    $order_details .= "Total VAT: " . $vat . " " . $currency;
+  }
   // Pleaceholder replacement.
   $search = array(
     '%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE', '%CUSTOMER_CITY',
