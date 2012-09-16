@@ -5,7 +5,7 @@
  * Basic cart module file.
  */
 
-require_once dirname(__FILE__) . '/basic_cart.cart.inc';
+require_once dirname(__FILE__) . '/basic_cart.theme.inc';
 
 /**
  * Implements hook_permission().
@@ -189,25 +189,6 @@ function basic_cart_theme() {
 }
 
 /**
- * Theme function implementation.
- */
-function basic_cart_price($vars) {
-  $price = $vars['price'];
-  $html = '<div class="basic-cart-price"><span class="basic-cart-price-label">' . t('Price') . ': </span><strong>' . $price . '</strong></div>';
-  return $html;
-}
-
-/**
- * Theme function implementation.
- */
-function basic_cart_add_to_cart_button($vars) {
-  $nid = $vars['nid'];
-  return '<div class="basic-cart-add-to-cart">
-            ' . l(t('Add to cart'), 'cart/add/' . $nid, array('attributes' => array('class' => array('button basic-cart-add-to-cart-link')))) . '
-          </div>';
-}
-
-/**
  * Implements hook_block_info().
  */
 function basic_cart_block_info() {
@@ -277,23 +258,3 @@ function basic_cart_views_api() {
     'path' => drupal_get_path('module', 'basic_cart') . '/views',
   );
 }
-
-/**
- * Function returns an array to render add to cart link
- */
-function basic_cart_add_to_cart_link($nid){
-  $link = array(
-    '#type' => 'link',
-    '#id' => drupal_html_id('basic-cart-add-to-cart-link-' . $nid),
-    '#prefix' => '<div class="basic-cart-add-to-cart">',
-    '#suffix' => '</div>',
-    '#title' => t('Add to cart'),
-    '#href' => 'cart/add/' . $nid,
-    '#attributes' => array(
-      'class' => array('button', 'basic-cart-add-to-cart-link'),
-    ),
-  );
-  
-  return $link;
-}
-

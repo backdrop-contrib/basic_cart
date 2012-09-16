@@ -175,9 +175,12 @@ function basic_cart_admin_checkout() {
  * Callback validation function for the settings page.
  */
 function basic_cart_admin_content_type_validate($form, &$form_state) {
-  $vat_value = (float) $form_state['values']['basic_cart_vat_value'];
-  if ($vat_value <= 0) {
-    form_set_error('basic_cart_vat_value', t('Please enter a valid figure for the VAT.'));
+  $vat_is_enabled = (int) $form_state['values']['basic_cart_vat_state'];
+  if (!empty ($vat_is_enabled) && $vat_is_enabled) {
+    $vat_value = (float) $form_state['values']['basic_cart_vat_value'];
+    if ($vat_value <= 0) {
+      form_set_error('basic_cart_vat_value', t('Please enter a valid figure for the VAT.'));
+    }
   }
 }
 

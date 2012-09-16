@@ -5,10 +5,6 @@ core = 7.x
 stylesheets[all][] = basic_cart.css
 configure = admin/config/basic_cart/settings
 
-files[] = basic_cart.module
-files[] = basic_cart.cart.inc
-files[] = basic_cart.admin.inc
-
 ; Views handlers
 files[] = views/basic_cart_handler_field_price.inc
 files[] = views/basic_cart_handler_field_addtocart.inc
