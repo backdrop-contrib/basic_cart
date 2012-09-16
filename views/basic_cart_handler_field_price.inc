@@ -70,11 +70,9 @@ class basic_cart_handler_field_price extends views_handler_field_numeric {
         if (is_null($value) || ($value == 0 && $this->options['empty_zero'])) {
           return '';
         }
-        // Getting the currency.
-        $currency = check_plain(variable_get('basic_cart_currency'));
         // Set the price format.
         $value = basic_cart_price_format($value);
-        return theme('basic_cart_price', array('price' => $value, 'currency' => $currency));
+        return theme('basic_cart_price', array('price' => $value));
       }
     }
   }

@@ -119,15 +119,14 @@ function theme_basic_cart_render_cart_element($variables) {
   // Price and currency.
   $unit_price = isset($node->basic_cart_unit_price) ? $node->basic_cart_unit_price : 0;
   $unit_price = basic_cart_price_format($unit_price);
-  $currency = check_plain(variable_get('basic_cart_currency'));
-
+  
   // Prefix.
   $prefix  = '<div class="basic-cart-cart-contents row">';
   $prefix .= '  <div class="basic-cart-delete-image cell">' . $delete_link . '</div>';
   $prefix .= '  <div class="basic-cart-cart-node-title cell">' . l($node->title, 'node/' . $nid) . '<br />';
   $prefix .= '    <span class="basic-cart-cart-node-summary">' . $desc . '</span>';
   $prefix .= '  </div>';
-  $prefix .= '  <div class="cell basic-cart-cart-unit-price"><strong>' . $unit_price . ' ' . $currency . '</strong></div>';
+  $prefix .= '  <div class="cell basic-cart-cart-unit-price"><strong>' . $unit_price . '</strong></div>';
   $prefix .= '  <div class="cell basic-cart-cart-x">x</div>';
   $prefix .= '  <div class="basic-cart-cart-quantity cell">';
   $prefix .= '    <div class="cell">';
@@ -145,23 +144,22 @@ function theme_basic_cart_render_cart_element($variables) {
 /**
  * Theme implementation for rendering the total price.
  * 
- * @todo find a way to pass $price and $currency through the variables array.
+ * @todo find a way to pass $price through the variables array.
  */
 function theme_basic_cart_cart_total_price($variables) {
   $price = basic_cart_get_total_price();
   $total = basic_cart_price_format($price->total);
-  $currency = check_plain(variable_get('basic_cart_currency'));
   
   // Building the HTML.
   $html  = '<div class="basic-cart-cart-total-price-contents row">';
-  $html .= '  <div class="basic-cart-total-price cell">' . t('Total price') . ': <strong>' . $total . ' ' . $currency . '</strong></div>';
+  $html .= '  <div class="basic-cart-total-price cell">' . t('Total price') . ': <strong>' . $total . '</strong></div>';
   $html .= '</div>';
   
   $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
   if (!empty ($vat_is_enabled) && $vat_is_enabled) {
     $vat_value = basic_cart_price_format($price->vat);
     $html .= '<div class="basic-cart-cart-total-vat-contents row">';
-    $html .= '  <div class="basic-cart-total-vat cell">' . t('Total VAT') . ': <strong>' . $vat_value . ' ' . $currency . '</strong></div>';
+    $html .= '  <div class="basic-cart-total-vat cell">' . t('Total VAT') . ': <strong>' . $vat_value . '</strong></div>';
     $html .= '</div>';
   }
   
@@ -308,19 +306,43 @@ function basic_cart_empty_cart() {
  */
 function basic_cart_price_format($price) {
   $format = variable_get('basic_cart_price_format');
+  $currency = check_plain(variable_get('basic_cart_currency'));
   $price = (float) $price;
   switch ($format) {
+    case 0:
+      $price = number_format($price, 2, ',', ' ') . ' ' . $currency;
+      break;
+    
     case 1:
-      $price = number_format($price, 2, '.', ' ');
+      $price = number_format($price, 2, '.', ' ') . ' ' . $currency;
       break;
+    
     case 2:
-      $price = number_format($price, 2, '.', ',');
+      $price = number_format($price, 2, '.', ',') . ' ' . $currency;
       break;
+    
     case 3:
-      $price = number_format($price, 2, ',', '.');
+      $price = number_format($price, 2, ',', '.') . ' ' . $currency;
       break;
+    
+    case 4:
+      $price = $currency . ' ' . number_format($price, 2, ',', ' ');
+      break;
+    
+    case 5:
+      $price = $currency . ' ' . number_format($price, 2, '.', ' ');
+      break;
+    
+    case 6:
+      $price = $currency . ' ' . number_format($price, 2, '.', ',');
+      break;
+    
+    case 7:
+      $price = $currency . ' ' . number_format($price, 2, ',', '.');
+      break;
+    
     default:
-      $price = number_format($price, 2, ',', ' ');
+      $price = number_format($price, 2, ',', ' ') . ' ' . $currency;
       break;
   }
   return $price;
@@ -339,6 +361,11 @@ function _basic_cart_price_format() {
     1 => t('1 234.00 @currency', array('@currency' => $currency)),
     2 => t('1,234.00 @currency', array('@currency' => $currency)),
     3 => t('1.234,00 @currency', array('@currency' => $currency)),
+    
+    4 => t('@currency 1 234,00', array('@currency' => $currency)),
+    5 => t('@currency 1 234.00', array('@currency' => $currency)),
+    6 => t('@currency 1,234.00', array('@currency' => $currency)),
+    7 => t('@currency 1.234,00', array('@currency' => $currency)),
   );
 }
 
@@ -358,7 +385,6 @@ function basic_cart_checkout() {
   $options = array(
     'cart' => $shopping_cart,
     'price' => $total,
-    'currency' => check_plain(variable_get('basic_cart_currency')),
   );
   
   // Checking the VAT.
@@ -457,7 +483,6 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   $cart = basic_cart_get_cart();
   $price = basic_cart_get_total_price();
   $total_price = basic_cart_price_format($price->total);
-  $currency = check_plain(variable_get('basic_cart_currency'));
   
   $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
   if (!empty ($vat_is_enabled) && $vat_is_enabled) {
@@ -490,14 +515,14 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   foreach ($cart as $nid => $node) {
     $unit_price = basic_cart_price_format($node->basic_cart_unit_price);
     $order_details .= ++$i . '. ' . $node->title . "\t" .
-                      $node->basic_cart_quantity . ' x ' . $unit_price . ' ' . $currency . "\n";
+                      $node->basic_cart_quantity . ' x ' . $unit_price . "\n";
   }
   $order_details .= "\n";
-  $order_details .= "Total price: " . $total_price . " " . $currency;
+  $order_details .= "Total price: " . $total_price;
   $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
   if ($vat_is_enabled) {
     $order_details .= "\n";
-    $order_details .= "Total VAT: " . $vat . " " . $currency;
+    $order_details .= "Total VAT: " . $vat;
   }
   // Pleaceholder replacement.
   $search = array(
@@ -531,7 +556,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     $message_html = variable_get('basic_cart_user_message');
     $message_html = str_replace($search, $replace, $message_html);
     $params['user_message'] = $message_html;
-
+    
     // Sending mail.
     $message = drupal_mail('basic_cart', 'user_mail', $form_state['values']['basic_cart_checkout_email'], language_default(), $params);
 
@@ -539,7 +564,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
       $mails_sent++;
     }
   }
-
+  
   if ($mails_sent >= 1) {
     basic_cart_empty_cart();
     drupal_goto('checkout/thank-you');

@@ -44,7 +44,7 @@
     <td class="basic-cart-order-value" colspan="2">
       <?php print l($product->title, 'node/' . $product->nid); ?>
       <span class="basic-cart-order-product-price">
-        <?php print $product->basic_cart_quantity; ?> x <strong><?php print $product->price; ?> <?php print $currency; ?></strong>
+        <?php print $product->basic_cart_quantity; ?> x <strong><?php print $product->price; ?></strong>
       </span>
     </td>
   </tr>
@@ -52,12 +52,12 @@
   <tr>
     <td colspan="2" class="basic-cart-order-label">
       <span class="basic-cart-order-total-price">
-        <?php print t('Total price'); ?>: <?php print $total_price; ?> <?php print $currency; ?>
+        <?php print t('Total price'); ?>: <?php print $total_price; ?>
       </span>
       <?php if (!empty ($vat)): ?>
         <br />
         <span class="basic-cart-order-vat">
-          <?php print t('Total VAT'); ?>: <?php print $vat; ?> <?php print $currency; ?>
+          <?php print t('Total VAT'); ?>: <?php print $vat; ?>
         </span>
       <?php endif; ?>
     </td>

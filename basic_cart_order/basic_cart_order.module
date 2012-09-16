@@ -63,8 +63,6 @@ function basic_cart_order_view($node) {
     $vat = isset($vat[0]['value']) ? check_plain($vat[0]['value']) : '';
     $vat = basic_cart_price_format($vat);
   }
-  // Currency.
-  $currency = check_plain(variable_get('basic_cart_currency'));
   
   // Hide field data.
   unset($node->content['field_email']);
@@ -88,7 +86,6 @@ function basic_cart_order_view($node) {
     'products' => $products,
     'total_price' => $total_price,
     'vat' => $vat,
-    'currency' => $currency,
     'timestamp' => $node->created,
   ));
 }
@@ -126,7 +123,6 @@ function basic_cart_order_theme() {
         'products' => NULL,
         'total_price' => NULL,
         'vat' => NULL,
-        'currency' => NULL,
         'timestamp' => NULL,
       ),
     ),

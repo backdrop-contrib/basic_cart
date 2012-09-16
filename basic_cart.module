@@ -147,7 +147,6 @@ function basic_cart_node_view($node, $view_mode, $langcode) {
       $node->content['price'] = array(
         '#markup' => theme('basic_cart_price', array(
           'price' => $price, 
-          'currency' => check_plain(variable_get('basic_cart_currency')),
         )),
         '#weight' => 30,
       );
@@ -165,7 +164,7 @@ function basic_cart_node_view($node, $view_mode, $langcode) {
 function basic_cart_theme() {
   return array(
     'basic_cart_cart_total_price' => array(
-      'variables' => array('price' => NULL, 'currency' => NULL),
+      'variables' => array('price' => NULL),
     ),
     'basic_cart_price' => array(
       'function' => 'basic_cart_price',
@@ -177,11 +176,11 @@ function basic_cart_theme() {
     ),
     'basic_cart_cart_flat' => array(
       'template' => 'basic_cart_cart_flat',
-      'variables' => array('cart' => NULL, 'price' => NULL, 'currency' => NULL, 'vat' => NULL),
+      'variables' => array('cart' => NULL, 'price' => NULL, 'vat' => NULL),
     ),
     'basic_cart_cart_render_block' => array(
       'template' => 'basic_cart_cart_render_block',
-      'variables' => array('cart' => NULL, 'price' => NULL, 'currency' => NULL, 'vat' => NULL),
+      'variables' => array('cart' => NULL, 'price' => NULL, 'vat' => NULL),
     ),
     'basic_cart_render_cart_element' => array(
       'render element' => 'form',
@@ -194,8 +193,7 @@ function basic_cart_theme() {
  */
 function basic_cart_price($vars) {
   $price = $vars['price'];
-  $currency = $vars['currency'];
-  $html = '<div class="basic-cart-price"><span class="basic-cart-price-label">' . t('Price') . ': </span><strong>' . $price . ' ' . $currency . '</strong></div>';
+  $html = '<div class="basic-cart-price"><span class="basic-cart-price-label">' . t('Price') . ': </span><strong>' . $price . '</strong></div>';
   return $html;
 }
 
@@ -235,7 +233,6 @@ function basic_cart_block_view($delta = '') {
         $options = array(
           'cart' => basic_cart_get_cart(),
           'price' => $total,
-          'currency' => check_plain(variable_get('basic_cart_currency')),
         );
         // Checking the VAT.
         $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
