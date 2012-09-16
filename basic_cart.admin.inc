@@ -112,6 +112,15 @@ function basic_cart_admin_checkout() {
     '#type' => 'fieldset',
     '#description' => t('Here you can customize the mails sent to the site administrator and customer, after an order is placed.'),
   );
+  
+  $site_mail = variable_get('site_mail');
+  $form['messages']['basic_cart_admin_emails'] = array(
+    '#title' => t('Administrator emails'),
+    '#type' => 'textarea',
+    '#description' => t('After each placed order, an email with the order details will be sent to all the addresses from the list above. 
+                          Please add one email address per line.'),
+    '#default_value' => variable_get('basic_cart_admin_emails', $site_mail),
+  );
 
   $form['messages']['basic_cart_admin_subject'] = array(
     '#title' => t('Subject'),

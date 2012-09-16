@@ -466,14 +466,39 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   // Admin mail.
   $params['admin_message'] = $message_html;
   $site_mail = variable_get('site_mail');
+  
+  $admin_emails = variable_get('basic_cart_admin_emails');
+  if (empty ($admin_emails)) {
+    // Sending mail to admin.
+    $message = drupal_mail('basic_cart', 'admin_mail', $site_mail, language_default(), $params);
 
-  // Sending mail.
-  $message = drupal_mail('basic_cart', 'admin_mail', $site_mail, language_default(), $params);
-
-  $mails_sent = 0;
-  if ($message['result']) {
-    $mails_sent++;
+    $mails_sent = 0;
+    if ($message['result']) {
+      $mails_sent++;
+    }
   }
+  else {
+    $admin_emails = explode("\n", $admin_emails);
+    if (is_array($admin_emails) && !empty($admin_emails)) {
+      $ok = FALSE;
+      foreach ($admin_emails as $admin_email) {
+        // Sending mail to each admin.
+        $message = drupal_mail('basic_cart', 'admin_mail', $admin_email, language_default(), $params);
+        
+        // Verifing that the mail was sent for at least one email address.
+        if ($message['result']) {
+          $ok = TRUE;
+        }
+      }
+      
+      $mails_sent = 0;
+      if ($ok) {
+        $mails_sent++;
+      }
+    }
+  }
+
+  
   // User email.
   $send_user_mail = variable_get('basic_cart_send_user_message');
   if ($send_user_mail) {
