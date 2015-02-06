@@ -14,7 +14,7 @@ function basic_cart_cart() {
   if (empty($cart)) {
     return t('Your cart is empty.');
   }
-  return drupal_get_form('basic_cart_cart_form');
+  return backdrop_get_form('basic_cart_cart_form');
 }
 
 /**
@@ -83,10 +83,10 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
   }
 
   if ($form_state['values']['op'] == t('Checkout')) {
-    drupal_goto('checkout');
+    backdrop_goto('checkout');
   }
   else {
-    drupal_set_message(t('Shopping cart updated.'));
+    backdrop_set_message(t('Shopping cart updated.'));
   }
 }
 
@@ -121,18 +121,18 @@ function basic_cart_add_to_cart($nid = NULL) {
       $_SESSION['basic_cart']['cart'][$nid] = $node;
     }
   }
-  drupal_set_message(t('Shopping cart updated.'));
+  backdrop_set_message(t('Shopping cart updated.'));
   
-  $redirect = variable_get('basic_cart_redirect_user_after_add_to_cart', FALSE);
+  $redirect = config_get('basic_cart.settings', 'basic_cart_redirect_user_after_add_to_cart');
   if (empty($redirect)) {
-    drupal_goto('cart');
+    backdrop_goto('cart');
   }
   elseif ($redirect == '<none>') {
     $referer = $_SERVER["HTTP_REFERER"];
-    drupal_goto($referer);
+    backdrop_goto($referer);
   }
   else {
-    drupal_goto($redirect);
+    backdrop_goto($redirect);
   }
 }
 
@@ -147,8 +147,8 @@ function basic_cart_remove_from_cart($nid = NULL) {
   if ($nid > 0) {
     unset($_SESSION['basic_cart']['cart'][$nid]);
   }
-  drupal_set_message(t('Shopping cart updated.'));
-  drupal_goto('cart');
+  backdrop_set_message(t('Shopping cart updated.'));
+  backdrop_goto('cart');
 }
 
 /**
@@ -200,9 +200,9 @@ function basic_cart_get_total_price() {
   $return['price'] = $total_price;
   
   // Checking whether to apply the VAT or not.
-  $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
+  $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
   if (!empty ($vat_is_enabled) && $vat_is_enabled) {
-    $vat_value = (float) variable_get('basic_cart_vat_value');
+    $vat_value = (float) config_get('basic_cart.settings', 'basic_cart_vat_value');
     $vat_value = ($total_price * $vat_value) / 100;
     $total_price += $vat_value;
     // Adding VAT and total price to the return array.
@@ -229,8 +229,8 @@ function basic_cart_empty_cart() {
  *   The price in the custom format.
  */
 function basic_cart_price_format($price) {
-  $format = variable_get('basic_cart_price_format');
-  $currency = check_plain(variable_get('basic_cart_currency'));
+  $format = config_get('basic_cart.settings', 'basic_cart_price_format');
+  $currency = check_plain(config_get('basic_cart.settings', 'basic_cart_currency'));
   $price = (float) $price;
   switch ($format) {
     case 0:
@@ -279,7 +279,7 @@ function basic_cart_price_format($price) {
  *   A list with the available price formats.
  */
 function _basic_cart_price_format() {
-  $currency = variable_get('basic_cart_currency');
+  $currency = config_get('basic_cart.settings', 'basic_cart_currency');
   return array(
     0 => t('1 234,00 @currency', array('@currency' => $currency)),
     1 => t('1 234.00 @currency', array('@currency' => $currency)),
@@ -312,7 +312,7 @@ function basic_cart_checkout() {
   );
   
   // Checking the VAT.
-  $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
+  $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
   if (!empty ($vat_is_enabled) && $vat_is_enabled) {
     $options['vat'] = basic_cart_price_format($price->vat);
   }
@@ -325,8 +325,8 @@ function basic_cart_checkout() {
     return $cart;
   }
   
-  $form = drupal_get_form('basic_cart_checkout_form');
-  $form = drupal_render($form);
+  $form = backdrop_get_form('basic_cart_checkout_form');
+  $form = backdrop_render($form);
   return $cart . $form;
 }
 
@@ -408,7 +408,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   $price = basic_cart_get_total_price();
   $total_price = basic_cart_price_format($price->total);
   
-  $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
+  $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
   if (!empty ($vat_is_enabled) && $vat_is_enabled) {
     $vat = basic_cart_price_format($price->vat);
   }
@@ -443,7 +443,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   }
   $order_details .= "\n";
   $order_details .= "Total price: " . $total_price;
-  $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
+  $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
   if ($vat_is_enabled) {
     $order_details .= "\n";
     $order_details .= "Total VAT: " . $vat;
@@ -460,17 +460,16 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     $form_state['values']['basic_cart_checkout_message'], $order_details,
   );
   // Admin message.
-  $message_html = variable_get('basic_cart_admin_message');
+  $message_html = config_get('basic_cart.settings', 'basic_cart_admin_message');
   $message_html = str_replace($search, $replace, $message_html);
   
   // Admin mail.
   $params['admin_message'] = $message_html;
-  $site_mail = variable_get('site_mail');
-  
-  $admin_emails = variable_get('basic_cart_admin_emails');
+  $site_mail = config_get('system.core', 'site_mail');
+  $admin_emails = config_get('basic_cart.settings', 'basic_cart_admin_emails');
   if (empty ($admin_emails)) {
     // Sending mail to admin.
-    $message = drupal_mail('basic_cart', 'admin_mail', $site_mail, language_default(), $params);
+    $message = backdrop_mail('basic_cart', 'admin_mail', $site_mail, language_default(), $params);
 
     $mails_sent = 0;
     if ($message['result']) {
@@ -483,7 +482,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
       $ok = FALSE;
       foreach ($admin_emails as $admin_email) {
         // Sending mail to each admin.
-        $message = drupal_mail('basic_cart', 'admin_mail', $admin_email, language_default(), $params);
+        $message = backdrop_mail('basic_cart', 'admin_mail', $admin_email, language_default(), $params);
         
         // Verifing that the mail was sent for at least one email address.
         if ($message['result']) {
@@ -500,14 +499,14 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
 
   
   // User email.
-  $send_user_mail = variable_get('basic_cart_send_user_message');
+  $send_user_mail = config_get('basic_cart.settings', 'basic_cart_send_user_message');
   if ($send_user_mail) {
-    $message_html = variable_get('basic_cart_user_message');
+    $message_html = config_get('basic_cart.settings', 'basic_cart_user_message');
     $message_html = str_replace($search, $replace, $message_html);
     $params['user_message'] = $message_html;
     
     // Sending mail.
-    $message = drupal_mail('basic_cart', 'user_mail', $form_state['values']['basic_cart_checkout_email'], language_default(), $params);
+    $message = backdrop_mail('basic_cart', 'user_mail', $form_state['values']['basic_cart_checkout_email'], language_default(), $params);
 
     if ($message['result']) {
       $mails_sent++;
@@ -516,10 +515,10 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   
   if ($mails_sent >= 1) {
     basic_cart_empty_cart();
-    drupal_goto('checkout/thank-you');
+    backdrop_goto('checkout/thank-you');
   }
   else {
-    drupal_set_message(t('There was a problem in submitting your order. Please try again later.'), 'error');
+    backdrop_set_message(t('There was a problem in submitting your order. Please try again later.'), 'error');
   }
 }
 
@@ -530,12 +529,12 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
 function basic_cart_mail($key, &$message, $params) {
   switch ($key) {
     case 'admin_mail':
-      $message['subject'] = check_plain(variable_get('basic_cart_admin_subject'));
+      $message['subject'] = check_plain(config_get('basic_cart.settings', 'basic_cart_admin_subject'));
       $message['body'][] = filter_xss($params['admin_message']);
       break;
 
     case 'user_mail':
-      $message['subject'] = check_plain(variable_get('basic_cart_user_subject'));
+      $message['subject'] = check_plain(config_get('basic_cart.settings', 'basic_cart_user_subject'));
       $message['body'][] = filter_xss($params['user_message']);
       break;
   }
@@ -545,9 +544,9 @@ function basic_cart_mail($key, &$message, $params) {
  * Callback for thank you page.
  */
 function basic_cart_checkout_thank_you() {
-  $title = variable_get('basic_cart_thank_you_title');
-  drupal_set_title($title);
-  $message = variable_get('basic_cart_thank_you_message');
+  $title = config_get('basic_cart.settings', 'basic_cart_thank_you_title');
+  backdrop_set_title($title);
+  $message = config_get('basic_cart.settings', 'basic_cart_thank_you_message');
   return filter_xss($message);
 }
 

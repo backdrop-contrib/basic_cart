@@ -31,7 +31,7 @@ function basic_cart_add_to_cart_button($vars) {
 function basic_cart_add_to_cart_link($nid){
   $link = array(
     '#type' => 'link',
-    '#id' => drupal_html_id('basic-cart-add-to-cart-link-' . $nid),
+    '#id' => backdrop_html_id('basic-cart-add-to-cart-link-' . $nid),
     '#prefix' => '<div class="basic-cart-add-to-cart">',
     '#suffix' => '</div>',
     '#title' => t('Add to cart'),
@@ -58,7 +58,7 @@ function theme_basic_cart_cart_total_price($variables) {
   $html .= '  <div class="basic-cart-total-price cell">' . t('Total price') . ': <strong>' . $total . '</strong></div>';
   $html .= '</div>';
   
-  $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
+  $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
   if (!empty ($vat_is_enabled) && $vat_is_enabled) {
     $vat_value = basic_cart_price_format($price->vat);
     $html .= '<div class="basic-cart-cart-total-vat-contents row">';
@@ -81,7 +81,7 @@ function theme_basic_cart_render_cart_element($variables) {
   }
   // Delete image.
   $vars = array(
-    'path' => base_path() . drupal_get_path('module', 'basic_cart') . '/images/delete2.png',
+    'path' => base_path() . backdrop_get_path('module', 'basic_cart') . '/images/delete2.png',
     'alt' => t('Remove from cart'),
     'title' => t('Remove from cart'),
     'attributes' => array('class' => 'basic-cart-delete-image-image'),
@@ -92,7 +92,7 @@ function theme_basic_cart_render_cart_element($variables) {
   // Node description.
   $desc = '';
   if (isset($node->basic_cart_node_description)) {
-    $desc = drupal_strlen($node->basic_cart_node_description) > 50 ?
+    $desc = backdrop_strlen($node->basic_cart_node_description) > 50 ?
                 truncate_utf8($node->basic_cart_node_description, 50) : $node->basic_cart_node_description;
   }
   // Price and currency.

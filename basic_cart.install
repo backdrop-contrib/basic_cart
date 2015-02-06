@@ -27,32 +27,31 @@ function basic_cart_install() {
   $t = get_t();
 
   // Setting up the default currency.
-  variable_set('basic_cart_currency', BASIC_CART_DEFAULT_CURRENCY);
+config_set('basic_cart.settings', 'basic_cart_currency', BASIC_CART_DEFAULT_CURRENCY);
 
   // Setting up the default messages.
-  variable_set('basic_cart_admin_subject', $t('New order placed'));
-  $default_admin_message = $t('Hi,
+config_set('basic_cart.settings', 'basic_cart_admin_subject', $t('New order placed'));
+$default_admin_message = $t('Hi,
 An order was placed by %CUSTOMER_NAME (%CUSTOMER_EMAIL)
 Here are the order details:
 %ORDER_DETAILS');
-  variable_set('basic_cart_admin_message', $default_admin_message);
+config_set('basic_cart.settings', 'basic_cart_admin_message', $default_admin_message);
 
-  variable_set('basic_cart_send_user_message', 1);
-  variable_set('basic_cart_user_subject', $t('New order placed'));
-  $default_user_message = $t('Hi,
+config_set('basic_cart.settings', 'basic_cart_user_subject', $t('New order placed'));
+$default_user_message = $t('Hi,
 You just placed an order on the website @sitename. Here are the order details:
 %ORDER_DETAILS
-We will contact you as soon as possible.', array('@sitename' => variable_get('site_name')));
-  variable_set('basic_cart_user_message', $default_user_message);
+We will contact you as soon as possible.', array('@sitename' => config_get('system.core', 'site_name')));
+config_set('basic_cart.settings', 'basic_cart_user_message', $default_user_message);
 
-  $default_thank_you_title = $t("Thank you.");
-  variable_set('basic_cart_thank_you_title', $default_thank_you_title);
+$default_thank_you_title = $t("Thank you.");
+config_set('basic_cart.settings', 'basic_cart_thank_you_title', $default_thank_you_title);
 
-  $default_thank_you_message = $t("Thank you for placing an order on our website.\nWe will contact you as soon as possible.");
-  variable_set('basic_cart_thank_you_message', $default_thank_you_message);
-  
+$default_thank_you_message = $t("Thank you for placing an order on our website.\nWe will contact you as soon as possible.");
+config_set('basic_cart.settings', 'basic_cart_thank_you_message', $default_thank_you_message);
+
   // Redirect url after add to cart.
-  variable_set('basic_cart_redirect_user_after_add_to_cart', '<none>');
+config_set('basic_cart.settings', 'basic_cart_redirect_user_after_add_to_cart', '<none>');
   
   // Check to see if the price field already exists.
   $field = field_info_field('price');
@@ -66,19 +65,16 @@ We will contact you as soon as possible.', array('@sitename' => variable_get('si
     field_create_field($field);
   }
   
-  // Setting the VAT default state and value.
-  variable_set('basic_cart_vat_state', BASIC_CART_VAT_STATE);
-  variable_set('basic_cart_vat_value', BASIC_CART_VAT_VALUE);
+  config_set('basic_cart.settings', 'basic_cart_vat_state', BASIC_CART_VAT_STATE);
+  config_set('basic_cart.settings', 'basic_cart_vat_value', BASIC_CART_VAT_VALUE);
 }
 
 /**
  * Implements hook_uninstall().
  */
 function basic_cart_uninstall() {
-  // Currency.
-  variable_del('basic_cart_currency');
   // Delete the price field.
-  $types = variable_get('basic_cart_content_types');
+  $types = config_get('basic_cart.settings', 'basic_cart_content_types');
   if (is_array($types)) {
     // Foreach selected content type, delete the price field.
     foreach ($types as $type => $checked) {
@@ -92,23 +88,7 @@ function basic_cart_uninstall() {
       }
     }
   }
-  // Delete the content types from the variables table.
-  variable_del('basic_cart_content_types');
-  // Admin confirmation mail.
-  variable_del('basic_cart_admin_subject');
-  variable_del('basic_cart_admin_message');
-  // User confirmation email.
-  variable_del('basic_cart_user_subject');
-  variable_del('basic_cart_user_message');
-  variable_del('basic_cart_send_user_message');
-  // Thank you messages.
-  variable_del('basic_cart_thank_you_title');
-  variable_del('basic_cart_thank_you_message');
-  // Redirect user after add to cart action.
-  variable_del('basic_cart_redirect_user_after_add_to_cart');
-  // VAT default state and value.
-  variable_del('basic_cart_vat_state');
-  variable_del('basic_cart_vat_value');
+
 }
 
 /**
@@ -116,7 +96,8 @@ function basic_cart_uninstall() {
  */
 function basic_cart_update_7200() {
   // Setting up the default currency.
-  variable_set('basic_cart_currency', BASIC_CART_DEFAULT_CURRENCY);
+config_set('basic_cart.settings', 'basic_cart_currency', BASIC_CART_DEFAULT_CURRENCY);
+  
   // Check to see if the price field already exists.
   $field = field_info_field('price');
   // If the price field does not exist then create it.
@@ -130,7 +111,7 @@ function basic_cart_update_7200() {
   }
 
   // Getting the content types for which we have basic cart active.
-  $node_types = variable_get('basic_cart_content_types');
+  $node_types = config_get('basic_cart.settings', 'basic_cart_content_types');
   if (is_array($node_types)) {
     // Setting up the price field for the selected content types.
     foreach ($node_types as $type => $checked) {
@@ -214,11 +195,74 @@ function basic_cart_update_7201() {
       }
     }
   }
+  config_set('basic_cart.settings', 'basic_cart_redirect_user_after_add_to_cart', '<none>');
+  config_set('basic_cart.settings', 'basic_cart_vat_state', BASIC_CART_VAT_STATE);
+  config_set('basic_cart.settings', 'basic_cart_vat_value', BASIC_CART_VAT_VALUE);
+}
+
+
+function basic_cart_update_1000() {
+  $config = config('basic_cart.settings');
+  $config->set('basic_cart_currency', update_variable_get('basic_cart_currency'));
+  $config->set('basic_cart_price_format', update_variable_get('basic_cart_price_format'));
+  $config->set('basic_cart_vat_state', update_variable_get('basic_cart_vat_state'));
+  $config->set('basic_cart_vat_value', update_variable_get('basic_cart_vat_value'));
+  $config->set('basic_cart_redirect_user_after_add_to_cart', update_variable_get('basic_cart_redirect_user_after_add_to_cart'));
   
-  // Redirect url after add to cart.
-  variable_set('basic_cart_redirect_user_after_add_to_cart', '<none>');
+  $config->set('basic_cart_price', update_variable_get('basic_cart_price'));
+  $config->set('basic_cart_sendemail', update_variable_get('basic_cart_sendemail'));
+  $config->set('basic_cart_firstname', update_variable_get('basic_cart_firstname'));
+  $config->set('basic_cart_lastname', update_variable_get('basic_cart_lastname'));
+  $config->set('basic_cart_phone', update_variable_get('basic_cart_phone'));
   
-  // Setting the VAT default state and value.
-  variable_set('basic_cart_vat_state', BASIC_CART_VAT_STATE);
-  variable_set('basic_cart_vat_value', BASIC_CART_VAT_VALUE);
+  $config->set('basic_cart_address', update_variable_get('basic_cart_address'));
+  $config->set('basic_cart_address2', update_variable_get('basic_cart_address2'));
+  $config->set('basic_cart_city', update_variable_get('basic_cart_city'));
+  $config->set('basic_cart_county', update_variable_get('basic_cart_county'));
+  $config->set('basic_cart_state', update_variable_get('basic_cart_state'));
+  
+  $config->set('basic_cart_zip', update_variable_get('basic_cart_zip'));
+  $config->set('basic_cart_admin_emails', update_variable_get('basic_cart_admin_emails'));
+  $config->set('basic_cart_admin_subject', update_variable_get('basic_cart_admin_subject')); 
+  $config->set('basic_cart_admin_message', update_variable_get('basic_cart_admin_message'));
+  $config->set('basic_cart_send_user_message', update_variable_get('basic_cart_send_user_message'));
+  
+  $config->set('basic_cart_user_subject', update_variable_get('basic_cart_user_subject'));
+  $config->set('basic_cart_user_message', update_variable_get('basic_cart_currency'));
+  $config->set('basic_cart_thank_you_title', update_variable_get('basic_cart_currency'));
+  $config->set('basic_cart_thank_you_message', update_variable_get('basic_cart_currency'));
+  $config->set('basic_cart_content_types', update_variable_get('basic_cart_currency'));
+  $config->save();
+
+  
+  // Delete variables.
+  update_variable_del('basic_cart_currency');
+  update_variable_del('basic_cart_price_format');
+  update_variable_del('basic_cart_vat_state');
+  update_variable_del('basic_cart_vat_value');
+  update_variable_del('basic_cart_redirect_user_after_add_to_cart');
+  
+  update_variable_del('basic_cart_price');
+  update_variable_del('basic_cart_sendemail');
+  update_variable_del('basic_cart_firstname');
+  update_variable_del('basic_cart_lastname');
+  update_variable_del('basic_cart_phone');
+  
+  update_variable_del('basic_cart_address');
+  update_variable_del('basic_cart_address2');
+  update_variable_del('basic_cart_city');
+  update_variable_del('basic_cart_county');
+  update_variable_del('basic_cart_state');
+  
+  update_variable_del('basic_cart_zip');
+  update_variable_del('basic_cart_admin_emails');
+  update_variable_del('basic_cart_admin_subject');
+  update_variable_del('basic_cart_admin_message');
+  update_variable_del('basic_cart_send_user_message');
+  
+  update_variable_del('basic_cart_user_subject');
+  update_variable_del('basic_cart_user_message');
+  update_variable_del('basic_cart_thank_you_title');
+  update_variable_del('basic_cart_thank_you_message');
+  update_variable_del('basic_cart_content_types');
 }

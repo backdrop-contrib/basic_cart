@@ -8,6 +8,17 @@
 require_once dirname(__FILE__) . '/basic_cart.theme.inc';
 
 /**
+ * Implements hook_config_info().
+ */
+function basic_cart_config_info() {
+  $prefixes['basic_cart.settings'] = array(
+    'label' => t('Basic Cart settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
+/**
  * Implements hook_permission().
  */
 function basic_cart_permission() {
@@ -42,13 +53,13 @@ function basic_cart_menu() {
     'page callback' => 'system_admin_menu_block_page',
     'access arguments' => array('administer basic cart'),
     'file' => 'system.admin.inc',
-    'file path' => drupal_get_path('module', 'system'),
+    'file path' => backdrop_get_path('module', 'system'),
   );
 
   $items['admin/config/basic_cart/settings'] = array(
     'title' => 'Basic cart',
     'description' => 'Basic cart content type selection.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('basic_cart_admin_content_type'),
     'access arguments' => array('administer basic cart'),
     'type' => MENU_NORMAL_ITEM,
@@ -58,7 +69,7 @@ function basic_cart_menu() {
   $items['admin/config/basic_cart/settings/settings'] = array(
     'title' => 'Settings',
     'description' => 'Basic cart content type selection.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('basic_cart_admin_content_type'),
     'access arguments' => array('administer basic cart'),
     'type' => MENU_DEFAULT_LOCAL_TASK,
@@ -69,7 +80,7 @@ function basic_cart_menu() {
   $items['admin/config/basic_cart/settings/checkout'] = array(
     'title' => 'Checkout',
     'description' => 'Basic cart checkout settings.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('basic_cart_admin_checkout'),
     'access arguments' => array('administer basic cart'),
     'type' => MENU_LOCAL_TASK,
@@ -133,7 +144,7 @@ function basic_cart_node_view($node, $view_mode, $langcode) {
   // Check if the current user has access to basic cart.
   if (user_access('use basic cart')) {
     // Getting node types.
-    $node_types = variable_get('basic_cart_content_types');
+    $node_types = config_get('basic_cart.settings', 'basic_cart_content_types');
     if (!is_array($node_types) || empty($node_types)) {
       return;
     }
@@ -194,7 +205,7 @@ function basic_cart_theme() {
 function basic_cart_block_info() {
   $blocks['shopping_cart'] = array(
     'info' => t('Shopping cart'),
-    'cache' => DRUPAL_NO_CACHE,
+    'cache' => BACKDROP_NO_CACHE,
   );
   return $blocks;
 }
@@ -216,7 +227,7 @@ function basic_cart_block_view($delta = '') {
           'price' => $total,
         );
         // Checking the VAT.
-        $vat_is_enabled = (int) variable_get('basic_cart_vat_state');
+        $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
         if (!empty ($vat_is_enabled) && $vat_is_enabled) {
           $options['vat'] = basic_cart_price_format($price->vat);
         }
@@ -246,7 +257,7 @@ function basic_cart_is_product($node) {
  * Helper function. Returns an array of basic_cart product (content) types.
  */ 
 function basic_cart_product_types(){
-  return variable_get('basic_cart_content_types', array());
+  return config_get('basic_cart.settings', 'basic_cart_content_types');
 }
 
 /**
@@ -255,6 +266,6 @@ function basic_cart_product_types(){
 function basic_cart_views_api() {
   return array(
     'api' => '2.0',
-    'path' => drupal_get_path('module', 'basic_cart') . '/views',
+    'path' => backdrop_get_path('module', 'basic_cart') . '/views',
   );
 }

@@ -53,7 +53,7 @@ function basic_cart_admin_content_type() {
     '#title' => t('Currency'),
     '#type' => 'textfield',
     '#description' => t("Please choose the currency."),
-    '#default_value' => variable_get('basic_cart_currency'),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_currency'),
   );
 
   $form['currency']['basic_cart_price_format'] = array(
@@ -61,7 +61,7 @@ function basic_cart_admin_content_type() {
     '#type' => 'select',
     '#options' => _basic_cart_price_format(),
     '#description' => t("Please choose the format in which the price will be shown."),
-    '#default_value' => variable_get('basic_cart_price_format'),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_price_format'),
   );
   
   $form['vat'] = array(
@@ -72,7 +72,7 @@ function basic_cart_admin_content_type() {
   $form['vat']['basic_cart_vat_state'] = array(
     '#title' => t('Check if you want to apply the VAT tax on the total amount in the checkout process.'),
     '#type' => 'checkbox',
-    '#default_value' => variable_get('basic_cart_vat_state', FALSE),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_vat_state'),
   );
 
   $form['vat']['basic_cart_vat_value'] = array(
@@ -81,7 +81,7 @@ function basic_cart_admin_content_type() {
     '#description' => t("Please enter VAT value."),
     '#field_suffix' => '%',
     '#size' => 10,
-    '#default_value' => variable_get('basic_cart_vat_value', ''),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_vat_value'),
   );
   
   $form['redirect'] = array(
@@ -93,8 +93,8 @@ function basic_cart_admin_content_type() {
     '#title' => t('Add to cart redirect'),
     '#type' => 'textfield',
     '#description' => t("Enter the page you wish to redirect the customer to when an item is added to the cart, or &lt;none&gt; for no redirect."),
-    '#default_value' => variable_get('basic_cart_redirect_user_after_add_to_cart'),
-    '#field_prefix' => url(NULL, array('absolute' => TRUE)) . (variable_get('clean_url', 0) ? '' : '?q='),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_redirect_user_after_add_to_cart'),
+    '#field_prefix' => url(NULL, array('absolute' => TRUE)) . (config_get('system.core', 'clean_url') ? '' : '?q='),
   );
 
   $form['actions']['#type'] = 'actions';
@@ -113,20 +113,20 @@ function basic_cart_admin_checkout() {
     '#description' => t('Here you can customize the mails sent to the site administrator and customer, after an order is placed.'),
   );
   
-  $site_mail = variable_get('site_mail');
+  $site_mail = config_get('system.core', 'site_mail');
   $form['messages']['basic_cart_admin_emails'] = array(
     '#title' => t('Administrator emails'),
     '#type' => 'textarea',
     '#description' => t('After each placed order, an email with the order details will be sent to all the addresses from the list above. 
                           Please add one email address per line.'),
-    '#default_value' => variable_get('basic_cart_admin_emails', $site_mail),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_admin_emails'),
   );
 
   $form['messages']['basic_cart_admin_subject'] = array(
     '#title' => t('Subject'),
     '#type' => 'textfield',
     '#description' => t("Subject field for the administrator's email."),
-    '#default_value' => variable_get('basic_cart_admin_subject'),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_admin_subject'),
   );
 
   $form['messages']['basic_cart_admin_message'] = array(
@@ -134,27 +134,27 @@ function basic_cart_admin_checkout() {
     '#type' => 'textarea',
     '#description' => t('This email will be sent to the site administrator just after an order is placed. 
       Availabale tokes: %CUSTOMER_NAME, %CUSTOMER_EMAIL, %CUSTOMER_PHONE, %CUSTOMER_CITY, %CUSTOMER_ZIPCODE, %CUSTOMER_ADDRESS, %CUSTOMER_MESSAGE, %ORDER_DETAILS.'),
-    '#default_value' => variable_get('basic_cart_admin_message'),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_admin_message'),
   );
 
   $form['messages']['basic_cart_send_user_message'] = array(
     '#title' => t('Send an email to the customer after an order is placed'),
     '#type' => 'checkbox',
-    '#default_value' => variable_get('basic_cart_send_user_message'),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_send_user_message'),
   );
 
   $form['messages']['basic_cart_user_subject'] = array(
     '#title' => t('Subject'),
     '#type' => 'textfield',
     '#description' => t("Subject field for the user's email."),
-    '#default_value' => variable_get('basic_cart_user_subject'),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_user_subject'),
   );
 
   $form['messages']['basic_cart_user_message'] = array(
     '#title' => t('User email'),
     '#type' => 'textarea',
     '#description' => t('This email will be sent to the user just after an order is placed. Availabale tokes: %CUSTOMER_NAME, %CUSTOMER_EMAIL, %CUSTOMER_PHONE, %CUSTOMER_ADDRESS, %CUSTOMER_MESSAGE, %ORDER_DETAILS'),
-    '#default_value' => variable_get('basic_cart_user_message'),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_user_message'),
   );
 
   $form['thank_you'] = array(
@@ -167,14 +167,14 @@ function basic_cart_admin_checkout() {
     '#title' => t('Title'),
     '#type' => 'textfield',
     '#description' => t('Thank you page title.'),
-    '#default_value' => variable_get('basic_cart_thank_you_title'),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_thank_you_title'),
   );
 
   $form['thank_you']['basic_cart_thank_you_message'] = array(
     '#title' => t('Text'),
     '#type' => 'textarea',
     '#description' => t('Thank you page text.'),
-    '#default_value' => variable_get('basic_cart_thank_you_message'),
+    '#default_value' => config_get('basic_cart.settings', 'basic_cart_thank_you_message'),
   );
 
   return system_settings_form($form);
@@ -247,8 +247,7 @@ function basic_cart_admin_content_type_submit($form, &$form_state) {
     }
   }
 
-  variable_set('basic_cart_content_types', $product_types);
-  
+  config_set('basic_cart.settings', 'basic_cart_content_types', $product_types);
   // Set VAT to nothing if the checkbox is unchecked.
   if (empty($form_state['values']['basic_cart_vat_state'])) {
     $form_state['values']['basic_cart_vat_value'] = '';
@@ -297,8 +296,8 @@ function basic_cart_admin_content_type_submit($form, &$form_state) {
     if (is_array($value) && isset($form_state['values']['array_filter'])) {
       $value = array_keys(array_filter($value));
     }
-    variable_set($key, $value);
+    config_set('basic_cart.settings', $key, $value);
   }
   
-  drupal_set_message(t('The configuration options have been saved.'));
+  backdrop_set_message(t('The configuration options have been saved.'));
 }
