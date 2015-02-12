@@ -6,28 +6,13 @@
  */
 
 /**
- * Default currency.
- */
-define('BASIC_CART_DEFAULT_CURRENCY', 'USD');
-
-/**
- * Default VAT state (enabled/disabled). 
- */
-define('BASIC_CART_VAT_STATE', FALSE);
-
-/**
- * Default VAT value. Zero by default.
- */
-define('BASIC_CART_VAT_VALUE', '');
-
-/**
  * Implements hook_install().
  */
 function basic_cart_install() {
-  $t = get_t();
+$t = get_t();
 
   // Setting up the default currency.
-config_set('basic_cart.settings', 'basic_cart_currency', BASIC_CART_DEFAULT_CURRENCY);
+config_set('basic_cart.settings', 'basic_cart_currency', 'USD');
 
   // Setting up the default messages.
 config_set('basic_cart.settings', 'basic_cart_admin_subject', $t('New order placed'));
@@ -53,10 +38,10 @@ config_set('basic_cart.settings', 'basic_cart_thank_you_message', $default_thank
   // Redirect url after add to cart.
 config_set('basic_cart.settings', 'basic_cart_redirect_user_after_add_to_cart', '<none>');
   
-  // Check to see if the price field already exists.
-  $field = field_info_field('price');
-  // If the price field does not exist then create it.
-  if (empty($field)) {
+// Check to see if the price field already exists.
+$field = field_info_field('price');
+// If the price field does not exist then create it.
+if (empty($field)) {
     $field = array(
       'field_name' => 'price',
       'type' => 'number_decimal',
@@ -65,15 +50,15 @@ config_set('basic_cart.settings', 'basic_cart_redirect_user_after_add_to_cart', 
     field_create_field($field);
   }
   
-  config_set('basic_cart.settings', 'basic_cart_vat_state', BASIC_CART_VAT_STATE);
-  config_set('basic_cart.settings', 'basic_cart_vat_value', BASIC_CART_VAT_VALUE);
+config_set('basic_cart.settings', 'basic_cart_vat_state', FALSE);
+config_set('basic_cart.settings', 'basic_cart_vat_value', '');
 }
 
 /**
  * Implements hook_uninstall().
  */
 function basic_cart_uninstall() {
-  // Delete the price field.
+// Delete the price field from the content types associated.
   $types = config_get('basic_cart.settings', 'basic_cart_content_types');
   if (is_array($types)) {
     // Foreach selected content type, delete the price field.
@@ -88,7 +73,10 @@ function basic_cart_uninstall() {
       }
     }
   }
-
+  // Purge all field infromation
+    // http://api.drupal.org/api/function/field_purge_batch/7
+    field_purge_batch(1000);
+    backdrop_flush_all_caches();
 }
 
 /**
@@ -228,10 +216,10 @@ function basic_cart_update_1000() {
   $config->set('basic_cart_send_user_message', update_variable_get('basic_cart_send_user_message'));
   
   $config->set('basic_cart_user_subject', update_variable_get('basic_cart_user_subject'));
-  $config->set('basic_cart_user_message', update_variable_get('basic_cart_currency'));
-  $config->set('basic_cart_thank_you_title', update_variable_get('basic_cart_currency'));
-  $config->set('basic_cart_thank_you_message', update_variable_get('basic_cart_currency'));
-  $config->set('basic_cart_content_types', update_variable_get('basic_cart_currency'));
+  $config->set('basic_cart_user_message', update_variable_get('basic_cart_user_message'));
+  $config->set('basic_cart_thank_you_title', update_variable_get('basic_cart_thank_you_title'));
+  $config->set('basic_cart_thank_you_message', update_variable_get('basic_cart_thank_you_message'));
+  $config->set('basic_cart_content_types', update_variable_get('basic_cart_content_types'));
   $config->save();
 
   

@@ -39,14 +39,20 @@ Features
 TESTED
 -----
 
-Does not work yet on Backdrop 1.0
+Does not work yet on Backdrop 1.0.  A working state is known;  however, I have not yet the time to bug fix this module.
 
 
 KNOWN ISSUES
 ---------------------
 
+None critical for Backdrop yet.  Many small bugs or incomplete features.
+
+Basic Cart for Drupal stored node objects in the user $_SESSION variable and used pre-made Views, Features, etc...
+The Backdrop port failed with this error because of it:
 Fatal error: Call to undefined function module_implements() in /Applications/MAMP/htdocs/backdrop/core/includes/bootstrap.inc on line 3467
 This happens when you add a product to the cart.
+
+Basic Cart for Backdrop stores node id's as strings in the user $_SESSION variable and no pre-made etc...
 
 
 REQUIREMENTS

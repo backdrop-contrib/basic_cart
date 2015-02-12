@@ -265,7 +265,7 @@ function basic_cart_product_types(){
  */
 function basic_cart_views_api() {
   return array(
-    'api' => '2.0',
+    'api' => '3.0',
     'path' => backdrop_get_path('module', 'basic_cart') . '/views',
   );
 }

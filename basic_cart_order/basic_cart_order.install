@@ -6,54 +6,262 @@
  */
 
 /**
- * Implements hook_schema().
+ * Implements hook_install().
  */
-function basic_cart_order_schema() {
-  $schema['basic_cart_order_node'] = array(
-    'description' => 'Basic cart order registration table.',
-    'fields' => array(
-      'oid' => array(
-        'description' => 'The primary identifier for an order.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'nid' => array(
-        'description' => 'Order node.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'quantity' => array(
-        'description' => 'Order node quantity.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
+function basic_cart_order_install() {
+  // Add the node type.
+  _basic_cart_order_install_type_create();
+}
+
+/**
+ * Creates the order content type.
+ */
+function _basic_cart_order_install_type_create() {
+$type = node_type_load("order"); //Check if content type exists
+if (empty($type))
+{   // Create an additional node type.
+  $basic_cart_node_type = array(
+    'type' => 'order',
+    'name' => t('Basic Cart Order'),
+    'base' => 'node_content',
+    'description' => t('A record of the completed order for the basic cart module'),
+    'custom' => 1,
+    'modified' => 1,
+    'locked' => 0,
+    'is_new' => TRUE,
+    'settings' => array(
+      'promote_enabled' => FALSE,
     ),
-    'primary key' => array('oid', 'nid'),
   );
-  return $schema;
+
+$basic_cart_node_type = node_type_set_defaults($basic_cart_node_type);
+node_type_save($basic_cart_node_type);
+node_add_body_field($basic_cart_node_type);
+
+//////////////////////////////////////////////////////////////////////////
+
+// Check to see if the field_order_email field already exists.
+$field = field_info_field('field_order_email');
+// If the price field does not exist then create it.
+if (empty($field))
+{
+    $field = array(
+      'field_name' => 'field_order_email',
+      'type' => 'text',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+}
+
+$instance = array(
+            'field_name' => 'field_order_email',
+            'label' => t('Email'),
+            'description' => t('Please enter the email for this item.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+field_create_instance($instance);
+
+// Check to see if the field_order_phone field already exists.
+$field = field_info_field('field_order_phone');
+// If the price field does not exist then create it.
+if (empty($field))
+{
+    $field = array(
+      'field_name' => 'field_order_phone',
+      'type' => 'text',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+}
+
+$instance = array(
+            'field_name' => 'field_order_phone',
+            'label' => t('Phone'),
+            'description' => t('Please enter the phone for this item.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+field_create_instance($instance);
+
+// Check to see if the field_order_address field already exists.
+$field = field_info_field('field_order_address');
+// If the price field does not exist then create it.
+if (empty($field))
+{
+    $field = array(
+      'field_name' => 'field_order_address',
+      'type' => 'text',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+}
+
+$instance = array(
+            'field_name' => 'field_order_address',
+            'label' => t('Address'),
+            'description' => t('Please enter the address for this item.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+field_create_instance($instance);
+
+// Check to see if the field_order_address2 field already exists.
+$field = field_info_field('field_order_address2');
+// If the price field does not exist then create it.
+if (empty($field))
+{
+    $field = array(
+      'field_name' => 'field_order_address2',
+      'type' => 'text',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+}
+
+$instance = array(
+            'field_name' => 'field_order_address2',
+            'label' => t('Address'),
+            'description' => t('Please enter the address for this item.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+field_create_instance($instance);
+
+// Check to see if the field_order_city field already exists.
+$field = field_info_field('field_order_city');
+// If the price field does not exist then create it.
+if (empty($field))
+{
+    $field = array(
+      'field_name' => 'field_order_city',
+      'type' => 'text',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+}
+
+$instance = array(
+            'field_name' => 'field_order_city',
+            'label' => t('City'),
+            'description' => t('Please enter the city for this item.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+field_create_instance($instance);
+
+// Check to see if the field_order_zipcode field already exists.
+$field = field_info_field('field_order_zipcode');
+// If the price field does not exist then create it.
+if (empty($field))
+{
+    $field = array(
+      'field_name' => 'field_order_zipcode',
+      'type' => 'number_decimal',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+}
+
+$instance = array(
+            'field_name' => 'field_order_zipcode',
+            'label' => t('Zipcode'),
+            'description' => t('Please enter the zipcode for this item.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+field_create_instance($instance);
+
+// Check to see if the field_order_total_price field already exists.
+$field = field_info_field('field_order_total_price');
+// If the price field does not exist then create it.
+if (empty($field))
+{
+    $field = array(
+      'field_name' => 'field_order_total_price',
+      'type' => 'number_decimal',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+}
+
+$instance = array(
+            'field_name' => 'field_order_total_price',
+            'label' => t('Total Price'),
+            'description' => t('Please enter the total price for this item.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+field_create_instance($instance);
+
+// Check to see if the field_order_nid field already exists.
+$field = field_info_field('field_order_nid');
+// If the price field does not exist then create it.
+if (empty($field))
+{
+    $field = array(
+      'field_name' => 'field_order_nid',
+      'type' => 'number_decimal',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+}
+
+$instance = array(
+            'field_name' => 'field_order_nid',
+            'label' => t('Node Ids'),
+            'description' => t('Please enter the Node Ids for this item.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+field_create_instance($instance);
+
+// Check to see if the field_order_quantity field already exists.
+$field = field_info_field('field_order_quantity');
+// If the price field does not exist then create it.
+if (empty($field))
+{
+    $field = array(
+      'field_name' => 'field_order_quantity',
+      'type' => 'number_decimal',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+}
+
+$instance = array(
+            'field_name' => 'field_order_quantity',
+            'label' => t('Quantities'),
+            'description' => t('Please enter the quantities for this item.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+field_create_instance($instance);
+
+}  
 }
 
 /**
  * Implements hook_uninstall().
  */
-// function basic_cart_order_uninstall() {
-  // Delete all nodes from this type. See node_delete_multiple($nids){}
-  /*$nids = db_select('node')
-    ->fields('node', array('nid'))
-    ->condition('type', 'order', '=')
-    ->execute()
-    ->fetchCol();*/
-  // node_delete_multiple($nids);
+ function basic_cart_order_uninstall() {
+// basic cart, basic cart braintree, and basic cart stripe (more?) share the same order system.  Going to hold off on deleting module information that is shared for now.
+// Below may be implemented in the future.
+
+// Delete all nodes from this type. See node_delete_multiple($nids){}
+//  $nids = db_select('node')
+//    ->fields('node', array('nid'))
+//    ->condition('type', 'order', '=')
+//    ->execute()
+//    ->fetchCol();
+//  node_delete_multiple($nids);
   // Delete content type.
-  // node_type_delete('order');
+//  node_type_delete('order');
   // Delete view.
-  // $view = views_get_view('orders');
-  // $view->delete();
-  // views_delete_view($view);
+ // $view = views_get_view('orders');
+ // $view->delete();
+ // views_delete_view($view);
   // Delete user role: View basic cart orders.
-  // user_role_delete('view basic cart orders');
+//  user_role_delete('view basic cart orders');
   // Delete Orders menu item.
-//}
+}

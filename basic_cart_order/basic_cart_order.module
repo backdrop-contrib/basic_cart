@@ -4,8 +4,6 @@
  * Code for the Basic Cart Order feature.
  */
 
-include_once 'basic_cart_order.features.inc';
-
 /**
  * Implements hook_node_view().
  */
@@ -144,43 +142,48 @@ function basic_cart_order_register_order($name, $email, $order_details=array()) 
   if (!is_array($cart)) {
     return NULL;
   }
+  global $user;
     // Registering the new order to the database.
   $node = entity_create('node', array ('type' => 'order'));
   $node->uid = $user->uid;
   $node->title = $name;
   $node->language = LANGUAGE_NONE;
   // Body.
-  if (isset($order_details['message'])) {
-    $node->body[$node->language][0]['value'] = $order_details['message'];
+  if (isset($order_details['comment'])) {
+    $node->body[$node->language][0]['value'] = $order_details['comment'];
   }
   else {
     $node->body[$node->language][0]['value'] = '';
   }
   // Email, mandatory field.
-  $node->field_email[$node->language][0]['value'] = $email;
+  $node->field_order_email[$node->language][0]['value'] = $email;
   // Phone.
   if (isset($order_details['phone'])) {
-    $node->field_phone[$node->language][0]['value'] = $order_details['phone'];
+    $node->field_order_phone[$node->language][0]['value'] = $order_details['phone'];
   }
-  // Phone.
+  // city.
   if (isset($order_details['city'])) {
-    $node->field_city[$node->language][0]['value'] = $order_details['city'];
+    $node->field_order_address[$node->language][0]['value'] = $order_details['city'];
   }
-  // Phone.
+  // zipcode.
   if (isset($order_details['zipcode'])) {
-    $node->field_zipcode[$node->language][0]['value'] = $order_details['zipcode'];
+    $node->field_order_address2[$node->language][0]['value'] = $order_details['zipcode'];
   }
   // Address.
   if (isset($order_details['address'])) {
-    $node->field_address[$node->language][0]['value'] = $order_details['address'];
+    $node->field_order_address[$node->language][0]['value'] = $order_details['address'];
+  }
+  // Address.
+  if (isset($order_details['address2'])) {
+    $node->field_order_address2[$node->language][0]['value'] = $order_details['address'];
   }
   // Total price.
   if (isset($order_details['total_price'])) {
-    $node->field_total_price[$node->language][0]['value'] = $order_details['total_price'];
+    $node->field_order_total_price[$node->language][0]['value'] = $order_details['total_price'];
   }
   else {
     $price = basic_cart_get_total_price();
-    $node->field_total_price[$node->language][0]['value'] = $price->total;
+    $node->field_order_total_price[$node->language][0]['value'] = $price->total;
   }
   // VAT.
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
@@ -188,18 +191,16 @@ function basic_cart_order_register_order($name, $email, $order_details=array()) 
     $node->vat[$node->language][0]['value'] = $price->vat;
   }
   
-  // Registering order.
-  $node->save();
-  // Now we have a node ID, we need to save the associated products.
-  $oid = $node->nid;
-  foreach ($cart as $nid => $n) {
-    $record = array (
-      'oid' => $oid,
-      'nid' => $n->nid,
-      'quantity' => $n->basic_cart_quantity,
-    );
-    backdrop_write_record('basic_cart_order_node', $record);
-  }
-  
-  return $node;
+// Cart elements.
+foreach ($cart as $cid => $value) {
+if (is_numeric($cid))
+{
+$node->field_order_nid[$node->language][$cid]['value'] = $value;
+$node->field_order_quantity[$node->language][$cid]['value'] = $_SESSION['basic_cart']['cart'][$cid . 'quantity'];
+}
+}  
+
+// Registering order.
+$node->save();
+return $node;
 }

@@ -10,7 +10,7 @@
  */
 function basic_cart_cart() {
   $cart = basic_cart_get_cart();
-
+  
   if (empty($cart)) {
     return t('Your cart is empty.');
   }
@@ -31,13 +31,17 @@ function basic_cart_cart_form() {
     '#suffix' => '</div>',
   );
   // Cart elements.
-  foreach ($cart as $nid => $node) {
-    $form['cartcontents'][$nid] = array(
+foreach ($cart as $cid => $value) {
+if (is_numeric($cid))
+{
+$node = node_load($cart[$value]);
+    $form['cartcontents'][$cid] = array(
       '#type' => 'textfield',
       '#size' => 1,
-      '#default_value' => $node->basic_cart_quantity,
+      '#default_value' => $_SESSION['basic_cart']['cart'][$cid . 'quantity'],
       '#theme' => 'basic_cart_render_cart_element',
     );
+  }
   }
   // Total price.
   $form['total_price'] = array(
@@ -74,11 +78,12 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
   foreach ($form_state['values']['cartcontents'] as $nid => $value) {
     $quantity = (int) $value;
     if ($quantity > 0) {
-      $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity = $quantity;
+      $_SESSION['basic_cart']['cart'][$nid . 'quantity'] = $quantity;
     }
     // If the quantity is zero, we just remove the node from the cart.
     elseif ($quantity == 0) {
       unset($_SESSION['basic_cart']['cart'][$nid]);
+      unset($_SESSION['basic_cart']['cart'][$nid . 'quantity']);
     }
   }
 
@@ -103,22 +108,14 @@ function basic_cart_add_to_cart($nid = NULL) {
     $cart = basic_cart_get_cart();
     if (!empty($cart) && in_array($nid, array_keys($cart))) {
       // Clicked 2 times on add to cart button. Increment quantity.
-      $_SESSION['basic_cart']['cart'][$nid]->basic_cart_quantity++;
+    $x = $_SESSION['basic_cart']['cart'][$nid . 'quantity'];
+    $x++;
+    $_SESSION['basic_cart']['cart'][$nid . 'quantity'] = $x;
     }
     else {
-      $node = node_load($nid);
-      $node->basic_cart_quantity = 1;
-      // Adding description.
-      $body = field_get_items('node', $node, 'body');
-      $description = isset($body[0]['value']) ? check_plain(strip_tags($body[0]['value'])) : '';
-      $node->basic_cart_node_description = $description;
-      // Unit price.
-      $unit_price = field_get_items('node', $node, 'price');
-      $unit_price = isset($unit_price[0]['value']) ? check_plain(strip_tags($unit_price[0]['value'])) : 0;
-      $node->basic_cart_unit_price = $unit_price;
-      
       // Storing in session.
-      $_SESSION['basic_cart']['cart'][$nid] = $node;
+      $_SESSION['basic_cart']['cart'][$nid] = $nid;
+      $_SESSION['basic_cart']['cart'][$nid . 'quantity'] = 1;
     }
   }
   backdrop_set_message(t('Shopping cart updated.'));
@@ -146,6 +143,7 @@ function basic_cart_remove_from_cart($nid = NULL) {
   $nid = (int) $nid;
   if ($nid > 0) {
     unset($_SESSION['basic_cart']['cart'][$nid]);
+    unset($_SESSION['basic_cart']['cart'][$nid . 'quantity']);
   }
   backdrop_set_message(t('Shopping cart updated.'));
   backdrop_goto('cart');
@@ -191,12 +189,15 @@ function basic_cart_get_total_price() {
   }
   
   $total_price = 0;
-  foreach ($cart as $nid => $node) {
-    if (isset($node->basic_cart_quantity) && isset($node->basic_cart_unit_price)) {
-      $total_price += $node->basic_cart_quantity * $node->basic_cart_unit_price;
+  foreach ($cart as $cid => $value) {
+if (is_numeric($cid))
+{
+$node = node_load($cart[$value]);
+    if (isset($_SESSION['basic_cart']['cart'][$cid . 'quantity']) && isset($node->price["und"][0]["value"])) {
+      $total_price += $_SESSION['basic_cart']['cart'][$cid . 'quantity'] * basic_cart_price_format($node->price["und"][0]["value"]);
     }
   }
-  
+      }
   $return['price'] = $total_price;
   
   // Checking whether to apply the VAT or not.
@@ -231,7 +232,9 @@ function basic_cart_empty_cart() {
 function basic_cart_price_format($price) {
   $format = config_get('basic_cart.settings', 'basic_cart_price_format');
   $currency = check_plain(config_get('basic_cart.settings', 'basic_cart_currency'));
+  
   $price = (float) $price;
+  return $price;
   switch ($format) {
     case 0:
       $price = number_format($price, 2, ',', ' ') . ' ' . $currency;
@@ -269,7 +272,6 @@ function basic_cart_price_format($price) {
       $price = number_format($price, 2, ',', ' ') . ' ' . $currency;
       break;
   }
-  return $price;
 }
 
 /**
@@ -304,7 +306,7 @@ function basic_cart_checkout() {
   $shopping_cart = basic_cart_get_cart();
   // Price.
   $price = basic_cart_get_total_price();
-  $total = basic_cart_price_format($price->total);
+  $total = $price->total;
   
   $options = array(
     'cart' => $shopping_cart,
@@ -374,7 +376,7 @@ function basic_cart_checkout_form() {
     '#description' => t('Please enter your zipcode.'),
   );
   
-  $form['basic_cart_checkout_message'] = array(
+  $form['basic_cart_checkout_comment'] = array(
     '#title' => t('Message'),
     '#type' => 'textarea',
     '#description' => t('If you wish to add a comment, please use this message area.'),
@@ -422,7 +424,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
       'city' => $form_state['values']['basic_cart_checkout_city'],
       'zipcode' => $form_state['values']['basic_cart_checkout_zipcode'],
       'address' => $form_state['values']['basic_cart_checkout_address'],
-      'message' => $form_state['values']['basic_cart_checkout_message'],
+      'comment' => $form_state['values']['basic_cart_checkout_comment'],
     );
     $order = basic_cart_order_register_order($name, $email, $order_details_);
     
@@ -436,11 +438,16 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   
   // Building the order details.
   $i = 0;
-  foreach ($cart as $nid => $node) {
-    $unit_price = basic_cart_price_format($node->basic_cart_unit_price);
+foreach ($cart as $cid => $value) {
+if (is_numeric($cid))
+{
+$node = node_load($cart[$value]);
+    
+    $unit_price = basic_cart_price_format($node->price["und"][0]["value"]);
     $order_details .= ++$i . '. ' . $node->title . "\t" .
-                      $node->basic_cart_quantity . ' x ' . $unit_price . "\n";
+                      $_SESSION['basic_cart']['cart'][$cid . 'quantity'] . ' x ' . $unit_price . "\n";
   }
+}
   $order_details .= "\n";
   $order_details .= "Total price: " . $total_price;
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
@@ -451,13 +458,13 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   // Pleaceholder replacement.
   $search = array(
     '%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE', '%CUSTOMER_CITY',
-    '%CUSTOMER_ZIPCODE', '%CUSTOMER_ADDRESS', '%CUSTOMER_MESSAGE', '%ORDER_DETAILS',
+    '%CUSTOMER_ZIPCODE', '%CUSTOMER_ADDRESS', '%CUSTOMER_COMMENT', '%ORDER_DETAILS',
   );
   $replace = array(
     $form_state['values']['basic_cart_checkout_name'], $form_state['values']['basic_cart_checkout_email'],
     $form_state['values']['basic_cart_checkout_phone'], $form_state['values']['basic_cart_checkout_city'],
     $form_state['values']['basic_cart_checkout_zipcode'], $form_state['values']['basic_cart_checkout_address'],
-    $form_state['values']['basic_cart_checkout_message'], $order_details,
+    $form_state['values']['basic_cart_checkout_comment'], $order_details,
   );
   // Admin message.
   $message_html = config_get('basic_cart.settings', 'basic_cart_admin_message');

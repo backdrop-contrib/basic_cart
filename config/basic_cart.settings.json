@@ -1,5 +1,5 @@
 {
-    "_config_name": "basic_cart_braintree.settings",
+    "_config_name": "basic_cart.settings",
     "basic_cart_currency": "USD",
     "basic_cart_price_format": "",
     "basic_cart_vat_state": "FALSE",
@@ -16,6 +16,7 @@
     "basic_cart_county": "",
     "basic_cart_state": "",
     "basic_cart_zip": "",
+    "basic_cart_comment": "",
     "basic_cart_admin_emails": "",
     "basic_cart_admin_subject": "New order placed",
     "basic_cart_admin_message": "",

@@ -89,6 +89,7 @@ function theme_basic_cart_render_cart_element($variables) {
   $delete_link = l(theme('image', $vars), 'cart/remove/' . $nid, array('html' => TRUE));
   // Getting the node for it's title and description.
   $node = basic_cart_get_cart($nid);
+  $node = node_load($node);
   // Node description.
   $desc = '';
   if (isset($node->basic_cart_node_description)) {
@@ -96,7 +97,7 @@ function theme_basic_cart_render_cart_element($variables) {
                 truncate_utf8($node->basic_cart_node_description, 50) : $node->basic_cart_node_description;
   }
   // Price and currency.
-  $unit_price = isset($node->basic_cart_unit_price) ? $node->basic_cart_unit_price : 0;
+  $unit_price = isset($node->price["und"][0]["value"]) ? $node->price["und"][0]["value"] : 0;
   $unit_price = basic_cart_price_format($unit_price);
   
   // Prefix.
