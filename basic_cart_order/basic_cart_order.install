@@ -130,7 +130,7 @@ field_create_instance($instance);
 
 // Check to see if the field_order_city field already exists.
 $field = field_info_field('field_order_city');
-// If the price field does not exist then create it.
+// If the city field does not exist then create it.
 if (empty($field))
 {
     $field = array(
@@ -150,14 +150,61 @@ $instance = array(
           );
 field_create_instance($instance);
 
+
+// Check to see if the field_order_county field already exists.
+$field = field_info_field('field_order_county');
+// If the county field does not exist then create it.
+if (empty($field))
+{
+    $field = array(
+      'field_name' => 'field_order_county',
+      'type' => 'text',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+}
+
+$instance = array(
+            'field_name' => 'field_order_county',
+            'label' => t('County'),
+            'description' => t('Please enter the county for this item.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+field_create_instance($instance);
+
+
+// Check to see if the field_order_state field already exists.
+$field = field_info_field('field_order_state');
+// If the state field does not exist then create it.
+if (empty($field))
+{
+    $field = array(
+      'field_name' => 'field_order_state',
+      'type' => 'text',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+}
+
+$instance = array(
+            'field_name' => 'field_order_state',
+            'label' => t('State'),
+            'description' => t('Please enter the state for this item.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+field_create_instance($instance);
+
+
 // Check to see if the field_order_zipcode field already exists.
 $field = field_info_field('field_order_zipcode');
-// If the price field does not exist then create it.
+// If the zipcode field does not exist then create it.
 if (empty($field))
 {
     $field = array(
       'field_name' => 'field_order_zipcode',
-      'type' => 'number_decimal',
+      'type' => 'number_integer',
       'entity_types' => array('node'),
     );
     field_create_field($field);
@@ -167,6 +214,30 @@ $instance = array(
             'field_name' => 'field_order_zipcode',
             'label' => t('Zipcode'),
             'description' => t('Please enter the zipcode for this item.'),
+            'entity_type' => 'node',
+            'bundle' => 'order',
+          );
+field_create_instance($instance);
+
+
+
+// Check to see if the field_order_country field already exists.
+$field = field_info_field('field_order_country');
+// If the country field does not exist then create it.
+if (empty($field))
+{
+    $field = array(
+      'field_name' => 'field_order_country',
+      'type' => 'text',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+}
+
+$instance = array(
+            'field_name' => 'field_order_country',
+            'label' => t('Country'),
+            'description' => t('Please enter the country for this item.'),
             'entity_type' => 'node',
             'bundle' => 'order',
           );

@@ -15,7 +15,7 @@ function basic_cart_admin_content_type() {
     return NULL;
   }
   
-
+  $product_types = config_get('basic_cart.settings', 'basic_cart_content_types');
   $options = array();
   foreach ($node_types as $node_type => $type) {
     if ($node_type == 'order' && module_exists('basic_cart_order')) {
@@ -24,9 +24,11 @@ function basic_cart_admin_content_type() {
     $options[$node_type] = check_plain($type->name);
   }
   $default_value = array();
-  foreach (basic_cart_product_types() as $product_type){
-    if (isset($options[$product_type])){
-      $default_value[$product_type] = $product_type;
+  foreach ($product_types as $product_type)
+  {
+    if (isset($options[$product_type]))
+    {
+    $default_value[$product_type] = $product_type;
     }
   }
 
@@ -96,7 +98,103 @@ function basic_cart_admin_content_type() {
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_redirect_user_after_add_to_cart'),
     '#field_prefix' => url(NULL, array('absolute' => TRUE)) . (config_get('system.core', 'clean_url') ? '' : '?q='),
   );
+  
+  $form['basic_cart_price'] = array(
+  '#type' => 'markup',
+  '#title' => t('Price of product?'),
+  '#markup' => '<p>' . t('You can set each products price at its node edit screen, not here.') . '</p>',
+  );
 
+    $form['basic_cart_sendemail'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Send emails to admin and customer for each successful transaction?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_sendemail'),
+        '#description' => t('Check this box to send emails.  Uncheck to not send emails.')
+    );
+
+  $form['basic_cart_fields_description'] = array(
+        '#type' => 'markup',
+        '#title' => t('Which fields do you want to collect?'),
+        '#markup' => '<hr /><p>You have the choice to collect the following information from your customers below</p>'
+    );
+
+    $form['basic_cart_firstname'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('First Name?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_firstname'),
+        '#description' => t('Check this box to collect first names.  Uncheck to leave the first name box off of the checkout form.')
+    );
+
+    $form['basic_cart_lastname'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Last Name?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_lastname'),
+        '#description' => t('Check this box to collect last names.  Uncheck to leave the last name box off of the checkout form.')
+    );
+
+    $form['basic_cart_phone'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Phone Number?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_phone'),
+        '#description' => t('Check this box to collect phone numbers.  Uncheck to leave the phone number box off of the checkout form.')
+    );
+
+    $form['basic_cart_address'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Address 1?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_address'),
+        '#description' => t('Check this box to collect address 1.  Uncheck to leave the address 1 box off of the checkout form.')
+    );
+
+    $form['basic_cart_address2'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Address 2?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_address2'),
+        '#description' => t('Check this box to collect address 2.  Uncheck to leave the address 2 box off of the checkout form.')
+    );
+
+    $form['basic_cart_city'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('City?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_city'),
+        '#description' => t('Check this box to collect city.  Uncheck to leave the city box off of the checkout form.')
+    );
+
+    $form['basic_cart_county'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('County?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_county'),
+        '#description' => t('Check this box to collect county.  Uncheck to leave the county box off of the checkout form.')
+    );
+
+    $form['basic_cart_state'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('State?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_state'),
+        '#description' => t('Check this box to collect state.  Uncheck to leave the state box off of the checkout form.')
+    );
+
+    $form['basic_cart_zip'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Zip?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_zip'),
+        '#description' => t('Check this box to collect zip codes.  Uncheck to leave the zip code box off of the checkout form.')
+    );
+    
+    $form['basic_cart_country'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Country?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_country'),
+        '#description' => t('Check this box to collect countries.  Uncheck to leave the country box off of the checkout form.')
+    );
+
+    $form['basic_cart_comment'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Comment?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_comment'),
+        '#description' => t('Check this box to collect customer comments.  Uncheck to leave the customer comment box off of the checkout form.')
+    );  
+  
   $form['actions']['#type'] = 'actions';
   $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
 
@@ -112,14 +210,14 @@ function basic_cart_admin_checkout() {
     '#type' => 'fieldset',
     '#description' => t('Here you can customize the mails sent to the site administrator and customer, after an order is placed.'),
   );
-  
+
   $site_mail = config_get('system.core', 'site_mail');
   $form['messages']['basic_cart_admin_emails'] = array(
     '#title' => t('Administrator emails'),
     '#type' => 'textarea',
-    '#description' => t('After each placed order, an email with the order details will be sent to all the addresses from the list above. 
+    '#description' => t('After each placed order, an email with the order details will be sent to all the addresses from the list above.
                           Please add one email address per line.'),
-    '#default_value' => config_get('basic_cart.settings', 'basic_cart_admin_emails'),
+    '#default_value' => $site_mail
   );
 
   $form['messages']['basic_cart_admin_subject'] = array(
@@ -132,11 +230,11 @@ function basic_cart_admin_checkout() {
   $form['messages']['basic_cart_admin_message'] = array(
     '#title' => t('Admin email'),
     '#type' => 'textarea',
-    '#description' => t('This email will be sent to the site administrator just after an order is placed. 
-      Availabale tokes: %CUSTOMER_NAME, %CUSTOMER_EMAIL, %CUSTOMER_PHONE, %CUSTOMER_CITY, %CUSTOMER_ZIPCODE, %CUSTOMER_ADDRESS, %CUSTOMER_MESSAGE, %ORDER_DETAILS.'),
+    '#description' => t('This email will be sent to the site administrator just after an order is placed.
+      If you collect these from your customers, you have these available tokens: %CUSTOMER_NAME, %CUSTOMER_EMAIL, %CUSTOMER_PHONE, %CUSTOMER_ADDRESS, %CUSTOMER_ADDRESS2, %CUSTOMER_CITY, %CUSTOMER_STATE, %CUSTOMER_ZIPCODE, %CUSTOMER_COUNTY, %CUSTOMER_COUNTRY, %CUSTOMER_COMMENT, %ORDER_DETAILS'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_admin_message'),
   );
-
+  
   $form['messages']['basic_cart_send_user_message'] = array(
     '#title' => t('Send an email to the customer after an order is placed'),
     '#type' => 'checkbox',
@@ -153,7 +251,7 @@ function basic_cart_admin_checkout() {
   $form['messages']['basic_cart_user_message'] = array(
     '#title' => t('User email'),
     '#type' => 'textarea',
-    '#description' => t('This email will be sent to the user just after an order is placed. Availabale tokes: %CUSTOMER_NAME, %CUSTOMER_EMAIL, %CUSTOMER_PHONE, %CUSTOMER_ADDRESS, %CUSTOMER_MESSAGE, %ORDER_DETAILS'),
+    '#description' => t('This email will be sent to the user just after an order is placed. If you collect these from your customers, you have these available tokens: %CUSTOMER_NAME, %CUSTOMER_EMAIL, %CUSTOMER_PHONE, %CUSTOMER_ADDRESS, %CUSTOMER_ADDRESS2, %CUSTOMER_CITY, %CUSTOMER_STATE, %CUSTOMER_ZIPCODE, %CUSTOMER_COUNTY, %CUSTOMER_COUNTRY, %CUSTOMER_COMMENT, %ORDER_DETAILS'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_user_message'),
   );
 
@@ -177,7 +275,28 @@ function basic_cart_admin_checkout() {
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_thank_you_message'),
   );
 
-  return system_settings_form($form);
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
+
+  return $form;
+}
+
+
+/**
+ * Callback submit function for the settings page.
+ */
+function basic_cart_admin_checkout_submit($form, &$form_state) {
+  // Remove internal Form API values.
+unset($form_state['values']['form_id'], $form_state['values']['form_token'], $form_state['values']['form_build_id'], $form_state['values']['op']);
+  // Save other variables.
+  foreach ($form_state['values'] as $key => $value) {
+    if (is_array($value) && isset($form_state['values']['array_filter'])) {
+      $value = array_keys(array_filter($value));
+    }
+config_set('basic_cart.settings', $key, $value);
+  }
+
+backdrop_set_message(t('The configuration options have been saved.'));
 }
 
 /**

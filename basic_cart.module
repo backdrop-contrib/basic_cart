@@ -5,8 +5,6 @@
  * Basic cart module file.
  */
 
-require_once dirname(__FILE__) . '/basic_cart.theme.inc';
-
 /**
  * Implements hook_config_info().
  */
@@ -16,7 +14,9 @@ function basic_cart_config_info() {
     'group' => t('Configuration'),
   );
   return $prefixes;
-}
+} 
+ 
+require_once dirname(__FILE__) . '/basic_cart.theme.inc';
 
 /**
  * Implements hook_permission().

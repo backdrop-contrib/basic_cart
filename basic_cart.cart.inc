@@ -232,9 +232,7 @@ function basic_cart_empty_cart() {
 function basic_cart_price_format($price) {
   $format = config_get('basic_cart.settings', 'basic_cart_price_format');
   $currency = check_plain(config_get('basic_cart.settings', 'basic_cart_currency'));
-  
   $price = (float) $price;
-  return $price;
   switch ($format) {
     case 0:
       $price = number_format($price, 2, ',', ' ') . ' ' . $currency;
@@ -272,6 +270,7 @@ function basic_cart_price_format($price) {
       $price = number_format($price, 2, ',', ' ') . ' ' . $currency;
       break;
   }
+return $price;  
 }
 
 /**
@@ -361,6 +360,12 @@ function basic_cart_checkout_form() {
     '#type' => 'textfield',
     '#description' => t('Please enter your address.'),
   );
+  
+  $form['basic_cart_checkout_address2'] = array(
+    '#title' => t('Address 2'),
+    '#type' => 'textfield',
+    '#description' => t('Please enter your address.'),
+  );
 
   $form['basic_cart_checkout_city'] = array(
     '#title' => t('City'),
@@ -369,17 +374,38 @@ function basic_cart_checkout_form() {
     '#description' => t('Please enter your city.'),
   );
   
+  $form['basic_cart_checkout_county'] = array(
+    '#title' => t('County'),
+    '#type' => 'textfield',
+    '#size' => 25,
+    '#description' => t('Please enter your county.'),
+  );
+  
+  $form['basic_cart_checkout_state'] = array(
+    '#title' => t('State'),
+    '#type' => 'textfield',
+    '#size' => 3,
+    '#description' => t('Please enter your state.'),
+  );
+
   $form['basic_cart_checkout_zipcode'] = array(
     '#title' => t('Zip code'),
     '#type' => 'textfield',
-    '#size' => 16,
+    '#size' => 6,
     '#description' => t('Please enter your zipcode.'),
   );
   
+  $form['basic_cart_checkout_country'] = array(
+    '#title' => t('Country'),
+    '#type' => 'textfield',
+    '#size' => 25,
+    '#description' => t('Please enter your country.'),
+  );
+  
   $form['basic_cart_checkout_comment'] = array(
-    '#title' => t('Message'),
+    '#title' => t('Comment'),
     '#type' => 'textarea',
-    '#description' => t('If you wish to add a comment, please use this message area.'),
+    '#description' => t('If you wish to add a comment about your order, please use this message area.'),
   );
 
   $form['basic_cart_checkout_submit'] = array(
@@ -404,7 +430,6 @@ function basic_cart_checkout_form_validate($form, &$form_state) {
  * Register order and send emails.
  */
 function basic_cart_checkout_form_submit($form, &$form_state) {
-  // %ORDER_DETAILS% placeholder.
   $order_details = '';
   $cart = basic_cart_get_cart();
   $price = basic_cart_get_total_price();
@@ -421,9 +446,13 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     $email = $form_state['values']['basic_cart_checkout_email'];
     $order_details_ = array(
       'phone' => $form_state['values']['basic_cart_checkout_phone'],
-      'city' => $form_state['values']['basic_cart_checkout_city'],
-      'zipcode' => $form_state['values']['basic_cart_checkout_zipcode'],
       'address' => $form_state['values']['basic_cart_checkout_address'],
+      'address2' => $form_state['values']['basic_cart_checkout_address2'],
+      'city' => $form_state['values']['basic_cart_checkout_city'],
+      'county' => $form_state['values']['basic_cart_checkout_county'],
+      'state' => $form_state['values']['basic_cart_checkout_state'],
+      'country' => $form_state['values']['basic_cart_checkout_country'],
+      'zipcode' => $form_state['values']['basic_cart_checkout_zipcode'],
       'comment' => $form_state['values']['basic_cart_checkout_comment'],
     );
     $order = basic_cart_order_register_order($name, $email, $order_details_);
@@ -442,11 +471,9 @@ foreach ($cart as $cid => $value) {
 if (is_numeric($cid))
 {
 $node = node_load($cart[$value]);
-    
-    $unit_price = basic_cart_price_format($node->price["und"][0]["value"]);
-    $order_details .= ++$i . '. ' . $node->title . "\t" .
-                      $_SESSION['basic_cart']['cart'][$cid . 'quantity'] . ' x ' . $unit_price . "\n";
-  }
+$unit_price = basic_cart_price_format($node->price["und"][0]["value"]);
+$order_details .= ++$i . '. ' . $node->title . "\t" . $_SESSION['basic_cart']['cart'][$cid . 'quantity'] . ' x ' . $unit_price . "\n";
+}
 }
   $order_details .= "\n";
   $order_details .= "Total price: " . $total_price;
@@ -457,13 +484,14 @@ $node = node_load($cart[$value]);
   }
   // Pleaceholder replacement.
   $search = array(
-    '%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE', '%CUSTOMER_CITY',
-    '%CUSTOMER_ZIPCODE', '%CUSTOMER_ADDRESS', '%CUSTOMER_COMMENT', '%ORDER_DETAILS',
+    '%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE', '%CUSTOMER_ADDRESS', '%CUSTOMER_ADDRESS2', '%CUSTOMER_CITY', '%CUSTOMER_STATE',
+    '%CUSTOMER_ZIPCODE', '%CUSTOMER_COUNTY', '%CUSTOMER_COUNTRY', '%CUSTOMER_COMMENT', '%ORDER_DETAILS',
   );
   $replace = array(
-    $form_state['values']['basic_cart_checkout_name'], $form_state['values']['basic_cart_checkout_email'],
-    $form_state['values']['basic_cart_checkout_phone'], $form_state['values']['basic_cart_checkout_city'],
-    $form_state['values']['basic_cart_checkout_zipcode'], $form_state['values']['basic_cart_checkout_address'],
+    $form_state['values']['basic_cart_checkout_name'], $form_state['values']['basic_cart_checkout_email'], $form_state['values']['basic_cart_checkout_phone'],
+    $form_state['values']['basic_cart_checkout_address'], $form_state['values']['basic_cart_checkout_address2'],
+    $form_state['values']['basic_cart_checkout_city'], $form_state['values']['basic_cart_checkout_state'], $form_state['values']['basic_cart_checkout_zipcode'],
+    $form_state['values']['basic_cart_checkout_county'], $form_state['values']['basic_cart_checkout_country'],
     $form_state['values']['basic_cart_checkout_comment'], $order_details,
   );
   // Admin message.

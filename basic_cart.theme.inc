@@ -79,18 +79,11 @@ function theme_basic_cart_render_cart_element($variables) {
   if (empty($nid)) {
     return '';
   }
-  // Delete image.
-  $vars = array(
-    'path' => base_path() . backdrop_get_path('module', 'basic_cart') . '/images/delete2.png',
-    'alt' => t('Remove from cart'),
-    'title' => t('Remove from cart'),
-    'attributes' => array('class' => 'basic-cart-delete-image-image'),
-  );
-  $delete_link = l(theme('image', $vars), 'cart/remove/' . $nid, array('html' => TRUE));
   // Getting the node for it's title and description.
-  $node = basic_cart_get_cart($nid);
-  $node = node_load($node);
+  // $node = basic_cart_braintree_get_cart($nid);
+  $node = node_load($nid);
   // Node description.
+  $delete_link = "<a href='cart/remove/" . $node->nid . "' title='Remove product from cart'><img alt='Remove product from cart' class='basic-cart-delete-image-image' src='" . base_path() . drupal_get_path('module', 'basic_cart_braintree') . "/images/delete2.png'></a>";
   $desc = '';
   if (isset($node->basic_cart_node_description)) {
     $desc = backdrop_strlen($node->basic_cart_node_description) > 50 ?
