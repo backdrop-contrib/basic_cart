@@ -39,7 +39,7 @@ Features
 TESTED
 -----
 
-Does not work yet on Backdrop 1.0.  A working state is known;  however, I have not yet the time to bug fix this module.
+Basic working on Backdrop 1.0.  Will resolve to iron out bugs -- probably alpha/beta stage.
 
 
 KNOWN ISSUES
