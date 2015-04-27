@@ -38,7 +38,12 @@ Features
 TESTED
 -----
 
+<<<<<<< HEAD
 Basic working on Backdrop 1.0. Will resolve to iron out bugs -- probably beta stage.
+=======
+Basic working on Backdrop 1.0.  Will resolve to iron out bugs -- probably alpha/beta stage.
+
+>>>>>>> 9c9ce5028807df0b1c0a2686fdf4d2c6dbb131e9
 
 KNOWN ISSUES
 ---------------------
