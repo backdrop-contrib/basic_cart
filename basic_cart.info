@@ -3,6 +3,7 @@ description = A basic shopping cart implementation.
 package = Basic Cart
 version = BACKDROP_VERSION
 backdrop = 1.x
+type = module
 stylesheets[all][] = basic_cart.css
 configure = admin/config/basic_cart/settings
 
