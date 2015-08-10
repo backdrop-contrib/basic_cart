@@ -118,18 +118,11 @@ function basic_cart_admin_content_type() {
         '#markup' => '<hr /><p>You have the choice to collect the following information from your customers below</p>'
     );
 
-    $form['basic_cart_firstname'] = array(
+    $form['basic_cart_name'] = array(
         '#type' => 'checkbox',
-        '#title' => t('First Name?'),
-        '#default_value' => config_get('basic_cart.settings', 'basic_cart_firstname'),
-        '#description' => t('Check this box to collect first names.  Uncheck to leave the first name box off of the checkout form.')
-    );
-
-    $form['basic_cart_lastname'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Last Name?'),
-        '#default_value' => config_get('basic_cart.settings', 'basic_cart_lastname'),
-        '#description' => t('Check this box to collect last names.  Uncheck to leave the last name box off of the checkout form.')
+        '#title' => t('User Name?'),
+        '#default_value' => config_get('basic_cart.settings', 'basic_cart_name'),
+        '#description' => t('Check this box to collect user names.  Uncheck to leave the user name box off of the checkout form.')
     );
 
     $form['basic_cart_phone'] = array(

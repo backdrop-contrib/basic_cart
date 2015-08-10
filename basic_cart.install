@@ -37,7 +37,7 @@ config_set('basic_cart.settings', 'basic_cart_thank_you_message', $default_thank
 
   // Redirect url after add to cart.
 config_set('basic_cart.settings', 'basic_cart_redirect_user_after_add_to_cart', '<none>');
-  
+
 // Check to see if the price field already exists.
 $field = field_info_field('price');
 // If the price field does not exist then create it.
@@ -49,7 +49,7 @@ if (empty($field)) {
     );
     field_create_field($field);
   }
-  
+
 config_set('basic_cart.settings', 'basic_cart_vat_state', FALSE);
 config_set('basic_cart.settings', 'basic_cart_vat_value', '');
 }
@@ -79,115 +79,6 @@ function basic_cart_uninstall() {
     backdrop_flush_all_caches();
 }
 
-/**
- * Adding Basic Cart new features (price, currency).
- */
-function basic_cart_update_7200() {
-  // Setting up the default currency.
-config_set('basic_cart.settings', 'basic_cart_currency', BASIC_CART_DEFAULT_CURRENCY);
-  
-  // Check to see if the price field already exists.
-  $field = field_info_field('price');
-  // If the price field does not exist then create it.
-  if (empty($field)) {
-    $field = array(
-      'field_name' => 'price',
-      'type' => 'number_decimal',
-      'entity_types' => array('node'),
-    );
-    field_create_field($field);
-  }
-
-  // Getting the content types for which we have basic cart active.
-  $node_types = config_get('basic_cart.settings', 'basic_cart_content_types');
-  if (is_array($node_types)) {
-    // Setting up the price field for the selected content types.
-    foreach ($node_types as $type => $checked) {
-      // If a node type is checked, then create the price field.
-      if ($checked) {
-        // Foreach checked content type, we must assign the price field to the content type.
-        $instance = field_info_instance('node', 'price', $type);
-        if (empty($instance)) {
-          $instance = array(
-            'field_name' => 'price',
-            'label' => t('Price'),
-            'description' => t('Please enter the price for this item.'),
-            'entity_type' => 'node',
-            'bundle' => $type,
-          );
-          // It doesn't exist. Create it.
-          field_create_instance($instance);
-        }
-      }
-      // If not, then delete the price field.
-      else {
-        $instance = field_info_instance('node', 'price', $type);
-        if (!empty($instance)) {
-          field_delete_instance($instance);
-        }
-      }
-    }
-  }
-}
-
-/**
- * Updating the price field to number_decimal instead of text. 
- */
-function basic_cart_update_7201() {
-  $product_types = basic_cart_product_types();
-  if (!empty($product_types)) {
-    $backup_products = array();
-    // Taking each content type.
-    foreach ($product_types as $product_type => $is_active) {
-      if (!empty($is_active)) {
-        // Taking each product and storing it's initial value.
-        $query = db_select('node', 'n')->fields('n', array('nid'));
-        $products = $query->condition('type', $product_type, '=')->execute()->fetchAll();
-        
-        if (!empty($products) && is_array($products)) {
-          foreach ($products as $i => $node) {
-            $node = node_load($node->nid);
-            $backup_products[$product_type][$node->nid] = $node;
-          }
-        }
-      }
-    }
-    // Now deleting the price field.
-    field_delete_field('price');
-    // Using field_purge_batch() to actually delete the field.
-    field_purge_batch(10);
-    // Creating the new field with the right type property.
-    $field = array(
-      'field_name' => 'price',
-      'type' => 'number_decimal',
-      'entity_types' => array('node'),
-    );
-    field_create_field($field);
-    
-    // Restoring the content type instance and the node's initial value.
-    if (!empty($backup_products)) {
-      foreach ($backup_products as $product_type => $nodes) {
-        // Restoring the field instance.
-        $instance = array(
-          'field_name' => 'price',
-          'label' => t('Price'),
-          'description' => t('Please enter the price for this item.'),
-          'entity_type' => 'node',
-          'bundle' => $product_type,
-        );
-        field_create_instance($instance);
-        // Restoring the node's initial value.
-        foreach ($nodes as $nid => $node) {
-          node_save($node);
-        }
-      }
-    }
-  }
-  config_set('basic_cart.settings', 'basic_cart_redirect_user_after_add_to_cart', '<none>');
-  config_set('basic_cart.settings', 'basic_cart_vat_state', BASIC_CART_VAT_STATE);
-  config_set('basic_cart.settings', 'basic_cart_vat_value', BASIC_CART_VAT_VALUE);
-}
-
 
 function basic_cart_update_1000() {
   $config = config('basic_cart.settings');
@@ -196,25 +87,24 @@ function basic_cart_update_1000() {
   $config->set('basic_cart_vat_state', update_variable_get('basic_cart_vat_state'));
   $config->set('basic_cart_vat_value', update_variable_get('basic_cart_vat_value'));
   $config->set('basic_cart_redirect_user_after_add_to_cart', update_variable_get('basic_cart_redirect_user_after_add_to_cart'));
-  
+
   $config->set('basic_cart_price', update_variable_get('basic_cart_price'));
   $config->set('basic_cart_sendemail', update_variable_get('basic_cart_sendemail'));
-  $config->set('basic_cart_firstname', update_variable_get('basic_cart_firstname'));
-  $config->set('basic_cart_lastname', update_variable_get('basic_cart_lastname'));
+  $config->set('basic_cart_name', update_variable_get('basic_cart_name'));
   $config->set('basic_cart_phone', update_variable_get('basic_cart_phone'));
-  
+
   $config->set('basic_cart_address', update_variable_get('basic_cart_address'));
   $config->set('basic_cart_address2', update_variable_get('basic_cart_address2'));
   $config->set('basic_cart_city', update_variable_get('basic_cart_city'));
   $config->set('basic_cart_county', update_variable_get('basic_cart_county'));
   $config->set('basic_cart_state', update_variable_get('basic_cart_state'));
-  
+
   $config->set('basic_cart_zip', update_variable_get('basic_cart_zip'));
   $config->set('basic_cart_admin_emails', update_variable_get('basic_cart_admin_emails'));
-  $config->set('basic_cart_admin_subject', update_variable_get('basic_cart_admin_subject')); 
+  $config->set('basic_cart_admin_subject', update_variable_get('basic_cart_admin_subject'));
   $config->set('basic_cart_admin_message', update_variable_get('basic_cart_admin_message'));
   $config->set('basic_cart_send_user_message', update_variable_get('basic_cart_send_user_message'));
-  
+
   $config->set('basic_cart_user_subject', update_variable_get('basic_cart_user_subject'));
   $config->set('basic_cart_user_message', update_variable_get('basic_cart_user_message'));
   $config->set('basic_cart_thank_you_title', update_variable_get('basic_cart_thank_you_title'));
@@ -222,32 +112,31 @@ function basic_cart_update_1000() {
   $config->set('basic_cart_content_types', update_variable_get('basic_cart_content_types'));
   $config->save();
 
-  
+
   // Delete variables.
   update_variable_del('basic_cart_currency');
   update_variable_del('basic_cart_price_format');
   update_variable_del('basic_cart_vat_state');
   update_variable_del('basic_cart_vat_value');
   update_variable_del('basic_cart_redirect_user_after_add_to_cart');
-  
+
   update_variable_del('basic_cart_price');
   update_variable_del('basic_cart_sendemail');
-  update_variable_del('basic_cart_firstname');
-  update_variable_del('basic_cart_lastname');
+  update_variable_del('basic_cart_name');
   update_variable_del('basic_cart_phone');
-  
+
   update_variable_del('basic_cart_address');
   update_variable_del('basic_cart_address2');
   update_variable_del('basic_cart_city');
   update_variable_del('basic_cart_county');
   update_variable_del('basic_cart_state');
-  
+
   update_variable_del('basic_cart_zip');
   update_variable_del('basic_cart_admin_emails');
   update_variable_del('basic_cart_admin_subject');
   update_variable_del('basic_cart_admin_message');
   update_variable_del('basic_cart_send_user_message');
-  
+
   update_variable_del('basic_cart_user_subject');
   update_variable_del('basic_cart_user_message');
   update_variable_del('basic_cart_thank_you_title');

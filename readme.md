@@ -25,8 +25,7 @@ this module also provides a block where you can view your cart's content.
 
 You must add your own payment processor or service.
 
-It's ideal for small websites with only a few products or other content types
-being sold, for example touristic offers.  It is much simpler to get started for simple or few products.
+It's ideal for small websites with only a few products or other content types being sold, for example touristic offers.  It is much simpler to get started for simple or few products.
 
 Features
 
@@ -38,24 +37,19 @@ Features
 TESTED
 -----
 
-<<<<<<< HEAD
-Basic working on Backdrop 1.0. Will resolve to iron out bugs -- probably beta stage.
-=======
-Basic working on Backdrop 1.0.  Will resolve to iron out bugs -- probably alpha/beta stage.
-
->>>>>>> 9c9ce5028807df0b1c0a2686fdf4d2c6dbb131e9
+Working in Backdrop 1.1
 
 KNOWN ISSUES
 ---------------------
 
-@todo
+NOTE: I AM NOT A BIG FAN OF THE SIMPLE ORDER/RECORD KEEPING SYSTEM.  I wouldn't depend on it as is.
+Hopefully in 8/2015 I can get this upgraded to a better Views system using https://www.drupal.org/project/charts
 
 SPECIAL THANKS
 --------------
 
 - dicix <https://www.drupal.org/u/dicix>
 - Jen Lampton <https://www.drupal.org/u/jenlampton>
-
 
 REQUIREMENTS
 ------------
@@ -98,7 +92,7 @@ Select the content type/s on the module configuration page: Configuration - Basi
 
 Create a view for the content type/s to get the shop's overview. If you already have it, you can skip this step.
 
-You have a block with the cart preview. Activate it ;-)
+You have a block with the cart preview. Activate it and place it in your layouts ;-)
 
 Start to add you're products in the newly created content type or in the one you already have.
 

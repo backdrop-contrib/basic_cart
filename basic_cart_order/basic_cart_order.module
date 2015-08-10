@@ -163,8 +163,6 @@ $node->language = LANGUAGE_NONE;
   // Email, mandatory field.
   $node->field_order_email[$node->language][0]['value'] = $email;
   
-  
-  
   // Phone.
   if (isset($order_details['phone']) && $order_details['phone'] != "default") {
     $node->field_order_phone[$node->language][0]['value'] = $order_details['phone'];

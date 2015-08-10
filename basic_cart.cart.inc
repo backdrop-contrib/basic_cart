@@ -331,82 +331,212 @@ function basic_cart_checkout() {
   return $cart . $form;
 }
 
+
+/**
+ * Ajax validation on email and password.
+ *
+ * @param array $form
+ *   Elements to build the form.
+ *
+ * @param array $form_state
+ *   Values passed during form submission.
+ *
+ * @return string
+ */
+function _basic_cart_form_email_ajax_validate($form, &$form_state)
+{
+    // Validate as a true email format.
+    $email  = check_plain(filter_xss($form_state['values']['basic_cart_checkout_email']));
+    $query  = 'SELECT name FROM {users} where mail = :mail';
+    $result = db_query($query, array(
+        ':mail' => $email
+    ))->fetchField();
+
+    if (!empty($result)) {
+        $error = '<div id="email-error" style="color:#ff0000;">User is already registered.</div>';
+        return $error;
+    }
+
+    // Validate as a true email format.`
+    elseif (filter_var($form_state['values']['basic_cart_checkout_email'], FILTER_VALIDATE_EMAIL) == FALSE) {
+        $error = '<div id="email-error" style="color:#ff0000;">The email is not valid.</div>';
+        return $error;
+    } else {
+        $noerror = '<div id="email-error"> </div>';
+        return $noerror;
+    }
+}
+
+
+
 /**
  * Checkout form.
  */
 function basic_cart_checkout_form() {
-  $form['basic_cart_checkout_name'] = array(
-    '#title' => t('Name'),
-    '#type' => 'textfield',
-    '#required' => TRUE,
-    '#description' => t('Please enter your name.'),
-  );
-
-  $form['basic_cart_checkout_email'] = array(
-    '#title' => t('Email'),
-    '#type' => 'textfield',
-    '#required' => TRUE,
-    '#description' => t('Please enter your email.'),
-  );
-
-  $form['basic_cart_checkout_phone'] = array(
-    '#title' => t('Phone'),
-    '#type' => 'textfield',
-    '#description' => t('Please enter your phone.'),
-  );
-
-  $form['basic_cart_checkout_address'] = array(
-    '#title' => t('Address'),
-    '#type' => 'textfield',
-    '#description' => t('Please enter your address.'),
-  );
   
-  $form['basic_cart_checkout_address2'] = array(
-    '#title' => t('Address 2'),
-    '#type' => 'textfield',
-    '#description' => t('Please enter your address.'),
-  );
+  // Check for $form_state values returned on form rebuild and when submitting the back button.
+    global $user;
+    if ($user->uid == 0) {
+        $email                    = isset($form_state['values']['basic_cart_checkout_email']) ? $form_state['values']['basic_cart_checkout_email'] : '';
+        $form['basic_cart_checkout_email'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Email'),
+            '#required' => TRUE,
+            '#default_value' => $email,
 
-  $form['basic_cart_checkout_city'] = array(
-    '#title' => t('City'),
-    '#type' => 'textfield',
-    '#size' => 40,
-    '#description' => t('Please enter your city.'),
-  );
-  
-  $form['basic_cart_checkout_county'] = array(
-    '#title' => t('County'),
-    '#type' => 'textfield',
-    '#size' => 25,
-    '#description' => t('Please enter your county.'),
-  );
-  
-  $form['basic_cart_checkout_state'] = array(
-    '#title' => t('State'),
-    '#type' => 'textfield',
-    '#size' => 3,
-    '#description' => t('Please enter your state.'),
-  );
+            // Perform ajax validation.
+            '#ajax' => array(
+                'callback' => '_basic_cart_form_email_ajax_validate',
+                'wrapper' => 'email-error',
+                'effect' => 'slide'
+            ),
+            '#suffix' => '<div id="email-error" style="color:#ff0000;"> </div>'
+        );
+    } else {
+        $email                    = $user->mail;
+        $form['basic_cart_checkout_email'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Email'),
+            '#required' => TRUE,
+            '#default_value' => $email,
 
-  $form['basic_cart_checkout_zipcode'] = array(
-    '#title' => t('Zip code'),
-    '#type' => 'textfield',
-    '#size' => 6,
-    '#description' => t('Please enter your zipcode.'),
-  );
-  
-  $form['basic_cart_checkout_country'] = array(
-    '#title' => t('Country'),
-    '#type' => 'textfield',
-    '#size' => 25,
-    '#description' => t('Please enter your country.'),
-  );
-  
-  $form['basic_cart_checkout_comment'] = array(
-    '#title' => t('Comment'),
-    '#type' => 'textarea',
-    '#description' => t('If you wish to add a comment about your order, please use this message area.'),
-  );
+            // Perform ajax validation.
+            '#ajax' => array(
+                'callback' => '_basic_cart_form_email_ajax_validate',
+                'wrapper' => 'email-error',
+                'effect' => 'slide'
+            ),
+            '#suffix' => '<div id="email-error" style="color:#ff0000;"> </div>'
+        );
+    }
+
+    $testvariable = config_get('basic_cart.settings', 'basic_cart_name');
+    if ($testvariable > 0) {
+        $yourname                    = isset($form_state['values']['basic_cart_checkout_name']) ? $form_state['values']['basic_cart_checkout_name'] : '';
+        $form['basic_cart_checkout_name'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Your Name'),
+            '#required' => TRUE,
+            '#size' => 10,
+            '#maxlength' => 40,
+            '#default_value' => $yourname
+        );
+    }
+
+    $testvariable = config_get('basic_cart.settings', 'basic_cart_phone');
+    if ($testvariable > 0) {
+        $phone                    = isset($form_state['values']['basic_cart_checkout_phone']) ? $form_state['values']['basic_cart_checkout_phone'] : '';
+        $form['basic_cart_checkout_phone'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Phone'),
+            '#required' => TRUE,
+            '#size' => 12,
+            '#maxlength' => 20,
+            '#default_value' => $phone
+        );
+    }
+
+    $testvariable = config_get('basic_cart.settings', 'basic_cart_address');
+    if ($testvariable > 0) {
+        $address                    = isset($form_state['values']['basic_cart_checkout_address']) ? $form_state['values']['basic_cart_checkout_address'] : '';
+        $form['basic_cart_checkout_address'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Address Line 1'),
+            '#required' => TRUE,
+            '#size' => 12,
+            '#maxlength' => 50,
+            '#default_value' => $address
+        );
+    }
+
+    $testvariable = config_get('basic_cart.settings', 'basic_cart_address2');
+    if ($testvariable > 0) {
+        $address2                    = isset($form_state['values']['basic_cart_checkout_address2']) ? $form_state['values']['basic_cart_checkout_address2'] : '';
+        $form['basic_cart_checkout_address2'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Address Line 2'),
+            '#size' => 12,
+            '#maxlength' => 30,
+            '#default_value' => $address2
+        );
+    }
+
+    $testvariable = config_get('basic_cart.settings', 'basic_cart_city');
+    if ($testvariable > 0) {
+        $city                    = isset($form_state['values']['basic_cart_checkout_city']) ? $form_state['values']['basic_cart_checkout_city'] : '';
+        $form['basic_cart_checkout_city'] = array(
+            '#type' => 'textfield',
+            '#title' => t('City or Town'),
+            '#required' => TRUE,
+            '#size' => 12,
+            '#maxlength' => 30,
+            '#default_value' => $city
+        );
+    }
+
+    $testvariable = config_get('basic_cart.settings', 'basic_cart_county');
+    if ($testvariable > 0) {
+        $county                    = isset($form_state['values']['basic_cart_checkout_county']) ? $form_state['values']['basic_cart_checkout_county'] : '';
+        $form['basic_cart_checkout_county'] = array(
+            '#type' => 'textfield',
+            '#title' => t('County'),
+            '#required' => TRUE,
+            '#size' => 12,
+            '#maxlength' => 30,
+            '#default_value' => $county
+        );
+    }
+
+    $testvariable = config_get('basic_cart.settings', 'basic_cart_state');
+    if ($testvariable > 0) {
+        $state                    = isset($form_state['values']['basic_cart_checkout_state']) ? $form_state['values']['basic_cart_checkout_state'] : '';
+        $form['basic_cart_checkout_state'] = array(
+            '#type' => 'textfield',
+            '#title' => t('State'),
+            '#required' => TRUE,
+            '#size' => 3,
+            '#maxlength' => 3,
+            '#default_value' => $state
+        );
+    }
+
+
+    $testvariable = config_get('basic_cart.settings', 'basic_cart_zipcode');
+    if ($testvariable > 0) {
+        $zip                    = isset($form_state['values']['basic_cart_checkout_zipcode']) ? $form_state['values']['basic_cart_checkout_zipcode'] : '';
+        $form['basic_cart_checkout_zipcode'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Zip'),
+            '#required' => TRUE,
+            '#size' => 10,
+            '#maxlength' => 10,
+            '#default_value' => $zip
+        );
+    }
+    
+    $testvariable = config_get('basic_cart.settings', 'basic_cart_country');
+    if ($testvariable > 0) {
+        $country                    = isset($form_state['values']['basic_cart_checkout_country']) ? $form_state['values']['basic_cart_checkout_country'] : '';
+        $form['basic_cart_checkout_country'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Country'),
+            '#required' => TRUE,
+            '#size' => 10,
+            '#maxlength' => 20,
+            '#default_value' => $country
+        );
+    }
+    
+    $testvariable = config_get('basic_cart.settings', 'basic_cart_comment');
+    if ($testvariable > 0) {
+        $comment                    = isset($form_state['values']['basic_cart_checkout_comment']) ? $form_state['values']['basic_cart_checkout_comment'] : '';
+        $form['basic_cart_checkout_comment'] = array(
+            '#type' => 'textarea',
+            '#description' => t('If you wish to add a comment about your order, please use this message area.'),
+            '#required' => TRUE,
+            '#default_value' => $comment
+        );
+    }
 
   $form['basic_cart_checkout_submit'] = array(
     '#type' => 'submit',
@@ -419,7 +549,7 @@ function basic_cart_checkout_form() {
 /**
  * Checkout form validation.
  */
-function basic_cart_checkout_form_validate($form, &$form_state) {
+function basic_cart_checkout_form_validate($form, &$form_state) { 
   if (!valid_email_address($form_state['values']['basic_cart_checkout_email'])) {
     form_set_error('basic_cart_checkout_email', t('Please enter a valid email address.'));
   }
