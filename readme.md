@@ -1,24 +1,6 @@
 BASIC CART
 ===================
 
-CONTENTS OF THIS FILE
----------------------
-
- - Introduction
- - Tested
- - Known Issues
- - Special Thanks
- - Requirements
- - Installation
- - Coming From Drupal?
- - Usage
- - License
- - Credits
- - Maintainers
-
-INTRODUCTION
-------------
-
 Basic cart is a very simple shopping cart / checkout process for Backdrop,
 that just sends 2 emails after each order. Along with the shopping cart,
 this module also provides a block where you can view your cart's content.
@@ -33,6 +15,21 @@ Features
 * The possibility of sending, or not, an email to the customer once an order is placed.
 * Custom email messages for both the site administrator and the customer, along with the order details.
 * A block with the contents of your shopping cart.
+
+CONTENTS OF THIS FILE
+---------------------
+
+ - Introduction
+ - Tested
+ - Known Issues
+ - Special Thanks
+ - Requirements
+ - Installation
+ - Coming From Drupal?
+ - Usage
+ - License
+ - Credits
+ - Maintainers
 
 TESTED
 -----
