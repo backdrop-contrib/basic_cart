@@ -39,6 +39,12 @@ Working in Backdrop 1.1
 KNOWN ISSUES
 ---------------------
 
+This module is not supported in 2016 by @biolithic , the module port person.
+
+Contact another developer on this list for support, or use at your own discretion.
+
+Some supported (but in development) options in 2016 are <https://github.com/codewombat/backshop> and <https://github.com/biolithic/basic_cart_plus>
+
 NOTE: You must create your own Views using the content types this module provides to have a record-keeping backend.
 
 SPECIAL THANKS
@@ -108,7 +114,7 @@ This module is based on the Basic Cart module for Drupal, originally written and
 MAINTAINERS
 -----------
 
- - biolithic <https://github.com/biolithic>
+ seeking
 
 Ported to Backdrop by:
 
