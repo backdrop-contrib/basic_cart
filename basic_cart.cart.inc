@@ -194,7 +194,7 @@ if (is_numeric($cid))
 {
 $node = node_load($cart[$value]);
     if (isset($_SESSION['basic_cart']['cart'][$cid . 'quantity']) && isset($node->price["und"][0]["value"])) {
-      $total_price += $_SESSION['basic_cart']['cart'][$cid . 'quantity'] * basic_cart_price_format($node->price["und"][0]["value"]);
+      $total_price += $_SESSION['basic_cart']['cart'][$cid . 'quantity'] * $node->price["und"][0]["value"];
     }
   }
       }
