@@ -145,7 +145,7 @@ maintained by a large number of contributors, including:
 MAINTAINERS
 -----------
 
-- [Robert Garrigos](https://github.com/robertgarrigos)
+- [Robert Garrigós](https://github.com/robertgarrigos)
 
 Ported to Backdrop by:
 
