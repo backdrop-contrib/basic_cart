@@ -154,8 +154,7 @@ function basic_cart_node_view($node, $view_mode, $langcode) {
       $price = field_get_items('node', $node, 'price');
       if (isset($price[0])) {
         $price = check_plain($price[0]['value']);
-      }
-      else {
+      } else {
         backdrop_set_message(t('You need to set a price for "!link"', array('!link' => l($node->title, 'node/' . $node->nid))), 'warning');
         $price = 0;
       }
@@ -234,7 +233,7 @@ function basic_cart_block_view($delta = '') {
         );
         // Checking the VAT.
         $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
-        if (!empty ($vat_is_enabled) && $vat_is_enabled) {
+        if (!empty($vat_is_enabled) && $vat_is_enabled) {
           $options['vat'] = basic_cart_price_format($price->vat);
         }
 
@@ -262,7 +261,7 @@ function basic_cart_is_product($node) {
 /**
  * Helper function. Returns an array of basic_cart product (content) types.
  */
-function basic_cart_product_types(){
+function basic_cart_product_types() {
   return config_get('basic_cart.settings', 'basic_cart_content_types');
 }
 
