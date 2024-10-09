@@ -10,7 +10,7 @@
  */
 function basic_cart_cart() {
   $cart = basic_cart_get_cart();
-  
+
   if (empty($cart)) {
     return t('Your cart is empty.');
   }
@@ -119,7 +119,7 @@ function basic_cart_add_to_cart($nid = NULL) {
     }
   }
   backdrop_set_message(t('Shopping cart updated.'));
-  
+
   $redirect = config_get('basic_cart.settings', 'basic_cart_redirect_user_after_add_to_cart');
   if (empty($redirect)) {
     backdrop_goto('cart');
@@ -174,7 +174,7 @@ function basic_cart_get_cart($nid = NULL) {
  * Returns the final price for the shopping cart.
  *
  * @return mixed $total_price
- *   The total price for the shopping cart. 
+ *   The total price for the shopping cart.
  */
 function basic_cart_get_total_price() {
   // Building the return array.
@@ -187,7 +187,7 @@ function basic_cart_get_total_price() {
   if (empty($cart)) {
     return (object) $return;
   }
-  
+
   $total_price = 0;
   foreach ($cart as $cid => $value) {
 if (is_numeric($cid))
@@ -199,7 +199,7 @@ $node = node_load($cart[$value]);
   }
       }
   $return['price'] = $total_price;
-  
+
   // Checking whether to apply the VAT or not.
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
   if (!empty ($vat_is_enabled) && $vat_is_enabled) {
@@ -209,7 +209,7 @@ $node = node_load($cart[$value]);
     // Adding VAT and total price to the return array.
     $return['vat'] = $vat_value;
   }
-  
+
   $return['total'] = $total_price;
   return (object) $return;
 }
@@ -237,40 +237,40 @@ function basic_cart_price_format($price) {
     case 0:
       $price = number_format($price, 2, ',', ' ') . ' ' . $currency;
       break;
-    
+
     case 1:
       $price = number_format($price, 2, '.', ' ') . ' ' . $currency;
       break;
-    
+
     case 2:
       $price = number_format($price, 2, '.', ',') . ' ' . $currency;
       break;
-    
+
     case 3:
       $price = number_format($price, 2, ',', '.') . ' ' . $currency;
       break;
-    
+
     case 4:
       $price = $currency . ' ' . number_format($price, 2, ',', ' ');
       break;
-    
+
     case 5:
       $price = $currency . ' ' . number_format($price, 2, '.', ' ');
       break;
-    
+
     case 6:
       $price = $currency . ' ' . number_format($price, 2, '.', ',');
       break;
-    
+
     case 7:
       $price = $currency . ' ' . number_format($price, 2, ',', '.');
       break;
-    
+
     default:
       $price = number_format($price, 2, ',', ' ') . ' ' . $currency;
       break;
   }
-return $price;  
+return $price;
 }
 
 /**
@@ -286,7 +286,7 @@ function _basic_cart_price_format() {
     1 => t('1 234.00 @currency', array('@currency' => $currency)),
     2 => t('1,234.00 @currency', array('@currency' => $currency)),
     3 => t('1.234,00 @currency', array('@currency' => $currency)),
-    
+
     4 => t('@currency 1 234,00', array('@currency' => $currency)),
     5 => t('@currency 1 234.00', array('@currency' => $currency)),
     6 => t('@currency 1,234.00', array('@currency' => $currency)),
@@ -306,26 +306,26 @@ function basic_cart_checkout() {
   // Price.
   $price = basic_cart_get_total_price();
   $total = $price->total;
-  
+
   $options = array(
     'cart' => $shopping_cart,
     'price' => $total,
   );
-  
+
   // Checking the VAT.
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
   if (!empty ($vat_is_enabled) && $vat_is_enabled) {
     $options['vat'] = basic_cart_price_format($price->vat);
   }
-  
+
   // The flat cart (just the listing part).
   $cart = theme('basic_cart_cart_flat', $options);
-  
+
   // If the cart is empty, we don't want to show the checkout form.
   if (empty($shopping_cart)) {
     return $cart;
   }
-  
+
   $form = backdrop_get_form('basic_cart_checkout_form');
   $form = backdrop_render($form);
   return $cart . $form;
@@ -373,7 +373,7 @@ function _basic_cart_form_email_ajax_validate($form, &$form_state)
  * Checkout form.
  */
 function basic_cart_checkout_form() {
-  
+
   // Check for $form_state values returned on form rebuild and when submitting the back button.
     global $user;
     if ($user->uid == 0) {
@@ -513,7 +513,7 @@ function basic_cart_checkout_form() {
             '#default_value' => $zip
         );
     }
-    
+
     $testvariable = config_get('basic_cart.settings', 'basic_cart_country');
     if ($testvariable > 0) {
         $country                    = isset($form_state['values']['basic_cart_checkout_country']) ? $form_state['values']['basic_cart_checkout_country'] : '';
@@ -526,12 +526,13 @@ function basic_cart_checkout_form() {
             '#default_value' => $country
         );
     }
-    
+
     $testvariable = config_get('basic_cart.settings', 'basic_cart_comment');
     if ($testvariable > 0) {
         $comment                    = isset($form_state['values']['basic_cart_checkout_comment']) ? $form_state['values']['basic_cart_checkout_comment'] : '';
         $form['basic_cart_checkout_comment'] = array(
             '#type' => 'textarea',
+            '#title' => t('Comment'),
             '#description' => t('If you wish to add a comment about your order, please use this message area.'),
             '#required' => TRUE,
             '#default_value' => $comment
@@ -549,7 +550,7 @@ function basic_cart_checkout_form() {
 /**
  * Checkout form validation.
  */
-function basic_cart_checkout_form_validate($form, &$form_state) { 
+function basic_cart_checkout_form_validate($form, &$form_state) {
   if (!valid_email_address($form_state['values']['basic_cart_checkout_email'])) {
     form_set_error('basic_cart_checkout_email', t('Please enter a valid email address.'));
   }
@@ -564,12 +565,12 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   $cart = basic_cart_get_cart();
   $price = basic_cart_get_total_price();
   $total_price = basic_cart_price_format($price->total);
-  
+
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
   if (!empty ($vat_is_enabled) && $vat_is_enabled) {
     $vat = basic_cart_price_format($price->vat);
   }
-  
+
   // Registering the new order to the database.
   if (module_exists('basic_cart_order')) {
     $name = $form_state['values']['basic_cart_checkout_name'];
@@ -586,7 +587,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
       'comment' => $form_state['values']['basic_cart_checkout_comment'],
     );
     $order = basic_cart_order_register_order($name, $email, $order_details_);
-    
+
     // Order successfully placed. Custom hook for other modules.
     foreach (module_implements('basic_cart_order') as $module) {
       $function = $module . '_basic_cart_order';
@@ -594,7 +595,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
       $function($order);
     }
   }
-  
+
   // Building the order details.
   $i = 0;
 foreach ($cart as $cid => $value) {
@@ -627,7 +628,7 @@ $order_details .= ++$i . '. ' . $node->title . "\t" . $_SESSION['basic_cart']['c
   // Admin message.
   $message_html = config_get('basic_cart.settings', 'basic_cart_admin_message');
   $message_html = str_replace($search, $replace, $message_html);
-  
+
   // Admin mail.
   $params['admin_message'] = $message_html;
   $site_mail = config_get('system.core', 'site_mail');
@@ -648,13 +649,13 @@ $order_details .= ++$i . '. ' . $node->title . "\t" . $_SESSION['basic_cart']['c
       foreach ($admin_emails as $admin_email) {
         // Sending mail to each admin.
         $message = backdrop_mail('basic_cart', 'admin_mail', $admin_email, language_default(), $params);
-        
+
         // Verifing that the mail was sent for at least one email address.
         if ($message['result']) {
           $ok = TRUE;
         }
       }
-      
+
       $mails_sent = 0;
       if ($ok) {
         $mails_sent++;
@@ -662,14 +663,14 @@ $order_details .= ++$i . '. ' . $node->title . "\t" . $_SESSION['basic_cart']['c
     }
   }
 
-  
+
   // User email.
   $send_user_mail = config_get('basic_cart.settings', 'basic_cart_send_user_message');
   if ($send_user_mail) {
     $message_html = config_get('basic_cart.settings', 'basic_cart_user_message');
     $message_html = str_replace($search, $replace, $message_html);
     $params['user_message'] = $message_html;
-    
+
     // Sending mail.
     $message = backdrop_mail('basic_cart', 'user_mail', $form_state['values']['basic_cart_checkout_email'], language_default(), $params);
 
@@ -677,7 +678,7 @@ $order_details .= ++$i . '. ' . $node->title . "\t" . $_SESSION['basic_cart']['c
       $mails_sent++;
     }
   }
-  
+
   if ($mails_sent >= 1) {
     basic_cart_empty_cart();
     backdrop_goto('checkout/thank-you');
@@ -714,4 +715,3 @@ function basic_cart_checkout_thank_you() {
   $message = config_get('basic_cart.settings', 'basic_cart_thank_you_message');
   return filter_xss($message);
 }
-
