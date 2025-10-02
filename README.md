@@ -1,5 +1,4 @@
-BASIC CART
-===================
+# BASIC CART
 
 Basic cart is a very simple shopping cart/checkout process for Backdrop, that
 just sends 2 emails after each order. Along with the shopping cart, this module
@@ -27,28 +26,7 @@ Features
   with the order details.
 * A block with the contents of your shopping cart.
 
-CONTENTS OF THIS FILE
----------------------
-
-- Introduction
-- Tested
-- Known Issues
-- Special Thanks
-- Requirements
-- Installation
-- Coming From Drupal?
-- Usage
-- License
-- Credits
-- Maintainers
-
-TESTED
------
-
-Working in Backdrop 1.1
-
-KNOWN ISSUES
----------------------
+## KNOWN ISSUES
 
 This module is not supported in 2016 by @biolithic , the module port person.
 
@@ -62,26 +40,18 @@ https://github.com/biolithic/basic_cart_plus
 NOTE: You must create your own Views using the content types this module
 provides to have a record-keeping backend.
 
-SPECIAL THANKS
---------------
+## SPECIAL THANKS
 
-- [dicix](https://www.drupal.org/u/dicix)
-- [Jen Lampton](https://www.drupal.org/u/jenlampton)
+* [dicix](https://www.drupal.org/u/dicix)
+* [Jen Lampton](https://www.drupal.org/u/jenlampton)
 
-REQUIREMENTS
-------------
+## INSTALLATION
 
-none
-
-INSTALLATION
-------------
 
 Install this module using the official Backdrop CMS instructions at
 https://backdropcms.org/guide/modules
 
-
-COMING FROM DRUPAL?
--------------------
+## COMING FROM DRUPAL?
 
 Main difference from Ubercart and Commerce
 
@@ -101,14 +71,7 @@ This happens when you add a product to the cart.
 Basic Cart for Backdrop stores node id's as strings in the user `$_SESSION`
 variable and no pre-made etc...
 
-PERMISSIONS
-------------
-
-@todo
-
-
-USAGE
------
+## USAGE
 
 Install the module.
 
@@ -128,25 +91,21 @@ layouts ;-)
 Start to add your products in the newly created content type or in the one you
 already have.
 
-LICENSE
--------
+## Issues
 
-This project is GPL v2 software. See the LICENSE.txt file in this directory for
-complete text.
+Bugs and feature requests should be reported in [the Issue Queue](https://github.com/backdrop-contrib/basic-cart/issues).
 
-CREDITS
------------
+## Current Maintainers
 
-This module is based on the Basic Cart module for Drupal, originally written and
-maintained by a large number of contributors, including:
+* [Robert Garrigós](https://github.com/robertgarrigos).
+* Collaborators and co-maintainers welcome!
 
-- [dicix](https://www.drupal.org/u/dicix)
+## Credits
 
-MAINTAINERS
------------
+* Ported to Backdrop CMS by [biolithic](https://github.com/biolithic).
+* Originally written for Drupal by [Alex Dicianu](https://www.drupal.org/user/664900).
 
-- [Robert Garrigós](https://github.com/robertgarrigos)
+## License
 
-Ported to Backdrop by:
-
-- [biolithic](https://github.com/biolithic)
+This project is GPL v2 software.
+See the LICENSE.txt file in this directory for complete text.
