@@ -48,17 +48,6 @@ function basic_cart_menu() {
   $items['admin/config/basic_cart'] = array(
     'title' => 'Basic cart',
     'description' => 'Basic cart content type selection.',
-    'position' => 'left',
-    'weight' => -10,
-    'page callback' => 'system_admin_menu_block_page',
-    'access arguments' => array('administer basic cart'),
-    'file' => 'system.admin.inc',
-    'file path' => backdrop_get_path('module', 'system'),
-  );
-
-  $items['admin/config/basic_cart/settings'] = array(
-    'title' => 'Basic cart',
-    'description' => 'Basic cart content type selection.',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('basic_cart_admin_content_type'),
     'access arguments' => array('administer basic cart'),
