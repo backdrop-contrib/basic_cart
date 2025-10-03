@@ -54,7 +54,7 @@ $node = node_load($cart[$value]);
   $form['buttons'] = array(
     // Make the returned array come back in tree form.
     '#tree' => TRUE,
-    '#prefix' => '<div class="row"><div class="basic-cart-call-to-action cell">',
+    '#prefix' => '<div class="line"><div class="basic-cart-call-to-action cell">',
     '#suffix' => '</div></div>',
   );
   // Update button.
