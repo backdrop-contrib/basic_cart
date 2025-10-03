@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Basic cart main theme function wrapper. 
+ * Basic cart main theme function wrapper.
  */
 
 module_load_include('inc', 'basic_cart', 'basic_cart.cart');
@@ -40,32 +40,32 @@ function basic_cart_add_to_cart_link($nid){
       'class' => array('button', 'basic-cart-add-to-cart-link'),
     ),
   );
-  
+
   return $link;
 }
 
 /**
  * Theme implementation for rendering the total price.
- * 
+ *
  * @todo find a way to pass $price through the variables array.
  */
 function theme_basic_cart_cart_total_price($variables) {
   $price = basic_cart_get_total_price();
   $total = basic_cart_price_format($price->total);
-  
+
   // Building the HTML.
-  $html  = '<div class="basic-cart-cart-total-price-contents row">';
+  $html  = '<div class="basic-cart-cart-total-price-contents line">';
   $html .= '  <div class="basic-cart-total-price cell">' . t('Total price') . ': <strong>' . $total . '</strong></div>';
   $html .= '</div>';
-  
+
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
   if (!empty ($vat_is_enabled) && $vat_is_enabled) {
     $vat_value = basic_cart_price_format($price->vat);
-    $html .= '<div class="basic-cart-cart-total-vat-contents row">';
+    $html .= '<div class="basic-cart-cart-total-vat-contents line">';
     $html .= '  <div class="basic-cart-total-vat cell">' . t('Total VAT') . ': <strong>' . $vat_value . '</strong></div>';
     $html .= '</div>';
   }
-  
+
   return $html;
 }
 
@@ -92,9 +92,9 @@ function theme_basic_cart_render_cart_element($variables) {
   // Price and currency.
   $unit_price = isset($node->price["und"][0]["value"]) ? $node->price["und"][0]["value"] : 0;
   $unit_price = basic_cart_price_format($unit_price);
-  
+
   // Prefix.
-  $prefix  = '<div class="basic-cart-cart-contents row">';
+  $prefix  = '<div class="basic-cart-cart-contents line">';
   $prefix .= '  <div class="basic-cart-delete-image cell">' . $delete_link . '</div>';
   $prefix .= '  <div class="basic-cart-cart-node-title cell">' . l($node->title, 'node/' . $nid) . '<br />';
   $prefix .= '    <span class="basic-cart-cart-node-summary">' . $desc . '</span>';
@@ -107,7 +107,7 @@ function theme_basic_cart_render_cart_element($variables) {
   $suffix  = '    </div>';
   $suffix .= '  </div>';
   $suffix .= '</div>';
-  
+
   // Rendering the element as textfield.
   $quantity = theme('textfield', $variables['form']);
   // Full view return.
