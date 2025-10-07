@@ -1,0 +1,456 @@
+<?php
+
+/**
+ * @file
+ * Stripe integration with Basic Cart
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function basic_cart_stripe_menu() {
+  $items = array();
+
+  $items['admin/config/basic_cart/basic_cart_stripe'] = array(
+    'title' => 'Basic Cart Stripe',
+    'description' => 'Stripe integration configuration for Basic Cart',
+    'page callback' => 'backdrop_get_form',
+    'page arguments' => array('basic_cart_stripe_settings_form'),
+    'access arguments' => array('administer basic cart stripe'),
+    'file' => 'includes/basic_cart_stripe.admin.inc',
+  );
+
+  // Orders menu inside "Store" (commerce)
+  $items['admin/store'] = array(
+    'title' => 'Store',
+    'description' => 'Manage store and orders',
+    'position' => 'left',
+    'weight' => -5,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file' => 'system.admin.inc',
+    'file path' => backdrop_get_path('module', 'system'),
+  );
+
+  $items['admin/store/orders'] = array(
+    'title' => 'Orders',
+    'description' => 'Manage Basic Cart Stripe orders',
+    'page callback' => 'basic_cart_stripe_orders_page',
+    'access arguments' => array('view basic cart stripe orders'),
+    'file' => 'includes/basic_cart_stripe.orders.inc',
+  );
+
+  $items['admin/store/orders/%'] = array(
+    'title' => 'View order',
+    'page callback' => 'basic_cart_stripe_order_view',
+    'page arguments' => array(3),
+    'access arguments' => array('view basic cart stripe orders'),
+    'file' => 'includes/basic_cart_stripe.orders.inc',
+  );
+
+  $items['admin/store/orders/%/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items['admin/store/orders/%/refund'] = array(
+    'title' => 'Refund',
+    'page callback' => 'backdrop_get_form',
+    'page arguments' => array('basic_cart_stripe_refund_form', 3),
+    'access arguments' => array('refund basic cart stripe orders'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/basic_cart_stripe.orders.inc',
+  );
+
+  $items['basic_cart_stripe/create-payment-intent'] = array(
+    'page callback' => 'basic_cart_stripe_ajax_create_payment_intent',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function basic_cart_stripe_permission() {
+  return array(
+    'administer basic cart stripe' => array(
+      'title' => t('Administer Basic Cart Stripe'),
+      'description' => t('Manage Stripe configuration for Basic Cart'),
+    ),
+    'view basic cart stripe orders' => array(
+      'title' => t('View Basic Cart Stripe orders'),
+      'description' => t('View order list and details'),
+    ),
+    'refund basic cart stripe orders' => array(
+      'title' => t('Refund Basic Cart Stripe orders'),
+      'description' => t('Process order refunds'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function basic_cart_stripe_form_alter(&$form, &$form_state, $form_id) {
+  // Modify the Basic Cart checkout form
+  if ($form_id == 'basic_cart_checkout_form') {
+
+    // Verify there are items in the cart
+    $cart = basic_cart_get_cart();
+    if (empty($cart)) {
+      backdrop_set_message(t('The cart is empty.'), 'warning');
+      return;
+    }
+
+    // Get public key from Stripe module configuration
+    $stripe_config = config('stripe.settings');
+    $stripe_mode = $stripe_config->get('mode');
+
+    $stripe_key = NULL;
+    if ($stripe_mode == 'test') {
+      $stripe_key = $stripe_config->get('test_public_key');
+    } elseif ($stripe_mode == 'live') {
+      $stripe_key = $stripe_config->get('live_public_key');
+    }
+
+    if (empty($stripe_key)) {
+      backdrop_set_message(t('Stripe is not configured correctly. Please contact the administrator.'), 'error');
+      return;
+    }
+
+    // Calculate cart total to display it
+    $total = basic_cart_stripe_get_cart_total($cart);
+
+    if ($total <= 0) {
+      backdrop_set_message(t('Cart products need to have a configured price.'), 'error');
+      return;
+    }
+
+    // Add Stripe JS and our JS
+    backdrop_add_js('https://js.stripe.com/v3/', array('type' => 'external'));
+    backdrop_add_js(backdrop_get_path('module', 'basic_cart_stripe') . '/js/basic_cart_stripe.js');
+
+    // Pass basic configuration to JS (without Payment Intent yet)
+    $settings = array(
+      'basic_cart_stripe' => array(
+        'publishable_key' => $stripe_key,
+        'amount' => $total,
+        'create_payment_intent_url' => url('basic_cart_stripe/create-payment-intent', array('absolute' => TRUE)),
+      ),
+    );
+    backdrop_add_js($settings, 'setting');
+
+    // Add container for Stripe Elements
+    $form['stripe_payment'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Payment information'),
+      '#weight' => 99, // Place it at the end, after the button
+    );
+
+    $form['stripe_payment']['card_element'] = array(
+      '#markup' => '<div id="card-element"></div><div id="card-errors" role="alert"></div>',
+    );
+
+    // Modify submit button to place it before the payment field
+    if (isset($form['basic_cart_checkout_submit'])) {
+      $form['basic_cart_checkout_submit']['#weight'] = 100;
+      $form['basic_cart_checkout_submit']['#value'] = t('Pay @amount €', array('@amount' => number_format($total, 2)));
+    }
+
+    // Add custom validation
+    array_unshift($form['#validate'], 'basic_cart_stripe_checkout_validate');
+
+    // Add custom submit handler
+    array_unshift($form['#submit'], 'basic_cart_stripe_checkout_submit');
+  }
+}
+
+/**
+ * Gets the price of a node.
+ *
+ * Reads the 'price' field created by Basic Cart.
+ */
+function basic_cart_stripe_get_node_price($node) {
+  // If we're passed an ID instead of an object, load the node
+  if (is_numeric($node)) {
+    $node = node_load($node);
+    if (!$node) {
+      watchdog('basic_cart_stripe', 'Could not load node with ID @nid', array('@nid' => $node), WATCHDOG_ERROR);
+      return 0;
+    }
+  }
+
+  // Ensure we have a node object
+  if (!is_object($node) || !isset($node->nid)) {
+    watchdog('basic_cart_stripe', 'Invalid value passed to basic_cart_stripe_get_node_price', array(), WATCHDOG_ERROR);
+    return 0;
+  }
+
+  // Basic Cart accesses price like this: $node->price["und"][0]["value"]
+  // First try with "und" (undefined) which is what Basic Cart uses
+  if (isset($node->price["und"][0]["value"])) {
+    return (float) $node->price["und"][0]["value"];
+  }
+
+  // Try with LANGUAGE_NONE
+  if (isset($node->price[LANGUAGE_NONE][0]["value"])) {
+    return (float) $node->price[LANGUAGE_NONE][0]["value"];
+  }
+
+  // Use field_get_items as backup
+  $field_items = field_get_items('node', $node, 'price');
+  if ($field_items && isset($field_items[0]['value'])) {
+    return (float) $field_items[0]['value'];
+  }
+
+  // If we don't find any price
+  watchdog('basic_cart_stripe', 'No price found for node @nid (@title)', array(
+    '@nid' => $node->nid,
+    '@title' => $node->title,
+  ), WATCHDOG_WARNING);
+
+  return 0;
+}
+
+/**
+ * Calculates the cart total.
+ */
+function basic_cart_stripe_get_cart_total($cart) {
+  $total = 0;
+  $processed_nids = array();
+
+  foreach ($cart as $key => $value) {
+    // Basic Cart stores the cart like this:
+    // array(
+    //   10 => 10,              // nid => nid
+    //   '10quantity' => 1,     // 'nidquantity' => quantity
+    // )
+
+    // If the key ends in 'quantity', skip it (we'll process it with the nid)
+    if (is_string($key) && substr($key, -8) === 'quantity') {
+      continue;
+    }
+
+    // If it's a numeric nid
+    if (is_numeric($key) && is_numeric($value) && $key == $value) {
+      $nid = $value;
+
+      // Avoid processing the same nid twice
+      if (in_array($nid, $processed_nids)) {
+        continue;
+      }
+      $processed_nids[] = $nid;
+
+      // Look for the quantity
+      $quantity_key = $nid . 'quantity';
+      $quantity = isset($cart[$quantity_key]) ? $cart[$quantity_key] : 1;
+
+      // Get the price
+      $price = basic_cart_stripe_get_node_price($nid);
+
+      $total += $price * $quantity;
+    }
+  }
+
+  return $total;
+}
+
+/**
+ * AJAX callback to create Payment Intent.
+ */
+function basic_cart_stripe_ajax_create_payment_intent() {
+  // Verify there are items in the cart
+  $cart = basic_cart_get_cart();
+  if (empty($cart)) {
+    backdrop_json_output(array(
+      'error' => t('The cart is empty.'),
+    ));
+    backdrop_exit();
+  }
+
+  // Calculate total
+  $total = basic_cart_stripe_get_cart_total($cart);
+
+  if ($total <= 0) {
+    backdrop_json_output(array(
+      'error' => t('Cart total must be greater than zero.'),
+    ));
+    backdrop_exit();
+  }
+
+  // Convert to cents
+  $amount_cents = round($total * 100);
+
+  try {
+    $payment_intent = basic_cart_stripe_create_payment_intent($amount_cents);
+
+    // Save Payment Intent ID to session
+    $_SESSION['basic_cart_stripe_payment_intent'] = $payment_intent['id'];
+
+    backdrop_json_output(array(
+      'client_secret' => $payment_intent['client_secret'],
+      'payment_intent_id' => $payment_intent['id'],
+    ));
+  } catch (Exception $e) {
+    watchdog('basic_cart_stripe', 'Error creating Payment Intent via AJAX: @error', array('@error' => $e->getMessage()), WATCHDOG_ERROR);
+    backdrop_json_output(array(
+      'error' => t('There was an error processing the payment.'),
+    ));
+  }
+
+  backdrop_exit();
+}
+
+/**
+ * Creates a Payment Intent in Stripe
+ */
+function basic_cart_stripe_create_payment_intent($amount_cents) {
+  $config = config('basic_cart_stripe.settings');
+  $currency = $config->get('currency');
+  if (empty($currency)) {
+    $currency = 'eur';
+  }
+
+  // Debug: log Payment Intent creation attempt
+  watchdog('basic_cart_stripe', 'Attempting to create Payment Intent for @amount cents (@currency)', array(
+    '@amount' => $amount_cents,
+    '@currency' => $currency,
+  ), WATCHDOG_INFO);
+
+  // Use stripe_api_call() function from Stripe module
+  $payment_intent = stripe_api_call('paymentIntent', 'create', [
+    'amount' => $amount_cents,
+    'currency' => $currency,
+    'automatic_payment_methods' => [
+      'enabled' => true,
+    ],
+    'metadata' => [
+      'integration' => 'basic_cart',
+    ],
+  ]);
+
+  if (!$payment_intent) {
+    watchdog('basic_cart_stripe', 'stripe_api_call returned NULL', array(), WATCHDOG_ERROR);
+    throw new Exception('Could not create Payment Intent');
+  }
+
+  watchdog('basic_cart_stripe', 'Payment Intent created successfully: @id', array('@id' => $payment_intent->id), WATCHDOG_INFO);
+
+  return array(
+    'id' => $payment_intent->id,
+    'client_secret' => $payment_intent->client_secret,
+  );
+}
+
+/**
+ * Checkout form validation
+ */
+function basic_cart_stripe_checkout_validate($form, &$form_state) {
+  // Actual payment validation happens in submit
+}
+
+/**
+ * Checkout form submit handler
+ */
+function basic_cart_stripe_checkout_submit($form, &$form_state) {
+  $payment_intent_id = isset($_SESSION['basic_cart_stripe_payment_intent'])
+    ? $_SESSION['basic_cart_stripe_payment_intent']
+    : NULL;
+
+  if (!$payment_intent_id) {
+    form_set_error('', t('Payment could not be processed. Please try again.'));
+    $form_state['rebuild'] = TRUE;
+    return;
+  }
+
+  try {
+    // Verify Payment Intent status
+    $payment_intent = stripe_api_call('paymentIntent', 'retrieve', $payment_intent_id);
+
+    if (!$payment_intent || $payment_intent->status !== 'succeeded') {
+      form_set_error('', t('Payment was not completed successfully. Please try again.'));
+      $form_state['rebuild'] = TRUE;
+      return;
+    }
+
+    // Save payment information
+    $order_id = basic_cart_stripe_save_order($form_state['values'], $payment_intent);
+
+    // Clear session
+    unset($_SESSION['basic_cart_stripe_payment_intent']);
+
+    // Add success message
+    backdrop_set_message(t('Payment processed successfully. Order number: @order', array('@order' => $order_id)));
+  } catch (Exception $e) {
+    watchdog('basic_cart_stripe', 'Error verifying payment: @error', array('@error' => $e->getMessage()), WATCHDOG_ERROR);
+    form_set_error('', t('There was an error verifying the payment. Please contact us.'));
+    $form_state['rebuild'] = TRUE;
+  }
+}
+
+/**
+ * Saves the order with payment information
+ */
+function basic_cart_stripe_save_order($values, $payment_intent) {
+  $cart = basic_cart_get_cart();
+  $total = basic_cart_stripe_get_cart_total($cart);
+
+  // Basic Cart uses different field names
+  $order = array(
+    'name' => isset($values['basic_cart_checkout_name']) ? $values['basic_cart_checkout_name'] : '',
+    'email' => isset($values['basic_cart_checkout_email']) ? $values['basic_cart_checkout_email'] : '',
+    'phone' => isset($values['basic_cart_checkout_phone']) ? $values['basic_cart_checkout_phone'] : '',
+    'message' => isset($values['basic_cart_checkout_comment']) ? $values['basic_cart_checkout_comment'] : '',
+    'cart' => serialize($cart),
+    'total' => $total,
+    'payment_intent_id' => $payment_intent->id,
+    'payment_status' => $payment_intent->status,
+    'created' => REQUEST_TIME,
+  );
+
+  // Save to database
+  $order_id = db_insert('basic_cart_stripe_orders')
+    ->fields($order)
+    ->execute();
+
+  return $order_id;
+}
+
+/**
+ * Implements hook_stripe_event().
+ */
+function basic_cart_stripe_stripe_event($type, $data, $event) {
+  if ($type == 'payment_intent.succeeded') {
+    basic_cart_stripe_handle_successful_payment($data->object);
+  } elseif ($type == 'payment_intent.payment_failed') {
+    basic_cart_stripe_handle_failed_payment($data->object);
+  }
+}
+
+/**
+ * Handles successful payments
+ */
+function basic_cart_stripe_handle_successful_payment($payment_intent) {
+  db_update('basic_cart_stripe_orders')
+    ->fields(array('payment_status' => 'succeeded'))
+    ->condition('payment_intent_id', $payment_intent->id)
+    ->execute();
+
+  watchdog('basic_cart_stripe', 'Successful payment: @id', array('@id' => $payment_intent->id));
+}
+
+/**
+ * Handles failed payments
+ */
+function basic_cart_stripe_handle_failed_payment($payment_intent) {
+  db_update('basic_cart_stripe_orders')
+    ->fields(array('payment_status' => 'failed'))
+    ->condition('payment_intent_id', $payment_intent->id)
+    ->execute();
+
+  watchdog('basic_cart_stripe', 'Failed payment: @id', array('@id' => $payment_intent->id), WATCHDOG_WARNING);
+}
