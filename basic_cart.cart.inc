@@ -31,17 +31,16 @@ function basic_cart_cart_form() {
     '#suffix' => '</div>',
   );
   // Cart elements.
-foreach ($cart as $cid => $value) {
-if (is_numeric($cid))
-{
-$node = node_load($cart[$value]);
-    $form['cartcontents'][$cid] = array(
-      '#type' => 'textfield',
-      '#size' => 1,
-      '#default_value' => $_SESSION['basic_cart']['cart'][$cid . 'quantity'],
-      '#theme' => 'basic_cart_render_cart_element',
-    );
-  }
+  foreach ($cart as $cid => $value) {
+    if (is_numeric($cid)) {
+      $node = node_load($cart[$value]);
+      $form['cartcontents'][$cid] = array(
+        '#type' => 'textfield',
+        '#size' => 1,
+        '#default_value' => $_SESSION['basic_cart']['cart'][$cid . 'quantity'],
+        '#theme' => 'basic_cart_render_cart_element',
+      );
+    }
   }
   // Total price.
   $form['total_price'] = array(
@@ -89,8 +88,7 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
 
   if ($form_state['values']['op'] == t('Checkout')) {
     backdrop_goto('checkout');
-  }
-  else {
+  } else {
     backdrop_set_message(t('Shopping cart updated.'));
   }
 }
@@ -108,11 +106,10 @@ function basic_cart_add_to_cart($nid = NULL) {
     $cart = basic_cart_get_cart();
     if (!empty($cart) && in_array($nid, array_keys($cart))) {
       // Clicked 2 times on add to cart button. Increment quantity.
-    $x = $_SESSION['basic_cart']['cart'][$nid . 'quantity'];
-    $x++;
-    $_SESSION['basic_cart']['cart'][$nid . 'quantity'] = $x;
-    }
-    else {
+      $x = $_SESSION['basic_cart']['cart'][$nid . 'quantity'];
+      $x++;
+      $_SESSION['basic_cart']['cart'][$nid . 'quantity'] = $x;
+    } else {
       // Storing in session.
       $_SESSION['basic_cart']['cart'][$nid] = $nid;
       $_SESSION['basic_cart']['cart'][$nid . 'quantity'] = 1;
@@ -123,12 +120,10 @@ function basic_cart_add_to_cart($nid = NULL) {
   $redirect = config_get('basic_cart.settings', 'basic_cart_redirect_user_after_add_to_cart');
   if (empty($redirect)) {
     backdrop_goto('cart');
-  }
-  elseif ($redirect == '<none>') {
+  } elseif ($redirect == '<none>') {
     $referer = $_SERVER["HTTP_REFERER"];
     backdrop_goto($referer);
-  }
-  else {
+  } else {
     backdrop_goto($redirect);
   }
 }
@@ -190,19 +185,18 @@ function basic_cart_get_total_price() {
 
   $total_price = 0;
   foreach ($cart as $cid => $value) {
-if (is_numeric($cid))
-{
-$node = node_load($cart[$value]);
-    if (isset($_SESSION['basic_cart']['cart'][$cid . 'quantity']) && isset($node->price["und"][0]["value"])) {
-      $total_price += $_SESSION['basic_cart']['cart'][$cid . 'quantity'] * $node->price["und"][0]["value"];
+    if (is_numeric($cid)) {
+      $node = node_load($cart[$value]);
+      if (isset($_SESSION['basic_cart']['cart'][$cid . 'quantity']) && isset($node->price["und"][0]["value"])) {
+        $total_price += $_SESSION['basic_cart']['cart'][$cid . 'quantity'] * $node->price["und"][0]["value"];
+      }
     }
   }
-      }
   $return['price'] = $total_price;
 
   // Checking whether to apply the VAT or not.
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
-  if (!empty ($vat_is_enabled) && $vat_is_enabled) {
+  if (!empty($vat_is_enabled) && $vat_is_enabled) {
     $vat_value = (float) config_get('basic_cart.settings', 'basic_cart_vat_value');
     $vat_value = ($total_price * $vat_value) / 100;
     $total_price += $vat_value;
@@ -270,7 +264,7 @@ function basic_cart_price_format($price) {
       $price = number_format($price, 2, ',', ' ') . ' ' . $currency;
       break;
   }
-return $price;
+  return $price;
 }
 
 /**
@@ -314,7 +308,7 @@ function basic_cart_checkout() {
 
   // Checking the VAT.
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
-  if (!empty ($vat_is_enabled) && $vat_is_enabled) {
+  if (!empty($vat_is_enabled) && $vat_is_enabled) {
     $options['vat'] = basic_cart_price_format($price->vat);
   }
 
@@ -343,28 +337,27 @@ function basic_cart_checkout() {
  *
  * @return string
  */
-function _basic_cart_form_email_ajax_validate($form, &$form_state)
-{
-    // Validate as a true email format.
-    $email  = check_plain(filter_xss($form_state['values']['basic_cart_checkout_email']));
-    $query  = 'SELECT name FROM {users} where mail = :mail';
-    $result = db_query($query, array(
-        ':mail' => $email
-    ))->fetchField();
+function _basic_cart_form_email_ajax_validate($form, &$form_state) {
+  // Validate as a true email format.
+  $email  = check_plain(filter_xss($form_state['values']['basic_cart_checkout_email']));
+  $query  = 'SELECT name FROM {users} where mail = :mail';
+  $result = db_query($query, array(
+    ':mail' => $email
+  ))->fetchField();
 
-    if (!empty($result)) {
-        $error = '<div id="email-error" style="color:#ff0000;">User is already registered.</div>';
-        return $error;
-    }
+  if (!empty($result)) {
+    $error = '<div id="email-error" style="color:#ff0000;">User is already registered.</div>';
+    return $error;
+  }
 
-    // Validate as a true email format.`
-    elseif (filter_var($form_state['values']['basic_cart_checkout_email'], FILTER_VALIDATE_EMAIL) == FALSE) {
-        $error = '<div id="email-error" style="color:#ff0000;">The email is not valid.</div>';
-        return $error;
-    } else {
-        $noerror = '<div id="email-error"> </div>';
-        return $noerror;
-    }
+  // Validate as a true email format.`
+  elseif (filter_var($form_state['values']['basic_cart_checkout_email'], FILTER_VALIDATE_EMAIL) == FALSE) {
+    $error = '<div id="email-error" style="color:#ff0000;">The email is not valid.</div>';
+    return $error;
+  } else {
+    $noerror = '<div id="email-error"> </div>';
+    return $noerror;
+  }
 }
 
 
@@ -375,169 +368,182 @@ function _basic_cart_form_email_ajax_validate($form, &$form_state)
 function basic_cart_checkout_form() {
 
   // Check for $form_state values returned on form rebuild and when submitting the back button.
-    global $user;
-    if ($user->uid == 0) {
-        $email                    = isset($form_state['values']['basic_cart_checkout_email']) ? $form_state['values']['basic_cart_checkout_email'] : '';
-        $form['basic_cart_checkout_email'] = array(
-            '#type' => 'textfield',
-            '#title' => t('Email'),
-            '#required' => TRUE,
-            '#default_value' => $email,
+  global $user;
+  if ($user->uid == 0) {
+    $email = $form_state['values']['basic_cart_checkout_email'] ?? '';
+    $form['basic_cart_checkout_email'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Email'),
+      '#required' => TRUE,
+      '#default_value' => $email,
 
-            // Perform ajax validation.
-            '#ajax' => array(
-                'callback' => '_basic_cart_form_email_ajax_validate',
-                'wrapper' => 'email-error',
-                'effect' => 'slide'
-            ),
-            '#suffix' => '<div id="email-error" style="color:#ff0000;"> </div>'
-        );
-    } else {
-        $email                    = $user->mail;
-        $form['basic_cart_checkout_email'] = array(
-            '#type' => 'textfield',
-            '#title' => t('Email'),
-            '#required' => TRUE,
-            '#default_value' => $email,
+      // Perform ajax validation.
+      '#ajax' => array(
+        'callback' => '_basic_cart_form_email_ajax_validate',
+        'wrapper' => 'email-error',
+        'effect' => 'slide'
+      ),
+      '#suffix' => '<div id="email-error" style="color:#ff0000;"> </div>'
+    );
+  } else {
+    $email = $user->mail;
+    $form['basic_cart_checkout_email'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Email'),
+      '#required' => TRUE,
+      '#default_value' => $email,
 
-            // Perform ajax validation.
-            '#ajax' => array(
-                'callback' => '_basic_cart_form_email_ajax_validate',
-                'wrapper' => 'email-error',
-                'effect' => 'slide'
-            ),
-            '#suffix' => '<div id="email-error" style="color:#ff0000;"> </div>'
-        );
-    }
+      // Perform ajax validation.
+      '#ajax' => array(
+        'callback' => '_basic_cart_form_email_ajax_validate',
+        'wrapper' => 'email-error',
+        'effect' => 'slide'
+      ),
+      '#suffix' => '<div id="email-error" style="color:#ff0000;"> </div>'
+    );
+  }
 
-    $testvariable = config_get('basic_cart.settings', 'basic_cart_name');
-    if ($testvariable > 0) {
-        $yourname                    = isset($form_state['values']['basic_cart_checkout_name']) ? $form_state['values']['basic_cart_checkout_name'] : '';
-        $form['basic_cart_checkout_name'] = array(
-            '#type' => 'textfield',
-            '#title' => t('Your Name'),
-            '#required' => TRUE,
-            '#size' => 10,
-            '#maxlength' => 40,
-            '#default_value' => $yourname
-        );
-    }
+  $testvariable = config_get('basic_cart.settings', 'basic_cart_name');
+  if ($testvariable > 0) {
+    $yourname = $form_state['values']['basic_cart_checkout_name'] ?? '';
+    $form['basic_cart_checkout_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Your Name'),
+      '#required' => TRUE,
+      '#size' => 10,
+      '#maxlength' => 40,
+      '#default_value' => $yourname
+    );
+  }
 
-    $testvariable = config_get('basic_cart.settings', 'basic_cart_phone');
-    if ($testvariable > 0) {
-        $phone                    = isset($form_state['values']['basic_cart_checkout_phone']) ? $form_state['values']['basic_cart_checkout_phone'] : '';
-        $form['basic_cart_checkout_phone'] = array(
-            '#type' => 'textfield',
-            '#title' => t('Phone'),
-            '#required' => TRUE,
-            '#size' => 12,
-            '#maxlength' => 20,
-            '#default_value' => $phone
-        );
-    }
+  $testvariable = config_get('basic_cart.settings', 'basic_cart_vat_number');
+  if ($testvariable > 0) {
+    $vatnumber = $form_state['values']['basic_cart_checkout_vat_number'] ?? '';
+    $form['basic_cart_checkout_vat_number'] = array(
+      '#type' => 'textfield',
+      '#title' => t('VAT number'),
+      '#required' => TRUE,
+      '#size' => 10,
+      '#maxlength' => 40,
+      '#default_value' => $vatnumber
+    );
+  }
 
-    $testvariable = config_get('basic_cart.settings', 'basic_cart_address');
-    if ($testvariable > 0) {
-        $address                    = isset($form_state['values']['basic_cart_checkout_address']) ? $form_state['values']['basic_cart_checkout_address'] : '';
-        $form['basic_cart_checkout_address'] = array(
-            '#type' => 'textfield',
-            '#title' => t('Address Line 1'),
-            '#required' => TRUE,
-            '#size' => 12,
-            '#maxlength' => 50,
-            '#default_value' => $address
-        );
-    }
+  $testvariable = config_get('basic_cart.settings', 'basic_cart_phone');
+  if ($testvariable > 0) {
+    $phone = $form_state['values']['basic_cart_checkout_phone'] ?? '';
+    $form['basic_cart_checkout_phone'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Phone'),
+      '#required' => TRUE,
+      '#size' => 12,
+      '#maxlength' => 20,
+      '#default_value' => $phone
+    );
+  }
 
-    $testvariable = config_get('basic_cart.settings', 'basic_cart_address2');
-    if ($testvariable > 0) {
-        $address2                    = isset($form_state['values']['basic_cart_checkout_address2']) ? $form_state['values']['basic_cart_checkout_address2'] : '';
-        $form['basic_cart_checkout_address2'] = array(
-            '#type' => 'textfield',
-            '#title' => t('Address Line 2'),
-            '#size' => 12,
-            '#maxlength' => 30,
-            '#default_value' => $address2
-        );
-    }
+  $testvariable = config_get('basic_cart.settings', 'basic_cart_address');
+  if ($testvariable > 0) {
+    $address = $form_state['values']['basic_cart_checkout_address'] ?? '';
+    $form['basic_cart_checkout_address'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Address Line 1'),
+      '#required' => TRUE,
+      '#size' => 12,
+      '#maxlength' => 50,
+      '#default_value' => $address
+    );
+  }
 
-    $testvariable = config_get('basic_cart.settings', 'basic_cart_city');
-    if ($testvariable > 0) {
-        $city                    = isset($form_state['values']['basic_cart_checkout_city']) ? $form_state['values']['basic_cart_checkout_city'] : '';
-        $form['basic_cart_checkout_city'] = array(
-            '#type' => 'textfield',
-            '#title' => t('City or Town'),
-            '#required' => TRUE,
-            '#size' => 12,
-            '#maxlength' => 30,
-            '#default_value' => $city
-        );
-    }
+  $testvariable = config_get('basic_cart.settings', 'basic_cart_address2');
+  if ($testvariable > 0) {
+    $address2 = $form_state['values']['basic_cart_checkout_address2'] ?? '';
+    $form['basic_cart_checkout_address2'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Address Line 2'),
+      '#size' => 12,
+      '#maxlength' => 30,
+      '#default_value' => $address2
+    );
+  }
 
-    $testvariable = config_get('basic_cart.settings', 'basic_cart_county');
-    if ($testvariable > 0) {
-        $county                    = isset($form_state['values']['basic_cart_checkout_county']) ? $form_state['values']['basic_cart_checkout_county'] : '';
-        $form['basic_cart_checkout_county'] = array(
-            '#type' => 'textfield',
-            '#title' => t('County'),
-            '#required' => TRUE,
-            '#size' => 12,
-            '#maxlength' => 30,
-            '#default_value' => $county
-        );
-    }
+  $testvariable = config_get('basic_cart.settings', 'basic_cart_city');
+  if ($testvariable > 0) {
+    $city = $form_state['values']['basic_cart_checkout_city'] ?? '';
+    $form['basic_cart_checkout_city'] = array(
+      '#type' => 'textfield',
+      '#title' => t('City or Town'),
+      '#required' => TRUE,
+      '#size' => 12,
+      '#maxlength' => 30,
+      '#default_value' => $city
+    );
+  }
 
-    $testvariable = config_get('basic_cart.settings', 'basic_cart_state');
-    if ($testvariable > 0) {
-        $state                    = isset($form_state['values']['basic_cart_checkout_state']) ? $form_state['values']['basic_cart_checkout_state'] : '';
-        $form['basic_cart_checkout_state'] = array(
-            '#type' => 'textfield',
-            '#title' => t('State'),
-            '#required' => TRUE,
-            '#size' => 3,
-            '#maxlength' => 3,
-            '#default_value' => $state
-        );
-    }
+  $testvariable = config_get('basic_cart.settings', 'basic_cart_county');
+  if ($testvariable > 0) {
+    $county = $form_state['values']['basic_cart_checkout_county'] ?? '';
+    $form['basic_cart_checkout_county'] = array(
+      '#type' => 'textfield',
+      '#title' => t('County'),
+      '#required' => TRUE,
+      '#size' => 12,
+      '#maxlength' => 30,
+      '#default_value' => $county
+    );
+  }
+
+  $testvariable = config_get('basic_cart.settings', 'basic_cart_state');
+  if ($testvariable > 0) {
+    $state = $form_state['values']['basic_cart_checkout_state'] ?? '';
+    $form['basic_cart_checkout_state'] = array(
+      '#type' => 'textfield',
+      '#title' => t('State'),
+      '#required' => TRUE,
+      '#size' => 3,
+      '#maxlength' => 3,
+      '#default_value' => $state
+    );
+  }
 
 
-    $testvariable = config_get('basic_cart.settings', 'basic_cart_zipcode');
-    if ($testvariable > 0) {
-        $zip                    = isset($form_state['values']['basic_cart_checkout_zipcode']) ? $form_state['values']['basic_cart_checkout_zipcode'] : '';
-        $form['basic_cart_checkout_zipcode'] = array(
-            '#type' => 'textfield',
-            '#title' => t('Zip'),
-            '#required' => TRUE,
-            '#size' => 10,
-            '#maxlength' => 10,
-            '#default_value' => $zip
-        );
-    }
+  $testvariable = config_get('basic_cart.settings', 'basic_cart_zipcode');
+  if ($testvariable > 0) {
+    $zip = $form_state['values']['basic_cart_checkout_zipcode'] ??'';
+    $form['basic_cart_checkout_zipcode'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Zip'),
+      '#required' => TRUE,
+      '#size' => 10,
+      '#maxlength' => 10,
+      '#default_value' => $zip
+    );
+  }
 
-    $testvariable = config_get('basic_cart.settings', 'basic_cart_country');
-    if ($testvariable > 0) {
-        $country                    = isset($form_state['values']['basic_cart_checkout_country']) ? $form_state['values']['basic_cart_checkout_country'] : '';
-        $form['basic_cart_checkout_country'] = array(
-            '#type' => 'textfield',
-            '#title' => t('Country'),
-            '#required' => TRUE,
-            '#size' => 10,
-            '#maxlength' => 20,
-            '#default_value' => $country
-        );
-    }
+  $testvariable = config_get('basic_cart.settings', 'basic_cart_country');
+  if ($testvariable > 0) {
+    $country = $form_state['values']['basic_cart_checkout_country'] ?? '';
+    $form['basic_cart_checkout_country'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Country'),
+      '#required' => TRUE,
+      '#size' => 10,
+      '#maxlength' => 20,
+      '#default_value' => $country
+    );
+  }
 
-    $testvariable = config_get('basic_cart.settings', 'basic_cart_comment');
-    if ($testvariable > 0) {
-        $comment                    = isset($form_state['values']['basic_cart_checkout_comment']) ? $form_state['values']['basic_cart_checkout_comment'] : '';
-        $form['basic_cart_checkout_comment'] = array(
-            '#type' => 'textarea',
-            '#title' => t('Comment'),
-            '#description' => t('If you wish to add a comment about your order, please use this message area.'),
-            '#required' => TRUE,
-            '#default_value' => $comment
-        );
-    }
+  $testvariable = config_get('basic_cart.settings', 'basic_cart_comment');
+  if ($testvariable > 0) {
+    $comment = $form_state['values']['basic_cart_checkout_comment'] ?? '';
+    $form['basic_cart_checkout_comment'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Comment'),
+      '#description' => t('If you wish to add a comment about your order, please use this message area.'),
+      '#required' => TRUE,
+      '#default_value' => $comment
+    );
+  }
 
   $form['basic_cart_checkout_submit'] = array(
     '#type' => 'submit',
@@ -567,24 +573,25 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   $total_price = basic_cart_price_format($price->total);
 
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
-  if (!empty ($vat_is_enabled) && $vat_is_enabled) {
+  if (!empty($vat_is_enabled) && $vat_is_enabled) {
     $vat = basic_cart_price_format($price->vat);
   }
 
   // Registering the new order to the database.
   if (module_exists('basic_cart_order')) {
-    $name = $form_state['values']['basic_cart_checkout_name'];
-    $email = $form_state['values']['basic_cart_checkout_email'];
+    $name = $form_state['values']['basic_cart_checkout_name'] ?? '';
+    $email = $form_state['values']['basic_cart_checkout_email'] ?? '';
     $order_details_ = array(
-      'phone' => $form_state['values']['basic_cart_checkout_phone'],
-      'address' => $form_state['values']['basic_cart_checkout_address'],
-      'address2' => $form_state['values']['basic_cart_checkout_address2'],
-      'city' => $form_state['values']['basic_cart_checkout_city'],
-      'county' => $form_state['values']['basic_cart_checkout_county'],
-      'state' => $form_state['values']['basic_cart_checkout_state'],
-      'country' => $form_state['values']['basic_cart_checkout_country'],
-      'zipcode' => $form_state['values']['basic_cart_checkout_zipcode'],
-      'comment' => $form_state['values']['basic_cart_checkout_comment'],
+      'phone' => $form_state['values']['basic_cart_checkout_phone'] ?? '',
+      'address' => $form_state['values']['basic_cart_checkout_address'] ?? '',
+      'address2' => $form_state['values']['basic_cart_checkout_address2'] ?? '',
+      'city' => $form_state['values']['basic_cart_checkout_city'] ?? '',
+      'county' => $form_state['values']['basic_cart_checkout_county'] ?? '',
+      'state' => $form_state['values']['basic_cart_checkout_state'] ?? '',
+      'country' => $form_state['values']['basic_cart_checkout_country'] ?? '',
+      'zipcode' => $form_state['values']['basic_cart_checkout_zipcode'] ?? '',
+      'comment' => $form_state['values']['basic_cart_checkout_comment'] ?? '',
+      'vat_number' => $form_state['values']['basic_cart_checkout_vat_number'] ?? '',
     );
     $order = basic_cart_order_register_order($name, $email, $order_details_);
 
@@ -598,14 +605,13 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
 
   // Building the order details.
   $i = 0;
-foreach ($cart as $cid => $value) {
-if (is_numeric($cid))
-{
-$node = node_load($cart[$value]);
-$unit_price = basic_cart_price_format($node->price["und"][0]["value"]);
-$order_details .= ++$i . '. ' . $node->title . "\t" . $_SESSION['basic_cart']['cart'][$cid . 'quantity'] . ' x ' . $unit_price . "\n";
-}
-}
+  foreach ($cart as $cid => $value) {
+    if (is_numeric($cid)) {
+      $node = node_load($cart[$value]);
+      $unit_price = basic_cart_price_format($node->price["und"][0]["value"]);
+      $order_details .= ++$i . '. ' . $node->title . "\t" . $_SESSION['basic_cart']['cart'][$cid . 'quantity'] . ' x ' . $unit_price . "\n";
+    }
+  }
   $order_details .= "\n";
   $order_details .= "Total price: " . $total_price;
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
@@ -615,15 +621,34 @@ $order_details .= ++$i . '. ' . $node->title . "\t" . $_SESSION['basic_cart']['c
   }
   // Pleaceholder replacement.
   $search = array(
-    '%CUSTOMER_NAME', '%CUSTOMER_EMAIL', '%CUSTOMER_PHONE', '%CUSTOMER_ADDRESS', '%CUSTOMER_ADDRESS2', '%CUSTOMER_CITY', '%CUSTOMER_STATE',
-    '%CUSTOMER_ZIPCODE', '%CUSTOMER_COUNTY', '%CUSTOMER_COUNTRY', '%CUSTOMER_COMMENT', '%ORDER_DETAILS',
+    '%CUSTOMER_NAME',
+    '%CUSTOMER_EMAIL',
+    '%CUSTOMER_PHONE',
+    '%CUSTOMER_ADDRESS',
+    '%CUSTOMER_ADDRESS2',
+    '%CUSTOMER_CITY',
+    '%CUSTOMER_STATE',
+    '%CUSTOMER_ZIPCODE',
+    '%CUSTOMER_COUNTY',
+    '%CUSTOMER_COUNTRY',
+    '%CUSTOMER_COMMENT',
+    '%ORDER_DETAILS',
+    '%VAT_NUMBER',
   );
   $replace = array(
-    $form_state['values']['basic_cart_checkout_name'], $form_state['values']['basic_cart_checkout_email'], $form_state['values']['basic_cart_checkout_phone'],
-    $form_state['values']['basic_cart_checkout_address'], $form_state['values']['basic_cart_checkout_address2'],
-    $form_state['values']['basic_cart_checkout_city'], $form_state['values']['basic_cart_checkout_state'], $form_state['values']['basic_cart_checkout_zipcode'],
-    $form_state['values']['basic_cart_checkout_county'], $form_state['values']['basic_cart_checkout_country'],
-    $form_state['values']['basic_cart_checkout_comment'], $order_details,
+    $form_state['values']['basic_cart_checkout_name'] ?? '',
+    $form_state['values']['basic_cart_checkout_email'] ?? '',
+    $form_state['values']['basic_cart_checkout_phone'] ?? '',
+    $form_state['values']['basic_cart_checkout_address'] ?? '',
+    $form_state['values']['basic_cart_checkout_address2'] ?? '',
+    $form_state['values']['basic_cart_checkout_city'] ?? '',
+    $form_state['values']['basic_cart_checkout_state'] ?? '',
+    $form_state['values']['basic_cart_checkout_zipcode'] ?? '',
+    $form_state['values']['basic_cart_checkout_county'] ?? '',
+    $form_state['values']['basic_cart_checkout_country'] ?? '',
+    $form_state['values']['basic_cart_checkout_comment'] ?? '',
+    $form_state['values']['basic_cart_checkout_vat_number'] ?? '',
+    $order_details,
   );
   // Admin message.
   $message_html = config_get('basic_cart.settings', 'basic_cart_admin_message');
@@ -633,7 +658,7 @@ $order_details .= ++$i . '. ' . $node->title . "\t" . $_SESSION['basic_cart']['c
   $params['admin_message'] = $message_html;
   $site_mail = config_get('system.core', 'site_mail');
   $admin_emails = config_get('basic_cart.settings', 'basic_cart_admin_emails');
-  if (empty ($admin_emails)) {
+  if (empty($admin_emails)) {
     // Sending mail to admin.
     $message = backdrop_mail('basic_cart', 'admin_mail', $site_mail, language_default(), $params);
 
@@ -641,8 +666,7 @@ $order_details .= ++$i . '. ' . $node->title . "\t" . $_SESSION['basic_cart']['c
     if ($message['result']) {
       $mails_sent++;
     }
-  }
-  else {
+  } else {
     $admin_emails = explode("\n", $admin_emails);
     if (is_array($admin_emails) && !empty($admin_emails)) {
       $ok = FALSE;
@@ -682,8 +706,7 @@ $order_details .= ++$i . '. ' . $node->title . "\t" . $_SESSION['basic_cart']['c
   if ($mails_sent >= 1) {
     basic_cart_empty_cart();
     backdrop_goto('checkout/thank-you');
-  }
-  else {
+  } else {
     backdrop_set_message(t('There was a problem in submitting your order. Please try again later.'), 'error');
   }
 }

@@ -309,7 +309,7 @@ $instance = array(
           );
 field_create_instance($instance);
 
-}  
+}
 }
 
 /**
@@ -335,4 +335,121 @@ field_create_instance($instance);
   // Delete user role: View basic cart orders.
 //  user_role_delete('view basic cart orders');
   // Delete Orders menu item.
+}
+
+/**
+ * Change field_order_zipcode from number_integer to text keeping the data.
+ */
+function basic_cart_order_update_1000() {
+  // Save actual data
+  $query = db_select('field_data_field_order_zipcode', 'f')
+    ->fields('f', array('entity_id', 'field_order_zipcode_value'))
+    ->execute();
+  $old_values = array();
+  foreach ($query as $row) {
+    $old_values[$row->entity_id] = $row->field_order_zipcode_value;
+  }
+
+  // Delete instance and field
+  $instance = field_info_instance('node', 'field_order_zipcode', 'order');
+  if ($instance) {
+    field_delete_instance($instance);
+  }
+
+  $field = field_info_field('field_order_zipcode');
+  if ($field) {
+    field_delete_field('field_order_zipcode');
+  }
+
+  // Purge
+  field_purge_batch(10);
+
+
+  if (db_table_exists('field_data_field_order_zipcode')) {
+    db_drop_table('field_data_field_order_zipcode');
+  }
+  if (db_table_exists('field_revision_field_order_zipcode')) {
+    db_drop_table('field_revision_field_order_zipcode');
+  }
+
+  // Create the new field as text
+  $field = array(
+    'field_name' => 'field_order_zipcode',
+    'type' => 'text',
+    'entity_types' => array('node'),
+  );
+  field_create_field($field);
+
+  // Create the instance
+  $instance = array(
+    'field_name' => 'field_order_zipcode',
+    'label' => t('Zipcode'),
+    'description' => t('Please enter the zipcode for this item.'),
+    'entity_type' => 'node',
+    'bundle' => 'order',
+    'widget' => array(
+      'type' => 'text_textfield',
+    ),
+  );
+  field_create_instance($instance);
+
+  // Restore old data as text
+  foreach ($old_values as $entity_id => $value) {
+    $node = node_load($entity_id);
+    if ($node) {
+      $node->field_order_zipcode[LANGUAGE_NONE][0]['value'] = (string)$value;
+      node_save($node);
+    }
+  }
+
+  return t(
+    'field_order_zipcode field convert to text with @count values migrated.',
+    array('@count' => count($old_values))
+  );
+}
+
+/**
+ * Add customer name and VAT number fields.
+ */
+function basic_cart_order_update_1001() {
+  // Check to see if the field_order_customer_name field already exists.
+  $field = field_info_field('field_order_customer_name');
+  // If the state field does not exist then create it.
+  if (empty($field)) {
+    $field = array(
+      'field_name' => 'field_order_customer_name',
+      'type' => 'text',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+  }
+
+  $instance = array(
+    'field_name' => 'field_order_customer_name',
+    'label' => t('Customer name'),
+    'entity_type' => 'node',
+    'bundle' => 'order',
+  );
+  field_create_instance($instance);
+
+  // Check to see if the field_order_vat_number field already exists.
+  $field = field_info_field('field_order_vat_number');
+  // If the state field does not exist then create it.
+  if (empty($field)) {
+    $field = array(
+      'field_name' => 'field_order_vat_number',
+      'type' => 'text',
+      'entity_types' => array('node'),
+    );
+    field_create_field($field);
+  }
+
+  $instance = array(
+    'field_name' => 'field_order_vat_number',
+    'label' => t('VAT number'),
+    'entity_type' => 'node',
+    'bundle' => 'order',
+  );
+  field_create_instance($instance);
+
 }

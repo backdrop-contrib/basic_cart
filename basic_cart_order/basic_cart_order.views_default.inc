@@ -6,6 +6,9 @@
 
 /**
  * Implements hook_views_default_views().
+ *
+ *  // TODO: Deprecated function in Backdrop.
+ * See: https://docs.backdropcms.org/change-records/views-added-to-core
  */
 function basic_cart_order_views_default_views() {
   $export = array();

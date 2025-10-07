@@ -6,8 +6,12 @@
 
 /**
  * Implements hook_node_view().
+ *
+ * // TODO:
+ * This function should be basic_cart_order_node_view()
+ * But, still, is not being called.
  */
-function basic_cart_order_view($node) {
+function basic_cart_order_view(Node $node, $view_mode, $langcode) {
   $oid = $node->nid;
   // Getting the order products.
   $order_products = db_select('basic_cart_order_node')
@@ -61,7 +65,7 @@ function basic_cart_order_view($node) {
     $vat = isset($vat[0]['value']) ? check_plain($vat[0]['value']) : '';
     $vat = basic_cart_price_format($vat);
   }
-  
+
   // Hide field data.
   unset($node->content['field_email']);
   unset($node->content['field_phone']);
@@ -72,7 +76,7 @@ function basic_cart_order_view($node) {
   // Page title.
   $title = t('Order ID: @oid', array('@oid' => $oid));
   backdrop_set_title($title);
-  
+
   return theme('basic_cart_order_details', array(
     'name' => $name,
     'email' => $email,
@@ -149,8 +153,22 @@ $node = entity_create('node', array ('type' => 'order'));
 $node->uid = $user->uid;
 $node->title = $email . " " . REQUEST_TIME;
 $node->language = LANGUAGE_NONE;
-  
-  // Body.
+
+  // vat customer name.
+  if (isset($name)) {
+    $node->field_order_customer_name[$node->language][0]['value'] = $name;
+  } else {
+    $node->field_order_vat_number[$node->language][0]['value'] = '';
+  }
+
+  // vat number.
+  if (isset($order_details['vat_number']) && $order_details['vat_number'] != "default") {
+    $node->field_order_vat_number[$node->language][0]['value'] = $order_details['vat_number'];
+  } else {
+    $node->field_order_vat_number[$node->language][0]['value'] = '';
+  }
+
+// Body.
   if (isset($order_details['comment']))
   {
     $node->body[$node->language][0]['value'] = $order_details['comment'];
@@ -159,10 +177,10 @@ $node->language = LANGUAGE_NONE;
   {
     $node->body[$node->language][0]['value'] = 'default';
   }
-  
+
   // Email, mandatory field.
   $node->field_order_email[$node->language][0]['value'] = $email;
-  
+
   // Phone.
   if (isset($order_details['phone']) && $order_details['phone'] != "default") {
     $node->field_order_phone[$node->language][0]['value'] = $order_details['phone'];
@@ -172,7 +190,7 @@ else
     $node->field_order_phone[$node->language][0]['value'] = '123';
   }
 
-  
+
   // Address.
   if (isset($order_details['address'])) {
     $node->field_order_address[$node->language][0]['value'] = $order_details['address'];
@@ -181,8 +199,8 @@ else
   {
     $node->field_order_address[$node->language][0]['value'] = 'default';
   }
-  
-  
+
+
   // Address2.
   if (isset($order_details['address2'])) {
     $node->field_order_address2[$node->language][0]['value'] = $order_details['address2'];
@@ -191,7 +209,7 @@ else
   {
     $node->field_order_address2[$node->language][0]['value'] = 'default';
   }
-  
+
   // city.
   if (isset($order_details['city'])) {
     $node->field_order_city[$node->language][0]['value'] = $order_details['city'];
@@ -200,7 +218,7 @@ else
   {
     $node->field_order_city[$node->language][0]['value'] = 'default';
   }
-  
+
   // county.
   if (isset($order_details['county'])) {
     $node->field_order_county[$node->language][0]['value'] = $order_details['county'];
@@ -209,7 +227,7 @@ else
   {
     $node->field_order_county[$node->language][0]['value'] = 'default';
   }
-  
+
   // zipcode.
   if (isset($order_details['zipcode']) && $order_details['zipcode'] != "default") {
     $node->field_order_zipcode[$node->language][0]['value'] = $order_details['zipcode'];
@@ -218,7 +236,7 @@ else
   {
     $node->field_order_zipcode[$node->language][0]['value'] = '123';
   }
-  
+
   // state.
   if (isset($order_details['state']) && $order_details['state'] != "default") {
     $node->field_order_state[$node->language][0]['value'] = $order_details['state'];
@@ -227,7 +245,7 @@ else
   {
     $node->field_order_state[$node->language][0]['value'] = 'aa';
   }
-  
+
   // country.
   if (isset($order_details['country']) && $order_details['country'] != "default") {
     $node->field_order_country[$node->language][0]['value'] = $order_details['country'];
@@ -236,7 +254,9 @@ else
   {
     $node->field_order_country[$node->language][0]['value'] = 'USA';
   }
-  
+
+
+
   // Total price.
   if (isset($order_details['total_price']) && $order_details['total_price'] != "default") {
     $node->field_order_total_price[$node->language][0]['value'] = $order_details['total_price'];
@@ -245,7 +265,7 @@ else
     $price = basic_cart_get_total_price();
     $node->field_order_total_price[$node->language][0]['value'] = $price->total;
   }
-  
+
   // VAT.
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
   if (!empty ($vat_is_enabled) && $vat_is_enabled) {
@@ -259,7 +279,7 @@ if (is_numeric($cid))
 $node->field_order_nid[$node->language][$cid]['value'] = $value;
 $node->field_order_quantity[$node->language][$cid]['value'] = $_SESSION['basic_cart']['cart'][$cid . 'quantity'];
 }
-}  
+}
 
 // Registering order.
 $node->save();
