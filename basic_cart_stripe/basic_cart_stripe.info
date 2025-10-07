@@ -1,0 +1,10 @@
+name = Basic Cart Stripe
+description = Stripe integration with Basic Cart for payment processing
+backdrop = 1.x
+package = Basic Cart
+type = module
+
+dependencies[] = basic_cart
+dependencies[] = stripe
+
+configure = admin/config/basic_cart_stripe

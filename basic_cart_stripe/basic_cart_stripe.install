@@ -1,0 +1,108 @@
+<?php
+
+/**
+ * @file
+ * Installation and updates for Basic Cart Stripe
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function basic_cart_stripe_schema() {
+  $schema = array();
+
+  $schema['basic_cart_stripe_orders'] = array(
+    'description' => 'Stores orders with Stripe payment information',
+    'fields' => array(
+      'order_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Order ID',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'Customer name',
+      ),
+      'email' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'Customer email',
+      ),
+      'phone' => array(
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => FALSE,
+        'description' => 'Customer phone',
+      ),
+      'message' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'description' => 'Customer message or notes',
+      ),
+      'cart' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => TRUE,
+        'description' => 'Serialized cart contents',
+        'serialize' => TRUE,
+      ),
+      'total' => array(
+        'type' => 'numeric',
+        'precision' => 10,
+        'scale' => 2,
+        'not null' => TRUE,
+        'description' => 'Order total',
+      ),
+      'payment_intent_id' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'Stripe Payment Intent ID',
+      ),
+      'payment_status' => array(
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'description' => 'Payment status',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Creation timestamp',
+      ),
+    ),
+    'primary key' => array('order_id'),
+    'indexes' => array(
+      'payment_intent_id' => array('payment_intent_id'),
+      'email' => array('email'),
+      'created' => array('created'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function basic_cart_stripe_install() {
+  backdrop_set_message(t('Basic Cart Stripe has been installed successfully. Before starting:'));
+  backdrop_set_message(t('1. Configure your Stripe keys at !stripe_link', array(
+    '!stripe_link' => l(t('admin/config/services/stripe'), 'admin/config/services/stripe'),
+  )));
+  backdrop_set_message(t('2. Configure Basic Cart Stripe options at !config_link', array(
+    '!config_link' => l(t('admin/config/basic_cart_stripe'), 'admin/config/basic_cart_stripe'),
+  )));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function basic_cart_stripe_uninstall() {
+  // Delete configuration
+  config_clear('basic_cart_stripe.settings', 'currency');
+}
