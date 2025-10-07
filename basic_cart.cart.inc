@@ -346,13 +346,14 @@ function _basic_cart_form_email_ajax_validate($form, &$form_state) {
   ))->fetchField();
 
   if (!empty($result)) {
-    $error = '<div id="email-error" style="color:#ff0000;">User is already registered.</div>';
+    $error = '<div id="email-error" style="color:#ff0000;">' . t(
+      'User is already registered.') . '</div>';
     return $error;
   }
 
   // Validate as a true email format.`
   elseif (filter_var($form_state['values']['basic_cart_checkout_email'], FILTER_VALIDATE_EMAIL) == FALSE) {
-    $error = '<div id="email-error" style="color:#ff0000;">The email is not valid.</div>';
+    $error = '<div id="email-error" style="color:#ff0000;">' . t('The email is not valid.') . '</div>';
     return $error;
   } else {
     $noerror = '<div id="email-error"> </div>';
@@ -618,9 +619,9 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   $order_details .= "\n";
   if ($vat_is_enabled) {
     $order_details .= "\n";
-    $order_details .= "Total VAT: " . $vat;
+    $order_details .= t('Total VAT: ') . $vat;
   }
-  $order_details .= "Total price: " . $total_price;
+  $order_details .= t('Total price: ') . $total_price;
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
 
 
