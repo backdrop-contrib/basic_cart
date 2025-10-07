@@ -299,7 +299,7 @@ function basic_cart_checkout() {
   $shopping_cart = basic_cart_get_cart();
   // Price.
   $price = basic_cart_get_total_price();
-  $total = $price->total;
+  $total = basic_cart_price_format($price->total);
 
   $options = array(
     'cart' => $shopping_cart,
