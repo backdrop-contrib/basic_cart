@@ -509,7 +509,7 @@ function basic_cart_checkout_form() {
 
   $testvariable = config_get('basic_cart.settings', 'basic_cart_zipcode');
   if ($testvariable > 0) {
-    $zip = $form_state['values']['basic_cart_checkout_zipcode'] ??'';
+    $zip = $form_state['values']['basic_cart_checkout_zipcode'] ?? '';
     $form['basic_cart_checkout_zipcode'] = array(
       '#type' => 'textfield',
       '#title' => t('Zip'),
@@ -608,17 +608,22 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   foreach ($cart as $cid => $value) {
     if (is_numeric($cid)) {
       $node = node_load($cart[$value]);
-      $unit_price = basic_cart_price_format($node->price["und"][0]["value"]);
-      $order_details .= ++$i . '. ' . $node->title . "\t" . $_SESSION['basic_cart']['cart'][$cid . 'quantity'] . ' x ' . $unit_price . "\n";
+      if ($node) {
+        $unit_price = basic_cart_price_format($node->price["und"][0]["value"]);
+        $quantity = $_SESSION['basic_cart']['cart'][$cid . 'quantity'];
+        $order_details .= ++$i . '. ' . $node->title . "\t" . $quantity . ' x ' . $unit_price . "\n";
+      }
     }
   }
   $order_details .= "\n";
-  $order_details .= "Total price: " . $total_price;
-  $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
   if ($vat_is_enabled) {
     $order_details .= "\n";
     $order_details .= "Total VAT: " . $vat;
   }
+  $order_details .= "Total price: " . $total_price;
+  $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
+
+
   // Pleaceholder replacement.
   $search = array(
     '%CUSTOMER_NAME',
@@ -632,8 +637,8 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     '%CUSTOMER_COUNTY',
     '%CUSTOMER_COUNTRY',
     '%CUSTOMER_COMMENT',
-    '%ORDER_DETAILS',
     '%VAT_NUMBER',
+    '%ORDER_DETAILS',
   );
   $replace = array(
     $form_state['values']['basic_cart_checkout_name'] ?? '',
@@ -650,14 +655,15 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     $form_state['values']['basic_cart_checkout_vat_number'] ?? '',
     $order_details,
   );
+
   // Admin message.
   $message_html = config_get('basic_cart.settings', 'basic_cart_admin_message');
   $message_html = str_replace($search, $replace, $message_html);
-
   // Admin mail.
   $params['admin_message'] = $message_html;
   $site_mail = config_get('system.core', 'site_mail');
   $admin_emails = config_get('basic_cart.settings', 'basic_cart_admin_emails');
+
   if (empty($admin_emails)) {
     // Sending mail to admin.
     $message = backdrop_mail('basic_cart', 'admin_mail', $site_mail, language_default(), $params);
@@ -671,6 +677,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     if (is_array($admin_emails) && !empty($admin_emails)) {
       $ok = FALSE;
       foreach ($admin_emails as $admin_email) {
+        $admin_email = trim($admin_email);
         // Sending mail to each admin.
         $message = backdrop_mail('basic_cart', 'admin_mail', $admin_email, language_default(), $params);
 

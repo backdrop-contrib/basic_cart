@@ -11,6 +11,8 @@
 function basic_cart_install() {
 $t = get_t();
 
+// TODO: this is not needed. put default values in the config file
+
   // Setting up the default currency.
 config_set('basic_cart.settings', 'basic_cart_currency', 'USD');
 
