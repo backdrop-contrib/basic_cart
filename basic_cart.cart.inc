@@ -507,7 +507,7 @@ function basic_cart_checkout_form() {
   }
 
 
-  $testvariable = config_get('basic_cart.settings', 'basic_cart_zipcode');
+  $testvariable = config_get('basic_cart.settings', 'basic_cart_zip');
   if ($testvariable > 0) {
     $zip = $form_state['values']['basic_cart_checkout_zipcode'] ?? '';
     $form['basic_cart_checkout_zipcode'] = array(
