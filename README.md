@@ -4,14 +4,7 @@ Basic cart is a very simple shopping cart/checkout process for Backdrop, that
 just sends 2 emails after each order. Along with the shopping cart, this module
 also provides a block where you can view your cart's content.
 
-You must add your own payment processor or service if you wish to accept
-payments on site using this module. However, a module entitled, "Basic Cart
-Plus" is in development for 1.4/2016 which contains the payment processors built
-in if you wish to have that. Thus, you will have two e-commerce module options
--- this module for a "pay in person on delivery" type of experience, and that
-module which is a "pay in site for a ticket or content subscription" type of
-experience. This still leaves room for a Drupal Commerce/Magento type of module
-to be developed by others.
+This module includes a payment processor sub module for Stripe.
 
 It's ideal for small websites with only a few products or other content types
 being sold, for example touristic offers. It is much simpler to get started for
@@ -25,17 +18,9 @@ Features
 * Custom email messages for both the site administrator and the customer, along
   with the order details.
 * A block with the contents of your shopping cart.
+* Payment process with Stripe.
 
 ## KNOWN ISSUES
-
-This module is not supported in 2016 by @biolithic , the module port person.
-
-Contact another developer on this list for support, or use at your own
-discretion.
-
-Some supported (but in development) options in 2016 are
-https://github.com/codewombat/backshop and
-https://github.com/biolithic/basic_cart_plus
 
 NOTE: You must create your own Views using the content types this module
 provides to have a record-keeping backend.
