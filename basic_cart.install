@@ -9,36 +9,6 @@
  * Implements hook_install().
  */
 function basic_cart_install() {
-$t = get_t();
-
-// TODO: this is not needed. put default values in the config file
-
-  // Setting up the default currency.
-config_set('basic_cart.settings', 'basic_cart_currency', 'USD');
-
-  // Setting up the default messages.
-config_set('basic_cart.settings', 'basic_cart_admin_subject', $t('New order placed'));
-$default_admin_message = $t('Hi,
-An order was placed by %CUSTOMER_NAME (%CUSTOMER_EMAIL)
-Here are the order details:
-%ORDER_DETAILS');
-config_set('basic_cart.settings', 'basic_cart_admin_message', $default_admin_message);
-
-config_set('basic_cart.settings', 'basic_cart_user_subject', $t('New order placed'));
-$default_user_message = $t('Hi,
-You just placed an order on the website @sitename. Here are the order details:
-%ORDER_DETAILS
-We will contact you as soon as possible.', array('@sitename' => config_get('system.core', 'site_name')));
-config_set('basic_cart.settings', 'basic_cart_user_message', $default_user_message);
-
-$default_thank_you_title = $t("Thank you.");
-config_set('basic_cart.settings', 'basic_cart_thank_you_title', $default_thank_you_title);
-
-$default_thank_you_message = $t("Thank you for placing an order on our website.\nWe will contact you as soon as possible.");
-config_set('basic_cart.settings', 'basic_cart_thank_you_message', $default_thank_you_message);
-
-  // Redirect url after add to cart.
-config_set('basic_cart.settings', 'basic_cart_redirect_user_after_add_to_cart', '<none>');
 
 // Check to see if the price field already exists.
 $field = field_info_field('price');
@@ -52,8 +22,6 @@ if (empty($field)) {
     field_create_field($field);
   }
 
-config_set('basic_cart.settings', 'basic_cart_vat_state', FALSE);
-config_set('basic_cart.settings', 'basic_cart_vat_value', '');
 }
 
 /**
