@@ -158,7 +158,7 @@ function basic_cart_stripe_form_alter(&$form, &$form_state, $form_id) {
     // Modify submit button to place it before the payment field
     if (isset($form['basic_cart_checkout_submit'])) {
       $form['basic_cart_checkout_submit']['#weight'] = 100;
-      $form['basic_cart_checkout_submit']['#value'] = t('Pay @amount €', array('@amount' => number_format($total, 2)));
+      $form['basic_cart_checkout_submit']['#value'] = t('Pay @amount', array('@amount' => $total, 2));
     }
 
     // Add custom validation
@@ -220,41 +220,8 @@ function basic_cart_stripe_get_node_price($node) {
  * Calculates the cart total.
  */
 function basic_cart_stripe_get_cart_total($cart) {
-  $total = 0;
-  $processed_nids = array();
-
-  foreach ($cart as $key => $value) {
-    // Basic Cart stores the cart like this:
-    // array(
-    //   10 => 10,              // nid => nid
-    //   '10quantity' => 1,     // 'nidquantity' => quantity
-    // )
-
-    // If the key ends in 'quantity', skip it (we'll process it with the nid)
-    if (is_string($key) && substr($key, -8) === 'quantity') {
-      continue;
-    }
-
-    // If it's a numeric nid
-    if (is_numeric($key) && is_numeric($value) && $key == $value) {
-      $nid = $value;
-
-      // Avoid processing the same nid twice
-      if (in_array($nid, $processed_nids)) {
-        continue;
-      }
-      $processed_nids[] = $nid;
-
-      // Look for the quantity
-      $quantity_key = $nid . 'quantity';
-      $quantity = isset($cart[$quantity_key]) ? $cart[$quantity_key] : 1;
-
-      // Get the price
-      $price = basic_cart_stripe_get_node_price($nid);
-
-      $total += $price * $quantity;
-    }
-  }
+  $price = basic_cart_get_total_price();
+  $total = basic_cart_price_format($price->total);
 
   return $total;
 }
