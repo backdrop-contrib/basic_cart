@@ -259,7 +259,18 @@ function basic_cart_product_types() {
  */
 function basic_cart_views_api() {
   return array(
-    'api' => '3.0',
+    'api' => 3,
     'path' => backdrop_get_path('module', 'basic_cart') . '/views',
+  );
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function basic_cart_autoload_info() {
+  return array(
+    'basic_cart_handler_field_price' => 'views/basic_cart_handler_field_price.inc',
+    'basic_cart_handler_field_addtocart' => 'views/basic_cart_handler_field_addtocart.inc',
+    'basic_cart_handler_filter_product' => 'views/basic_cart_handler_filter_product.inc',
   );
 }
