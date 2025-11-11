@@ -11,12 +11,14 @@
 function basic_cart_stripe_menu() {
   $items = array();
 
-  $items['admin/config/basic_cart/basic_cart_stripe'] = array(
+  $items['admin/config/basic_cart/settings/basic_cart_stripe'] = array(
     'title' => 'Basic Cart Stripe',
     'description' => 'Stripe integration configuration for Basic Cart',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('basic_cart_stripe_settings_form'),
     'access arguments' => array('administer basic cart stripe'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
     'file' => 'includes/basic_cart_stripe.admin.inc',
   );
 
@@ -220,8 +222,28 @@ function basic_cart_stripe_get_node_price($node) {
  * Calculates the cart total.
  */
 function basic_cart_stripe_get_cart_total($cart) {
-  $price = basic_cart_get_total_price();
-  $total = basic_cart_price_format($price->total);
+  $total = 0;
+
+  foreach ($cart as $key => $value) {
+    // Saltar les claus de quantitat
+    if (is_string($key) && substr($key, -8) === 'quantity') {
+      continue;
+    }
+
+    // Si és un nid numèric
+    if (is_numeric($key) && is_numeric($value) && $key == $value) {
+      $nid = $value;
+
+      // Buscar la quantitat
+      $quantity_key = $nid . 'quantity';
+      $quantity = isset($cart[$quantity_key]) ? $cart[$quantity_key] : 1;
+
+      // Obtenir el preu
+      $price = basic_cart_stripe_get_node_price($nid);
+
+      $total += $price * $quantity;
+    }
+  }
 
   return $total;
 }
@@ -324,6 +346,7 @@ function basic_cart_stripe_checkout_validate($form, &$form_state) {
  * Checkout form submit handler
  */
 function basic_cart_stripe_checkout_submit($form, &$form_state) {
+
   $payment_intent_id = isset($_SESSION['basic_cart_stripe_payment_intent'])
     ? $_SESSION['basic_cart_stripe_payment_intent']
     : NULL;

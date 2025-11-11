@@ -7,4 +7,4 @@ type = module
 dependencies[] = basic_cart
 dependencies[] = stripe
 
-configure = admin/config/basic_cart_stripe
+configure = admin/config/basic_cart/settings/basic_cart_stripe
