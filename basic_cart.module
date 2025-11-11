@@ -63,7 +63,7 @@ function basic_cart_menu() {
     'access arguments' => array('administer basic cart'),
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'file' => 'basic_cart.admin.inc',
-    'weight' => 5,
+    'weight' => 0,
   );
 
   $items['admin/config/basic_cart/settings/checkout'] = array(
@@ -74,7 +74,7 @@ function basic_cart_menu() {
     'access arguments' => array('administer basic cart'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'basic_cart.admin.inc',
-    'weight' => 10,
+    'weight' => 1,
   );
 
   $items['cart'] = array(
