@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Basic Cart Stripe administration page
@@ -15,10 +14,10 @@ function basic_cart_stripe_settings_form($form, &$form_state) {
 
   $form['info'] = array(
     '#markup' => '<p>' . t('This module uses the API key configuration from the Stripe module. ') .
-      l(t('Configure the keys here'), 'admin/config/services/stripe') . '</p>',
+    l(t('Configure the keys here'), 'admin/config/services/stripe') . '</p>',
   );
 
-  // Verify if Stripe module is configured
+  // Verify if Stripe module is configured.
   $stripe_config = config('stripe.settings');
   $stripe_secret_config = config('stripe_secret.settings');
   $stripe_mode = $stripe_config->get('mode');
@@ -57,15 +56,15 @@ function basic_cart_stripe_settings_form($form, &$form_state) {
 
   $form['webhook']['webhook_info'] = array(
     '#markup' => '<div class="messages info">' .
-      t('This module listens to Stripe events through the webhook configured in the Stripe module. ') .
-      t('Make sure the webhook is configured at !stripe_config and listens to the following events:', array(
-        '!stripe_config' => l(t('admin/config/services/stripe'), 'admin/config/services/stripe'),
-      )) .
-      '<ul>' .
-      '<li><code>payment_intent.succeeded</code></li>' .
-      '<li><code>payment_intent.payment_failed</code></li>' .
-      '</ul>' .
-      '</div>',
+    t('This module listens to Stripe events through the webhook configured in the Stripe module. ') .
+    t('Make sure the webhook is configured at !stripe_config and listens to the following events:', array(
+      '!stripe_config' => l(t('admin/config/services/stripe'), 'admin/config/services/stripe'),
+    )) .
+    '<ul>' .
+    '<li><code>payment_intent.succeeded</code></li>' .
+    '<li><code>payment_intent.payment_failed</code></li>' .
+    '</ul>' .
+    '</div>',
   );
 
   $form['settings'] = array(
@@ -73,16 +72,15 @@ function basic_cart_stripe_settings_form($form, &$form_state) {
     '#title' => t('General settings'),
   );
 
+  // We use currency settings from Stripe module.
+  $config_stripe = config('stripe.settings');
   $form['settings']['currency'] = array(
-    '#type' => 'select',
+    '#type' => 'textfield',
     '#title' => t('Currency'),
-    '#default_value' => $config->get('currency') ?: 'eur',
-    '#options' => array(
-      'eur' => t('EUR - Euro'),
-      'usd' => t('USD - US Dollar'),
-      'gbp' => t('GBP - British Pound'),
-    ),
-    '#description' => t('Default currency for payments'),
+    '#size' => 10,
+    '#default_value' => $config_stripe->get('currency'),
+    '#description' => t('Default currency for payments. Using currency settings from the !stripe module.', array('!stripe' => l('Stripe', 'admin/config/services/stripe/settings'))),
+    '#disabled' => TRUE,
   );
 
   $form['orders'] = array(
@@ -101,7 +99,7 @@ function basic_cart_stripe_settings_form($form, &$form_state) {
  * Configuration form validation
  */
 function basic_cart_stripe_settings_form_validate($form, &$form_state) {
-  // Verify that Stripe is configured
+  // Verify that Stripe is configured.
   $stripe_config = config('stripe.settings');
   $stripe_secret_config = config('stripe_secret.settings');
   $stripe_mode = $stripe_config->get('mode');

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Views handler: Product price field.
@@ -29,7 +28,7 @@ class basic_cart_handler_field_price extends views_handler_field_numeric {
 
     $options = $this->options;
 
-    $form['format'] =  array(
+    $form['format'] = array(
       '#title' => t('Format'),
       '#type' => 'radios',
       '#options' => array(
@@ -40,9 +39,16 @@ class basic_cart_handler_field_price extends views_handler_field_numeric {
       '#weight' => 1,
     );
 
-    // Change weight and dependency of the previous field on the parent numeric ones
+    // Change weight and dependency of the previous field on the parent numeric ones.
     $weight = 2;
-    foreach (array('set_precision', 'precision', 'decimal', 'separator', 'prefix', 'suffix') as $field) {
+    foreach (array(
+      'set_precision',
+      'precision',
+      'decimal',
+      'separator',
+      'prefix',
+      'suffix',
+    ) as $field) {
       if (isset($form[$field]['#dependency'])) {
         $form[$field]['#dependency'] += array('radio:options[format]' => array('numeric'));
         $form[$field]['#dependency_count'] = count($form[$field]['#dependency']);
@@ -63,10 +69,10 @@ class basic_cart_handler_field_price extends views_handler_field_numeric {
       if ($this->options['format'] == 'numeric') {
         return parent::render($values);
       }
-  
+
       if ($this->options['format'] == 'bc_price') {
         $value = $this->get_value($values);
-  
+
         if (is_null($value) || ($value == 0 && $this->options['empty_zero'])) {
           return '';
         }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Installation and updates for Basic Cart Stripe
@@ -97,12 +96,4 @@ function basic_cart_stripe_install() {
   backdrop_set_message(t('2. Configure Basic Cart Stripe options at !config_link', array(
     '!config_link' => l(t('admin/config/basic_cart_stripe'), 'admin/config/basic_cart_stripe'),
   )));
-}
-
-/**
- * Implements hook_uninstall().
- */
-function basic_cart_stripe_uninstall() {
-  // Delete configuration
-  config_clear('basic_cart_stripe.settings', 'currency');
 }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Basic cart shopping cart implementation functions.
@@ -97,7 +96,7 @@ function basic_cart_cart_form_submit($form_id, $form_state) {
  * Callback function for cart/add/.
  *
  * @param int $nid
- *   We are using the node id to store the node in the shopping cart
+ *   We are using the node id to store the node in the shopping cart.
  */
 function basic_cart_add_to_cart($nid = NULL) {
   $nid = (int) $nid;
@@ -132,7 +131,7 @@ function basic_cart_add_to_cart($nid = NULL) {
  * Callback function for cart/remove/.
  *
  * @param int $nid
- *   We are using the node id to remove the node in the shopping cart
+ *   We are using the node id to remove the node in the shopping cart.
  */
 function basic_cart_remove_from_cart($nid = NULL) {
   $nid = (int) $nid;
@@ -148,7 +147,7 @@ function basic_cart_remove_from_cart($nid = NULL) {
  * Function for shopping cart retrieval.
  *
  * @param int $nid
- *   We are using the node id to store the node in the shopping cart
+ *   We are using the node id to store the node in the shopping cart.
  *
  * @return mixed
  *   Returning the shopping cart contents.
@@ -337,12 +336,12 @@ function basic_cart_checkout() {
  *
  * @return string
  */
-function _basic_cart_form_email_ajax_validate($form, &$form_state) {
+function _basic_cart_form_email_ajax_validate(array $form, array &$form_state) {
   // Validate as a true email format.
   $email  = check_plain(filter_xss($form_state['values']['basic_cart_checkout_email']));
   $query  = 'SELECT name FROM {users} where mail = :mail';
   $result = db_query($query, array(
-    ':mail' => $email
+    ':mail' => $email,
   ))->fetchField();
 
   if (!empty($result)) {
@@ -351,7 +350,7 @@ function _basic_cart_form_email_ajax_validate($form, &$form_state) {
     return $error;
   }
 
-  // Validate as a true email format.`
+  // Validate as a true email format.`.
   elseif (filter_var($form_state['values']['basic_cart_checkout_email'], FILTER_VALIDATE_EMAIL) == FALSE) {
     $error = '<div id="email-error" style="color:#ff0000;">' . t('The email is not valid.') . '</div>';
     return $error;
@@ -368,7 +367,8 @@ function _basic_cart_form_email_ajax_validate($form, &$form_state) {
  */
 function basic_cart_checkout_form() {
 
-  // Check for $form_state values returned on form rebuild and when submitting the back button.
+  // Check for $form_state values returned on form rebuild
+  // and when submitting the back button.
   global $user;
   if ($user->uid == 0) {
     $email = $form_state['values']['basic_cart_checkout_email'] ?? '';
@@ -382,9 +382,9 @@ function basic_cart_checkout_form() {
       '#ajax' => array(
         'callback' => '_basic_cart_form_email_ajax_validate',
         'wrapper' => 'email-error',
-        'effect' => 'slide'
+        'effect' => 'slide',
       ),
-      '#suffix' => '<div id="email-error" style="color:#ff0000;"> </div>'
+      '#suffix' => '<div id="email-error" style="color:#ff0000;"> </div>',
     );
   } else {
     $email = $user->mail;
@@ -398,9 +398,9 @@ function basic_cart_checkout_form() {
       '#ajax' => array(
         'callback' => '_basic_cart_form_email_ajax_validate',
         'wrapper' => 'email-error',
-        'effect' => 'slide'
+        'effect' => 'slide',
       ),
-      '#suffix' => '<div id="email-error" style="color:#ff0000;"> </div>'
+      '#suffix' => '<div id="email-error" style="color:#ff0000;"> </div>',
     );
   }
 
@@ -413,7 +413,7 @@ function basic_cart_checkout_form() {
       '#required' => TRUE,
       '#size' => 10,
       '#maxlength' => 40,
-      '#default_value' => $yourname
+      '#default_value' => $yourname,
     );
   }
 
@@ -426,7 +426,7 @@ function basic_cart_checkout_form() {
       '#required' => TRUE,
       '#size' => 10,
       '#maxlength' => 40,
-      '#default_value' => $vatnumber
+      '#default_value' => $vatnumber,
     );
   }
 
@@ -439,7 +439,7 @@ function basic_cart_checkout_form() {
       '#required' => TRUE,
       '#size' => 12,
       '#maxlength' => 20,
-      '#default_value' => $phone
+      '#default_value' => $phone,
     );
   }
 
@@ -452,7 +452,7 @@ function basic_cart_checkout_form() {
       '#required' => TRUE,
       '#size' => 12,
       '#maxlength' => 50,
-      '#default_value' => $address
+      '#default_value' => $address,
     );
   }
 
@@ -464,7 +464,7 @@ function basic_cart_checkout_form() {
       '#title' => t('Address Line 2'),
       '#size' => 12,
       '#maxlength' => 30,
-      '#default_value' => $address2
+      '#default_value' => $address2,
     );
   }
 
@@ -477,7 +477,7 @@ function basic_cart_checkout_form() {
       '#required' => TRUE,
       '#size' => 12,
       '#maxlength' => 30,
-      '#default_value' => $city
+      '#default_value' => $city,
     );
   }
 
@@ -490,7 +490,7 @@ function basic_cart_checkout_form() {
       '#required' => TRUE,
       '#size' => 12,
       '#maxlength' => 30,
-      '#default_value' => $county
+      '#default_value' => $county,
     );
   }
 
@@ -503,10 +503,9 @@ function basic_cart_checkout_form() {
       '#required' => TRUE,
       '#size' => 3,
       '#maxlength' => 3,
-      '#default_value' => $state
+      '#default_value' => $state,
     );
   }
-
 
   $testvariable = config_get('basic_cart.settings', 'basic_cart_zip');
   if ($testvariable > 0) {
@@ -517,7 +516,7 @@ function basic_cart_checkout_form() {
       '#required' => TRUE,
       '#size' => 10,
       '#maxlength' => 10,
-      '#default_value' => $zip
+      '#default_value' => $zip,
     );
   }
 
@@ -530,7 +529,7 @@ function basic_cart_checkout_form() {
       '#required' => TRUE,
       '#size' => 10,
       '#maxlength' => 20,
-      '#default_value' => $country
+      '#default_value' => $country,
     );
   }
 
@@ -542,7 +541,7 @@ function basic_cart_checkout_form() {
       '#title' => t('Comment'),
       '#description' => t('If you wish to add a comment about your order, please use this message area.'),
       '#required' => TRUE,
-      '#default_value' => $comment
+      '#default_value' => $comment,
     );
   }
 
@@ -599,7 +598,8 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
     // Order successfully placed. Custom hook for other modules.
     foreach (module_implements('basic_cart_order') as $module) {
       $function = $module . '_basic_cart_order';
-      // Will call all modules implementing hook_basic_cart_order() with the order node as argument.
+      // Will call all modules implementing hook_basic_cart_order()
+      // with the order node as argument.
       $function($order);
     }
   }
@@ -612,7 +612,7 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
       if ($node) {
         $unit_price = basic_cart_price_format($node->price["und"][0]["value"]);
         $quantity = $_SESSION['basic_cart']['cart'][$cid . 'quantity'];
-        $order_details .= ++$i . '. ' . $node->title . "\t" . $quantity . ' x ' . $unit_price . "\n";
+        $order_details .= (++$i) . '. ' . $node->title . "\t" . $quantity . ' x ' . $unit_price . "\n";
       }
     }
   }
@@ -623,7 +623,6 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
   }
   $order_details .= t('Total price: ') . $total_price;
   $vat_is_enabled = (int) config_get('basic_cart.settings', 'basic_cart_vat_state');
-
 
   // Pleaceholder replacement.
   $search = array(
@@ -694,7 +693,6 @@ function basic_cart_checkout_form_submit($form, &$form_state) {
       }
     }
   }
-
 
   // User email.
   $send_user_mail = config_get('basic_cart.settings', 'basic_cart_send_user_message');

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Views handler: Node filter on "product-ness".
@@ -18,5 +17,5 @@ class basic_cart_handler_filter_product extends views_handler_filter_boolean_ope
     $this->query->add_field('node', 'type');
     $this->query->add_where($this->options['group'], 'node.type', $types, empty($this->value) ? 'NOT IN' : 'IN');
   }
-  
+
 }

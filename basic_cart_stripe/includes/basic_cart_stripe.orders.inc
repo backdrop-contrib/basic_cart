@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Order management for Basic Cart Stripe
@@ -11,7 +10,7 @@
 function basic_cart_stripe_orders_page() {
   $output = '';
 
-  // Table header
+  // Table header.
   $header = array(
     array('data' => t('ID'), 'field' => 'order_id', 'sort' => 'desc'),
     array('data' => t('Date'), 'field' => 'created'),
@@ -23,7 +22,7 @@ function basic_cart_stripe_orders_page() {
     array('data' => t('Actions')),
   );
 
-  // Query with pagination and sorting
+  // Query with pagination and sorting.
   $query = db_select('basic_cart_stripe_orders', 'o');
   $query = $query->extend('PagerDefault');
   $query = $query->extend('TableSort');
@@ -33,7 +32,7 @@ function basic_cart_stripe_orders_page() {
 
   $result = $query->execute();
 
-  // Rows
+  // Rows.
   $rows = array();
   foreach ($result as $order) {
     $status_class = $order->payment_status == 'succeeded' ? 'success' : 'warning';
@@ -48,7 +47,10 @@ function basic_cart_stripe_orders_page() {
       l(
         substr($order->payment_intent_id, 0, 20) . '...',
         'https://dashboard.stripe.com/payments/' . $order->payment_intent_id,
-        array('attributes' => array('target' => '_blank', 'title' => $order->payment_intent_id))
+        array('attributes' => array(
+          'target' => '_blank',
+          'title' => $order->payment_intent_id),
+        )
       ),
       l(t('View'), 'admin/store/orders/' . $order->order_id),
     );
@@ -83,12 +85,12 @@ function basic_cart_stripe_order_view($order_id) {
     return;
   }
 
-  // Unserialize cart
+  // Unserialize cart.
   $cart = unserialize($order->cart);
 
   $output = '';
 
-  // Customer information
+  // Customer information.
   $output .= '<div class="order-customer">';
   $output .= '<h3>' . t('Customer information') . '</h3>';
   $output .= '<dl>';
@@ -103,7 +105,7 @@ function basic_cart_stripe_order_view($order_id) {
   $output .= '</dl>';
   $output .= '</div>';
 
-  // Order information
+  // Order information.
   $output .= '<div class="order-info">';
   $output .= '<h3>' . t('Order information') . '</h3>';
   $output .= '<dl>';
@@ -111,7 +113,7 @@ function basic_cart_stripe_order_view($order_id) {
   $output .= '<dt>' . t('Date') . '</dt><dd>' . format_date($order->created, 'long') . '</dd>';
   $output .= '<dt>' . t('Total') . '</dt><dd>€' . number_format($order->total, 2) . '</dd>';
 
-  // Payment status with color
+  // Payment status with color.
   $status_class = $order->payment_status == 'succeeded' ? 'success' : 'warning';
   $output .= '<dt>' . t('Payment status') . '</dt><dd><span class="label label-' . $status_class . '">' . check_plain($order->payment_status) . '</span></dd>';
 
@@ -123,7 +125,7 @@ function basic_cart_stripe_order_view($order_id) {
   $output .= '</dl>';
   $output .= '</div>';
 
-  // Products
+  // Products.
   $output .= '<div class="order-items">';
   $output .= '<h3>' . t('Products') . '</h3>';
 
@@ -136,26 +138,26 @@ function basic_cart_stripe_order_view($order_id) {
 
   $rows = array();
   foreach ($cart as $key => $value) {
-    // Skip quantity keys
+    // Skip quantity keys.
     if (is_string($key) && substr($key, -8) === 'quantity') {
       continue;
     }
 
-    // If it's a numeric nid
+    // If it's a numeric nid.
     if (is_numeric($key) && is_numeric($value) && $key == $value) {
       $nid = $value;
 
-      // Load complete node
+      // Load complete node.
       $node = node_load($nid);
       if (!$node) {
         continue;
       }
 
-      // Get quantity
+      // Get quantity.
       $quantity_key = $nid . 'quantity';
       $quantity = isset($cart[$quantity_key]) ? $cart[$quantity_key] : 1;
 
-      // Get price
+      // Get price.
       $price = basic_cart_stripe_get_node_price($node);
       $subtotal = $price * $quantity;
 
@@ -168,9 +170,12 @@ function basic_cart_stripe_order_view($order_id) {
     }
   }
 
-  // Total row
+  // Total row.
   $rows[] = array(
-    array('data' => '<strong>' . t('Total') . '</strong>', 'colspan' => 3, 'class' => array('text-right')),
+    array(
+      'data' => '<strong>' . t('Total') . '</strong>', 'colspan' => 3,
+      'class' => array('text-right'),
+    ),
     '<strong>€' . number_format($order->total, 2) . '</strong>',
   );
 
@@ -180,11 +185,11 @@ function basic_cart_stripe_order_view($order_id) {
   ));
   $output .= '</div>';
 
-  // Actions
+  // Actions.
   $output .= '<div class="order-actions">';
   $output .= l(t('← Back to orders'), 'admin/store/orders', array('attributes' => array('class' => array('button'))));
 
-  // Only allow refunds if payment was successful
+  // Only allow refunds if payment was successful.
   if ($order->payment_status == 'succeeded') {
     $output .= ' ' . l(
       t('Refund'),
@@ -279,7 +284,7 @@ function basic_cart_stripe_refund_form_submit($form, &$form_state) {
   $reason = $form_state['values']['reason'];
 
   try {
-    // Convert to cents
+    // Convert to cents.
     $amount_cents = round($amount * 100);
 
     // Call Stripe API to process refund using stripe_api_call()
@@ -297,7 +302,7 @@ function basic_cart_stripe_refund_form_submit($form, &$form_state) {
       throw new Exception('Could not create refund');
     }
 
-    // Update order status
+    // Update order status.
     db_update('basic_cart_stripe_orders')
       ->fields(array('payment_status' => 'refunded'))
       ->condition('order_id', $order_id)

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Basic cart install file
@@ -10,10 +9,10 @@
  */
 function basic_cart_install() {
 
-// Check to see if the price field already exists.
-$field = field_info_field('price');
-// If the price field does not exist then create it.
-if (empty($field)) {
+  // Check to see if the price field already exists.
+  $field = field_info_field('price');
+  // If the price field does not exist then create it.
+  if (empty($field)) {
     $field = array(
       'field_name' => 'price',
       'type' => 'number_decimal',
@@ -28,7 +27,7 @@ if (empty($field)) {
  * Implements hook_uninstall().
  */
 function basic_cart_uninstall() {
-// Delete the price field from the content types associated.
+  // Delete the price field from the content types associated.
   $types = config_get('basic_cart.settings', 'basic_cart_content_types');
   if (is_array($types)) {
     // Foreach selected content type, delete the price field.
@@ -50,6 +49,9 @@ function basic_cart_uninstall() {
 }
 
 
+/**
+ *
+ */
 function basic_cart_update_1000() {
   $config = config('basic_cart.settings');
   $config->set('basic_cart_currency', update_variable_get('basic_cart_currency'));
@@ -81,7 +83,6 @@ function basic_cart_update_1000() {
   $config->set('basic_cart_thank_you_message', update_variable_get('basic_cart_thank_you_message'));
   $config->set('basic_cart_content_types', update_variable_get('basic_cart_content_types'));
   $config->save();
-
 
   // Delete variables.
   update_variable_del('basic_cart_currency');

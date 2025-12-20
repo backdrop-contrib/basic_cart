@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Basic cart admin settings forms.
@@ -107,94 +106,97 @@ function basic_cart_admin_content_type() {
     '#type' => 'checkbox',
     '#title' => t('Send emails to admin and customer for each successful transaction?'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_sendemail'),
-    '#description' => t('Check this box to send emails.  Uncheck to not send emails.')
+    '#description' => t('Check this box to send emails.  Uncheck to not send emails.'),
   );
 
   $form['basic_cart_fields_description'] = array(
     '#type' => 'markup',
     '#title' => t('Which fields do you want to collect?'),
-    '#markup' => '<hr /><p>You have the choice to collect the following information from your customers below</p>'
+    '#markup' => '<hr /><p>You have the choice to collect the following information from your customers below</p>',
   );
 
   $form['basic_cart_name'] = array(
     '#type' => 'checkbox',
     '#title' => t('User Name?'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_name'),
-    '#description' => t('Check this box to collect user names.  Uncheck to leave the user name box off of the checkout form.')
+    '#description' => t('Check this box to collect user names.  Uncheck to leave the user name box off of the checkout form.'),
   );
 
   $form['basic_cart_phone'] = array(
     '#type' => 'checkbox',
     '#title' => t('Phone Number?'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_phone'),
-    '#description' => t('Check this box to collect phone numbers.  Uncheck to leave the phone number box off of the checkout form.')
+    '#description' => t('Check this box to collect phone numbers.  Uncheck to leave the phone number box off of the checkout form.'),
   );
 
   $form['basic_cart_vat_number'] = array(
     '#type' => 'checkbox',
     '#title' => t('VAT number?'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_vat_number'),
-    '#description' => t('Check this box to collect VAT numbers.  Uncheck to leave the VAT number box off of the checkout form.')
+    '#description' => t('Check this box to collect VAT numbers.  Uncheck to leave the VAT number box off of the checkout form.'),
   );
 
   $form['basic_cart_address'] = array(
     '#type' => 'checkbox',
     '#title' => t('Address 1?'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_address'),
-    '#description' => t('Check this box to collect address 1.  Uncheck to leave the address 1 box off of the checkout form.')
+    '#description' => t('Check this box to collect address 1.  Uncheck to leave the address 1 box off of the checkout form.'),
   );
 
   $form['basic_cart_address2'] = array(
     '#type' => 'checkbox',
     '#title' => t('Address 2?'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_address2'),
-    '#description' => t('Check this box to collect address 2.  Uncheck to leave the address 2 box off of the checkout form.')
+    '#description' => t('Check this box to collect address 2.  Uncheck to leave the address 2 box off of the checkout form.'),
   );
 
   $form['basic_cart_city'] = array(
     '#type' => 'checkbox',
     '#title' => t('City?'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_city'),
-    '#description' => t('Check this box to collect city.  Uncheck to leave the city box off of the checkout form.')
+    '#description' => t('Check this box to collect city.  Uncheck to leave the city box off of the checkout form.'),
   );
 
   $form['basic_cart_county'] = array(
     '#type' => 'checkbox',
     '#title' => t('County?'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_county'),
-    '#description' => t('Check this box to collect county.  Uncheck to leave the county box off of the checkout form.')
+    '#description' => t('Check this box to collect county.  Uncheck to leave the county box off of the checkout form.'),
   );
 
   $form['basic_cart_state'] = array(
     '#type' => 'checkbox',
     '#title' => t('State?'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_state'),
-    '#description' => t('Check this box to collect state.  Uncheck to leave the state box off of the checkout form.')
+    '#description' => t('Check this box to collect state.  Uncheck to leave the state box off of the checkout form.'),
   );
 
   $form['basic_cart_zip'] = array(
     '#type' => 'checkbox',
     '#title' => t('Zip?'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_zip'),
-    '#description' => t('Check this box to collect zip codes.  Uncheck to leave the zip code box off of the checkout form.')
+    '#description' => t('Check this box to collect zip codes.  Uncheck to leave the zip code box off of the checkout form.'),
   );
 
   $form['basic_cart_country'] = array(
     '#type' => 'checkbox',
     '#title' => t('Country?'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_country'),
-    '#description' => t('Check this box to collect countries.  Uncheck to leave the country box off of the checkout form.')
+    '#description' => t('Check this box to collect countries.  Uncheck to leave the country box off of the checkout form.'),
   );
 
   $form['basic_cart_comment'] = array(
     '#type' => 'checkbox',
     '#title' => t('Comment?'),
     '#default_value' => config_get('basic_cart.settings', 'basic_cart_comment'),
-    '#description' => t('Check this box to collect customer comments.  Uncheck to leave the customer comment box off of the checkout form.')
+    '#description' => t('Check this box to collect customer comments.  Uncheck to leave the customer comment box off of the checkout form.'),
   );
 
   $form['actions']['#type'] = 'actions';
-  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
 
   return $form;
 }
@@ -215,7 +217,7 @@ function basic_cart_admin_checkout() {
     '#type' => 'textarea',
     '#description' => t('After each placed order, an email with the order details will be sent to all the addresses from the list above.
                           Please add one email address per line.'),
-    '#default_value' => $site_mail
+    '#default_value' => $site_mail,
   );
 
   $form['messages']['basic_cart_admin_subject'] = array(
@@ -274,7 +276,10 @@ function basic_cart_admin_checkout() {
   );
 
   $form['actions']['#type'] = 'actions';
-  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
 
   return $form;
 }
@@ -320,7 +325,7 @@ function basic_cart_admin_content_type_submit($form, &$form_state) {
   $product_types = array();
   // Setting up the price field for the selected content types.
   $content_types = $form_state['values']['basic_cart_content_types'];
-  // unset to prevent 'double' save
+  // Unset to prevent 'double' save.
   unset($form_state['values']['basic_cart_content_types']);
 
   if (!empty($content_types) && is_array($content_types)) {
@@ -338,9 +343,10 @@ function basic_cart_admin_content_type_submit($form, &$form_state) {
     foreach ($content_types as $type => $checked) {
       // If a node type is checked, then create the price field.
       if ($checked) {
-        // save content_type as a product
+        // Save content_type as a product.
         $product_types[$type] = $type;
-        // Foreach checked content type, we must assign the price field to the content type.
+        // Foreach checked content type, we must assign the
+        // price field to the content type.
         $instance = field_info_instance('node', 'price', $type);
         if (empty($instance)) {
           $instance = array(
