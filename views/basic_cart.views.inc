@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Views hooks for Basic_cart products.
@@ -9,21 +8,21 @@
  * Implements hook_views_data_alter().
  */
 function basic_cart_views_data_alter(&$data) {
-  // alter a price field
-  if (isset($data['field_data_price'])){
+  // Alter a price field.
+  if (isset($data['field_data_price'])) {
     $data['field_data_price']['price']['group'] = t('Product');
     $data['field_data_price']['price']['field']['handler'] = 'basic_cart_handler_field_price';
     $data['field_data_price']['price']['field']['float'] = TRUE;
     $data['field_data_price']['price']['field']['additional fields']['nid'] = array(
       'table' => 'node',
-      'field' => 'nid'
+      'field' => 'nid',
     );
     $data['field_data_price']['price']['field']['additional fields']['type'] = array(
       'table' => 'node',
-      'field' => 'type'
+      'field' => 'type',
     );
   }
-  // we haven't own custom table, so alter node table
+  // We haven't own custom table, so alter node table.
   $data['node']['is_product'] = array(
     'title' => t('Is a product'),
     'group' => t('Product'),

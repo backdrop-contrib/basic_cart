@@ -86,11 +86,10 @@ function theme_basic_cart_render_cart_element($variables) {
   $delete_link = "<a href='cart/remove/" . $node->nid . "' title='Remove product from cart'><img alt='Remove product from cart' class='basic-cart-delete-image-image' src='" . base_path() . drupal_get_path('module', 'basic_cart') . "/images/delete2.png'></a>";
   $desc = '';
   if (isset($node->basic_cart_node_description)) {
-    $desc = backdrop_strlen($node->basic_cart_node_description) > 50 ?
-                truncate_utf8($node->basic_cart_node_description, 50) : $node->basic_cart_node_description;
+    $desc = backdrop_strlen($node->basic_cart_node_description) > 50 ?: $node->basic_cart_node_description;
   }
   // Price and currency.
-  $unit_price = isset($node->price["und"][0]["value"]) ? $node->price["und"][0]["value"] : 0;
+  $unit_price = isset($node->price["und"][0]["value"]) ?: 0;
   $unit_price = basic_cart_price_format($unit_price);
 
   // Prefix.

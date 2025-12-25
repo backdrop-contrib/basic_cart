@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Basic cart module file.
@@ -138,7 +137,7 @@ function basic_cart_node_view($node, $view_mode, $langcode) {
       return;
     }
     // Add to cart button.
-    if (!empty($node_types[$node->type]) &&  in_array($node->type, $node_types)) {
+    if (!empty($node_types[$node->type]) && in_array($node->type, $node_types)) {
       // Price field.
       $price = field_get_items('node', $node, 'price');
       if (isset($price[0])) {
@@ -235,7 +234,8 @@ function basic_cart_block_view($delta = '') {
 }
 
 /**
- * Helper function. Returns true if given node (node object or string node type) is a product.
+ * Helper function. Returns true if given node
+ * (node object or string node type) is a product.
  */
 function basic_cart_is_product($node) {
   $type = is_object($node) ? $node->type : $node;
@@ -255,7 +255,7 @@ function basic_cart_product_types() {
 }
 
 /**
- * Implementation hook_views_api()
+ * Implements hook_views_api().
  */
 function basic_cart_views_api() {
   return array(

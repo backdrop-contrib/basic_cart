@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Stripe integration with Basic Cart
@@ -98,17 +97,17 @@ function basic_cart_stripe_permission() {
  * Implements hook_form_alter().
  */
 function basic_cart_stripe_form_alter(&$form, &$form_state, $form_id) {
-  // Modify the Basic Cart checkout form
+  // Modify the Basic Cart checkout form.
   if ($form_id == 'basic_cart_checkout_form') {
 
-    // Verify there are items in the cart
+    // Verify there are items in the cart.
     $cart = basic_cart_get_cart();
     if (empty($cart)) {
       backdrop_set_message(t('The cart is empty.'), 'warning');
       return;
     }
 
-    // Get public key from Stripe module configuration
+    // Get public key from Stripe module configuration.
     $stripe_config = config('stripe.settings');
     $stripe_mode = $stripe_config->get('mode');
 
@@ -124,7 +123,7 @@ function basic_cart_stripe_form_alter(&$form, &$form_state, $form_id) {
       return;
     }
 
-    // Calculate cart total to display it
+    // Calculate cart total to display it.
     $total = basic_cart_stripe_get_cart_total($cart);
 
     if ($total <= 0) {
@@ -132,7 +131,7 @@ function basic_cart_stripe_form_alter(&$form, &$form_state, $form_id) {
       return;
     }
 
-    // Add Stripe JS and our JS
+    // Add Stripe JS and our JS.
     backdrop_add_js('https://js.stripe.com/v3/', array('type' => 'external'));
     backdrop_add_js(backdrop_get_path('module', 'basic_cart_stripe') . '/js/basic_cart_stripe.js');
 
@@ -146,27 +145,29 @@ function basic_cart_stripe_form_alter(&$form, &$form_state, $form_id) {
     );
     backdrop_add_js($settings, 'setting');
 
-    // Add container for Stripe Elements
+    // Add container for Stripe Elements.
     $form['stripe_payment'] = array(
       '#type' => 'fieldset',
       '#title' => t('Payment information'),
-      '#weight' => 99, // Place it at the end, after the button
+      '#weight' => 99, // Place it at the end, after the button.
     );
 
     $form['stripe_payment']['card_element'] = array(
       '#markup' => '<div id="card-element"></div><div id="card-errors" role="alert"></div>',
     );
 
-    // Modify submit button to place it before the payment field
+    // Modify submit button to place it before the payment field.
     if (isset($form['basic_cart_checkout_submit'])) {
       $form['basic_cart_checkout_submit']['#weight'] = 100;
-      $form['basic_cart_checkout_submit']['#value'] = t('Pay @amount', array('@amount' => $total, 2));
+      $form['basic_cart_checkout_submit']['#value'] = t('Pay @amount', array(
+        '@amount' => $total, 2)
+      );
     }
 
-    // Add custom validation
+    // Add custom validation.
     array_unshift($form['#validate'], 'basic_cart_stripe_checkout_validate');
 
-    // Add custom submit handler
+    // Add custom submit handler.
     array_unshift($form['#submit'], 'basic_cart_stripe_checkout_submit');
   }
 }
@@ -177,7 +178,7 @@ function basic_cart_stripe_form_alter(&$form, &$form_state, $form_id) {
  * Reads the 'price' field created by Basic Cart.
  */
 function basic_cart_stripe_get_node_price($node) {
-  // If we're passed an ID instead of an object, load the node
+  // If we're passed an ID instead of an object, load the node.
   if (is_numeric($node)) {
     $node = node_load($node);
     if (!$node) {
@@ -186,30 +187,30 @@ function basic_cart_stripe_get_node_price($node) {
     }
   }
 
-  // Ensure we have a node object
+  // Ensure we have a node object.
   if (!is_object($node) || !isset($node->nid)) {
     watchdog('basic_cart_stripe', 'Invalid value passed to basic_cart_stripe_get_node_price', array(), WATCHDOG_ERROR);
     return 0;
   }
 
   // Basic Cart accesses price like this: $node->price["und"][0]["value"]
-  // First try with "und" (undefined) which is what Basic Cart uses
+  // First try with "und" (undefined) which is what Basic Cart uses.
   if (isset($node->price["und"][0]["value"])) {
     return (float) $node->price["und"][0]["value"];
   }
 
-  // Try with LANGUAGE_NONE
+  // Try with LANGUAGE_NONE.
   if (isset($node->price[LANGUAGE_NONE][0]["value"])) {
     return (float) $node->price[LANGUAGE_NONE][0]["value"];
   }
 
-  // Use field_get_items as backup
+  // Use field_get_items as backup.
   $field_items = field_get_items('node', $node, 'price');
   if ($field_items && isset($field_items[0]['value'])) {
     return (float) $field_items[0]['value'];
   }
 
-  // If we don't find any price
+  // If we don't find any price.
   watchdog('basic_cart_stripe', 'No price found for node @nid (@title)', array(
     '@nid' => $node->nid,
     '@title' => $node->title,
@@ -225,20 +226,20 @@ function basic_cart_stripe_get_cart_total($cart) {
   $total = 0;
 
   foreach ($cart as $key => $value) {
-    // Saltar les claus de quantitat
+    // Saltar les claus de quantitat.
     if (is_string($key) && substr($key, -8) === 'quantity') {
       continue;
     }
 
-    // Si és un nid numèric
+    // Si és un nid numèric.
     if (is_numeric($key) && is_numeric($value) && $key == $value) {
       $nid = $value;
 
-      // Buscar la quantitat
+      // Buscar la quantitat.
       $quantity_key = $nid . 'quantity';
       $quantity = isset($cart[$quantity_key]) ? $cart[$quantity_key] : 1;
 
-      // Obtenir el preu
+      // Obtenir el preu.
       $price = basic_cart_stripe_get_node_price($nid);
 
       $total += $price * $quantity;
@@ -252,7 +253,7 @@ function basic_cart_stripe_get_cart_total($cart) {
  * AJAX callback to create Payment Intent.
  */
 function basic_cart_stripe_ajax_create_payment_intent() {
-  // Verify there are items in the cart
+  // Verify there are items in the cart.
   $cart = basic_cart_get_cart();
   if (empty($cart)) {
     backdrop_json_output(array(
@@ -261,7 +262,7 @@ function basic_cart_stripe_ajax_create_payment_intent() {
     backdrop_exit();
   }
 
-  // Calculate total
+  // Calculate total.
   $total = basic_cart_stripe_get_cart_total($cart);
 
   if ($total <= 0) {
@@ -271,13 +272,13 @@ function basic_cart_stripe_ajax_create_payment_intent() {
     backdrop_exit();
   }
 
-  // Convert to cents
+  // Convert to cents.
   $amount_cents = round($total * 100);
 
   try {
     $payment_intent = basic_cart_stripe_create_payment_intent($amount_cents);
 
-    // Save Payment Intent ID to session
+    // Save Payment Intent ID to session.
     $_SESSION['basic_cart_stripe_payment_intent'] = $payment_intent['id'];
 
     backdrop_json_output(array(
@@ -299,23 +300,24 @@ function basic_cart_stripe_ajax_create_payment_intent() {
  */
 function basic_cart_stripe_create_payment_intent($amount_cents) {
   $config = config('basic_cart_stripe.settings');
-  $currency = $config->get('currency');
+  $config_stripe = config('stripe.settings');
+  $currency = $config_stripe->get('currency');
   if (empty($currency)) {
     $currency = 'eur';
   }
 
-  // Debug: log Payment Intent creation attempt
+  // Debug: log Payment Intent creation attempt.
   watchdog('basic_cart_stripe', 'Attempting to create Payment Intent for @amount cents (@currency)', array(
     '@amount' => $amount_cents,
     '@currency' => $currency,
   ), WATCHDOG_INFO);
 
-  // Use stripe_api_call() function from Stripe module
+  // Use stripe_api_call() function from Stripe module.
   $payment_intent = stripe_api_call('paymentIntent', 'create', [
     'amount' => $amount_cents,
     'currency' => $currency,
     'automatic_payment_methods' => [
-      'enabled' => true,
+      'enabled' => TRUE,
     ],
     'metadata' => [
       'integration' => 'basic_cart',
@@ -339,7 +341,7 @@ function basic_cart_stripe_create_payment_intent($amount_cents) {
  * Checkout form validation
  */
 function basic_cart_stripe_checkout_validate($form, &$form_state) {
-  // Actual payment validation happens in submit
+  // Actual payment validation happens in submit.
 }
 
 /**
@@ -347,9 +349,7 @@ function basic_cart_stripe_checkout_validate($form, &$form_state) {
  */
 function basic_cart_stripe_checkout_submit($form, &$form_state) {
 
-  $payment_intent_id = isset($_SESSION['basic_cart_stripe_payment_intent'])
-    ? $_SESSION['basic_cart_stripe_payment_intent']
-    : NULL;
+  $payment_intent_id = isset($_SESSION['basic_cart_stripe_payment_intent']) ? $_SESSION['basic_cart_stripe_payment_intent'] : NULL;
 
   if (!$payment_intent_id) {
     form_set_error('', t('Payment could not be processed. Please try again.'));
@@ -358,7 +358,7 @@ function basic_cart_stripe_checkout_submit($form, &$form_state) {
   }
 
   try {
-    // Verify Payment Intent status
+    // Verify Payment Intent status.
     $payment_intent = stripe_api_call('paymentIntent', 'retrieve', $payment_intent_id);
 
     if (!$payment_intent || $payment_intent->status !== 'succeeded') {
@@ -367,13 +367,13 @@ function basic_cart_stripe_checkout_submit($form, &$form_state) {
       return;
     }
 
-    // Save payment information
+    // Save payment information.
     $order_id = basic_cart_stripe_save_order($form_state['values'], $payment_intent);
 
-    // Clear session
+    // Clear session.
     unset($_SESSION['basic_cart_stripe_payment_intent']);
 
-    // Add success message
+    // Add success message.
     backdrop_set_message(t('Payment processed successfully. Order number: @order', array('@order' => $order_id)));
   } catch (Exception $e) {
     watchdog('basic_cart_stripe', 'Error verifying payment: @error', array('@error' => $e->getMessage()), WATCHDOG_ERROR);
@@ -389,7 +389,7 @@ function basic_cart_stripe_save_order($values, $payment_intent) {
   $cart = basic_cart_get_cart();
   $total = basic_cart_stripe_get_cart_total($cart);
 
-  // Basic Cart uses different field names
+  // Basic Cart uses different field names.
   $order = array(
     'name' => isset($values['basic_cart_checkout_name']) ? $values['basic_cart_checkout_name'] : '',
     'email' => isset($values['basic_cart_checkout_email']) ? $values['basic_cart_checkout_email'] : '',
@@ -402,7 +402,7 @@ function basic_cart_stripe_save_order($values, $payment_intent) {
     'created' => REQUEST_TIME,
   );
 
-  // Save to database
+  // Save to database.
   $order_id = db_insert('basic_cart_stripe_orders')
     ->fields($order)
     ->execute();
